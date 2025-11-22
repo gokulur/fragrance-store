@@ -1,3 +1,4 @@
+from urllib import request
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
@@ -181,26 +182,31 @@ def decrease_qty(request, item_id):
     })
 
 
-# -------------------------------
+# ---------------------------------------------------
 # REMOVE ITEM
-# -------------------------------
+# ---------------------------------------------------
+ 
+
 def remove_item(request, item_id):
     item = get_object_or_404(CartItem, id=item_id)
     cart = item.cart
     product_name = item.product.name
+
     item.delete()
-    
+
+    # Recalculate totals after deletion
     items = cart.items.all()
-    total = sum(item.total_price for item in items)
-    
-    # Check if AJAX request
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+    total = sum(i.total_price for i in items)
+    cart_count = items.count()
+
+    # AJAX RESPONSE
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
         return JsonResponse({
-            'success': True,
-            'message': f'{product_name} removed from cart',
-            'cart_total': float(total),
-            'cart_count': items.count()  # COUNT OF UNIQUE PRODUCTS
+            "success": True,
+            "message": f"{product_name} removed from cart",
+            "cart_total": float(total),
+            "cart_count": cart_count,
         })
-    
-    messages.success(request, f'{product_name} removed from cart')
+
+    messages.success(request, f"{product_name} removed from cart")
     return redirect("cart_page")
