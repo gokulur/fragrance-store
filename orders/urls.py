@@ -15,4 +15,7 @@ urlpatterns = [
     path('orders/', views.order_list_page, name='order_list_page'),
     path('order/<int:order_id>/', views.order_detail_page, name='order_detail_page'),
     path('order/<int:order_id>/track/', views.track_order_page, name='track_order_page'),
+
+    path('send-checkout-otp/', views.send_checkout_otp, name='send_checkout_otp'),
+    path('verify-checkout-otp/', views.verify_checkout_otp, name='verify_checkout_otp'),
 ]

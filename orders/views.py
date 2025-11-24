@@ -268,3 +268,91 @@ def track_order_page(request, order_id):
 def order_list_page(request):
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
     return render(request, "order_list.html", {"orders": orders})
+
+
+
+from django.core.mail import send_mail
+from django.conf import settings
+import random
+
+# Create a model to store OTPs (add this to your models.py)
+# from django.db import models
+# class CheckoutOTP(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     otp = models.CharField(max_length=6)
+#     created_at = models.DateTimeField(auto_now_add=True)
+
+from django.utils import timezone
+from datetime import timedelta
+
+@login_required
+def send_checkout_otp(request):
+    """Send OTP to user's email for checkout verification"""
+    if request.method == 'POST':
+        user = request.user
+        otp = str(random.randint(100000, 999999))
+        
+        # Store OTP in session (expires in 10 minutes)
+        request.session['checkout_otp'] = otp
+        request.session['checkout_otp_time'] = timezone.now().isoformat()
+        request.session.modified = True
+        
+        # Send email
+        subject = "Order Verification Code"
+        message = f"""
+Hello {user.first_name or user.username},
+
+Your verification code for completing your order is: {otp}
+
+This code will expire in 10 minutes.
+
+Do not share this code with anyone.
+
+Thank you for shopping with us!
+"""
+        
+        try:
+            send_mail(
+                subject,
+                message,
+                settings.EMAIL_HOST_USER,
+                [user.email],
+                fail_silently=False
+            )
+            return JsonResponse({'success': True, 'message': 'OTP sent successfully'})
+        except Exception as e:
+            print(f"Email error: {e}")
+            return JsonResponse({'success': False, 'message': 'Failed to send OTP'})
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request'})
+
+
+@login_required
+def verify_checkout_otp(request):
+    """Verify OTP entered by user"""
+    if request.method == 'POST':
+        entered_otp = request.POST.get('otp', '')
+        stored_otp = request.session.get('checkout_otp')
+        otp_time_str = request.session.get('checkout_otp_time')
+        
+        if not stored_otp or not otp_time_str:
+            return JsonResponse({'success': False, 'message': 'OTP expired. Please request a new one.'})
+        
+        # Check if OTP is expired (10 minutes)
+        otp_time = timezone.datetime.fromisoformat(otp_time_str)
+        if timezone.is_naive(otp_time):
+            otp_time = timezone.make_aware(otp_time)
+        
+        if timezone.now() - otp_time > timedelta(minutes=10):
+            return JsonResponse({'success': False, 'message': 'OTP expired. Please request a new one.'})
+        
+        # Verify OTP
+        if entered_otp == stored_otp:
+            # Mark OTP as verified
+            request.session['otp_verified'] = True
+            request.session.modified = True
+            return JsonResponse({'success': True, 'message': 'OTP verified successfully'})
+        else:
+            return JsonResponse({'success': False, 'message': 'Invalid OTP. Please try again.'})
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request'})

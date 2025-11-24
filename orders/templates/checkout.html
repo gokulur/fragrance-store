@@ -69,25 +69,6 @@
         0%, 100% { transform: scale(1); }
         50% { transform: scale(1.05); }
     }
-/* 
-    .cancel-buy-now-btn {
-        display: inline-block;
-        margin: 15px 0;
-        padding: 10px 20px;
-        background: #f5f5f5;
-        color: #1a1a1a;
-        text-decoration: none;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        transition: all 0.2s ease;
-    }
-
-    .cancel-buy-now-btn:hover {
-        background: #e8e8e8;
-        text-decoration: none;
-        transform: translateX(-4px);
-    } */
 
     /* LEFT SECTION - Form */
     .checkout-form-section {
@@ -384,6 +365,205 @@
         font-size: 18px;
     }
 
+    /* OTP Modal Styles */
+    .otp-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 100000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: otpFadeIn 0.3s ease;
+    }
+
+    @keyframes otpFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .otp-modal-container {
+        max-width: 500px;
+        width: 90%;
+        animation: otpSlideUp 0.3s ease;
+    }
+
+    @keyframes otpSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .otp-modal-content {
+        background: #ffffff;
+        border-radius: 16px;
+        padding: 50px 40px;
+        text-align: center;
+        position: relative;
+    }
+
+    .otp-modal-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #6a6a6a;
+        transition: all 0.2s ease;
+    }
+
+    .otp-modal-close:hover {
+        color: #1a1a1a;
+        transform: rotate(90deg);
+    }
+
+    .otp-icon {
+        width: 80px;
+        height: 80px;
+        background: #f0f0f0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 30px;
+        color: #1a1a1a;
+        animation: otpPulse 2s infinite;
+    }
+
+    @keyframes otpPulse {
+        0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(26, 26, 26, 0.4);
+        }
+        50% {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 10px rgba(26, 26, 26, 0);
+        }
+    }
+
+    .otp-title {
+        font-size: 28px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 12px;
+    }
+
+    .otp-subtitle {
+        font-size: 15px;
+        color: #6a6a6a;
+        margin-bottom: 30px;
+        line-height: 1.6;
+    }
+
+    .otp-input-group {
+        margin-bottom: 24px;
+    }
+
+    .otp-input {
+        width: 100%;
+        padding: 16px;
+        border: 2px solid #e8e8e8;
+        border-radius: 8px;
+        font-size: 24px;
+        text-align: center;
+        letter-spacing: 12px;
+        font-weight: 600;
+        color: #1a1a1a;
+        transition: all 0.2s ease;
+    }
+
+    .otp-input:focus {
+        outline: none;
+        border-color: #1a1a1a;
+        box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
+    }
+
+    .otp-verify-btn {
+        width: 100%;
+        padding: 16px;
+        background: #1a1a1a;
+        color: #ffffff;
+        border: 2px solid #1a1a1a;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .otp-verify-btn:hover {
+        background: #000000;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .otp-verify-btn:disabled {
+        background: #e8e8e8;
+        border-color: #e8e8e8;
+        color: #b0b0b0;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .otp-resend {
+        margin-top: 24px;
+        font-size: 14px;
+        color: #6a6a6a;
+    }
+
+    .otp-resend-btn {
+        background: none;
+        border: none;
+        color: #1a1a1a;
+        font-weight: 600;
+        text-decoration: underline;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .otp-resend-btn:hover {
+        color: #000000;
+    }
+
+    .otp-resend-btn:disabled {
+        color: #b0b0b0;
+        cursor: not-allowed;
+    }
+
+    .otp-timer {
+        color: #d32f2f;
+        font-weight: 600;
+    }
+
+    .otp-alert {
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        margin-bottom: 16px;
+    }
+
+    .otp-alert-success {
+        background: #e8f5e9;
+        color: #2e7d32;
+        border: 1px solid #a5d6a7;
+    }
+
+    .otp-alert-error {
+        background: #ffebee;
+        color: #c62828;
+        border: 1px solid #ef9a9a;
+    }
+
     /* Responsive */
     @media (max-width: 992px) {
         .checkout-container-custom {
@@ -427,10 +607,17 @@
             width: 70px;
             height: 70px;
         }
+
+        .otp-modal-content {
+            padding: 40px 24px;
+        }
+
+        .otp-input {
+            letter-spacing: 8px;
+        }
     }
 
     @media (max-width: 576px) {
-
         .checkout-form-section,
         .checkout-summary-section {
             padding: 20px;
@@ -461,10 +648,7 @@
 
         <!-- Page Title -->
         <div class="checkout-page-title" style="grid-column: 1 / -1;">
-            <h1>
-                Secure Checkout
-             
-            </h1>
+            <h1>Secure Checkout</h1>
             <p>Complete your order safely and securely</p>
         </div>
 
@@ -491,7 +675,7 @@
             <div class="checkout-section-title">Shipping Information</div>
             <div class="checkout-section-subtitle">Please enter your delivery details</div>
 
-            <form method="POST" action="{% url 'checkout_action' %}">
+            <form method="POST" action="{% url 'checkout_action' %}" id="checkoutForm">
                 {% csrf_token %}
 
                 <div class="checkout-row">
@@ -538,16 +722,12 @@
 
                 <div class="checkout-form-group">
                     <label class="checkout-label">Country</label>
-                    <input class="checkout-input" type="text" name="country" value="{{ profile.country|default:'' }}"
+                    <input class="checkout-input" type="text" name="country" value="{{ profile.country|default:'India' }}"
                         placeholder="India" required>
                 </div>
 
                 <button type="submit" class="checkout-submit-btn">
-                    {% if is_buy_now %}
-                        Place Order Now (Cash on Delivery)
-                    {% else %}
-                        Place Order (Cash on Delivery)
-                    {% endif %}
+                    Place Order (Cash on Delivery)
                 </button>
 
                 <div class="checkout-secure-badge">
@@ -559,66 +739,23 @@
 
         <!-- RIGHT SECTION - Order Summary -->
         <div class="checkout-summary-section">
-            <h3 class="checkout-summary-title">
-                {% if is_buy_now %}
-                    Quick Buy Summary
-                {% else %}
-                    Order Summary
+            <h3 class="checkout-summary-title">Order Summary</h3>
+
+            {% for item in items %}
+            <div class="checkout-order-item">
+                {% if item.product.images.first %}
+                <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}"
+                    class="checkout-item-image">
                 {% endif %}
-            </h3>
 
-            {% if is_buy_now %}
-                <!-- BUY NOW MODE -->
-                <!-- <a href="{% url 'cancel_buy_now' %}" class="cancel-buy-now-btn">
-                    ← Continue Shopping
-                </a> -->
-
-                {% for item in items %}
-                <div class="checkout-order-item">
-                    {% if item.product.images.first %}
-                    <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}"
-                        class="checkout-item-image">
-                    {% endif %}
-
-                    <div class="checkout-item-details">
-                        <div>
-                            <div class="checkout-item-name">{{ item.product.name }}</div>
-                            <div class="checkout-item-price">₹{{ item.product.price }} each</div>
-                        </div>
-
-                        <div class="checkout-qty-controls">
-                            <a href="{% url 'update_buy_now_qty' 'decrease' %}" class="checkout-qty-btn">−</a>
-                            <span class="checkout-qty-number">{{ item.quantity }}</span>
-                            <a href="{% url 'update_buy_now_qty' 'increase' %}" class="checkout-qty-btn">+</a>
-                        </div>
+                <div class="checkout-item-details">
+                    <div>
+                        <div class="checkout-item-name">{{ item.product.name }}</div>
+                        <div class="checkout-item-price">₹{{ item.product.price }} × {{ item.quantity }}</div>
                     </div>
                 </div>
-                {% endfor %}
-
-            {% else %}
-                <!-- REGULAR CART MODE -->
-                {% for item in items %}
-                <div class="checkout-order-item">
-                    {% if item.product.images.first %}
-                    <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}"
-                        class="checkout-item-image">
-                    {% endif %}
-
-                    <div class="checkout-item-details">
-                        <div>
-                            <div class="checkout-item-name">{{ item.product.name }}</div>
-                            <div class="checkout-item-price">₹{{ item.product.price }} each</div>
-                        </div>
-
-                        <div class="checkout-qty-controls">
-                            <a href="{% url 'decrease_qty' item.id %}?checkout=1" class="checkout-qty-btn">−</a>
-                            <span class="checkout-qty-number">{{ item.quantity }}</span>
-                            <a href="{% url 'increase_qty' item.id %}?checkout=1" class="checkout-qty-btn">+</a>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            {% endif %}
+            </div>
+            {% endfor %}
 
             <div class="checkout-summary-row">
                 <span>Subtotal</span>
@@ -643,6 +780,64 @@
 
     </div>
 </div>
+
+<!-- OTP Verification Modal -->
+<div id="otpVerificationModal" class="otp-modal-overlay" style="display: none;">
+    <div class="otp-modal-container">
+        <div class="otp-modal-content">
+            <!-- Close Button -->
+            <button class="otp-modal-close" onclick="closeOTPModal()" type="button">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+
+            <!-- Icon -->
+            <div class="otp-icon">
+                <svg width="60" height="60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+            </div>
+
+            <!-- Title -->
+            <h2 class="otp-title">Verify Your Order</h2>
+            <p class="otp-subtitle">
+                We've sent a 6-digit verification code to<br>
+                <strong>{{ user.email }}</strong>
+            </p>
+
+            <!-- Messages -->
+            <div id="otpMessages" style="margin-bottom: 20px;"></div>
+
+            <!-- OTP Form -->
+            <form id="otpVerificationForm" onsubmit="verifyOTP(event)">
+                <div class="otp-input-group">
+                    <input type="text" 
+                           id="otpInput" 
+                           class="otp-input" 
+                           placeholder="000000" 
+                           maxlength="6" 
+                           pattern="[0-9]{6}" 
+                           required 
+                           autocomplete="off">
+                </div>
+
+                <button type="submit" class="otp-verify-btn" id="otpVerifyBtn">
+                    Verify & Place Order
+                </button>
+            </form>
+
+            <!-- Resend -->
+            <div class="otp-resend">
+                <button type="button" class="otp-resend-btn" id="otpResendBtn" onclick="resendOTP()">
+                    Resend Code
+                </button>
+                <span id="otpResendTimer" style="display: none;"> in <span class="otp-timer" id="otpCountdown">60</span>s</span>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <script>
 // Get CSRF Token
@@ -733,5 +928,195 @@ document.addEventListener("click", function(e) {
     });
 });
 </script>
+<script>
+// Store form data temporarily
+let checkoutFormData = null;
+let otpCountdownTimer = null;
+let otpTimeLeft = 60;
 
+// Intercept form submission
+document.querySelector('form[action="{% url 'checkout_action' %}"]').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Store form data
+    checkoutFormData = new FormData(this);
+    
+    // Send OTP
+    sendOTP();
+});
+
+// Send OTP
+function sendOTP() {
+    fetch('{% url "send_checkout_otp" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            openOTPModal();
+            startOTPTimer();
+        } else {
+            showOTPMessage(data.message || 'Failed to send OTP', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showOTPMessage('An error occurred. Please try again.', 'error');
+    });
+}
+
+// Open OTP Modal
+function openOTPModal() {
+    document.getElementById('otpVerificationModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    document.getElementById('otpInput').focus();
+}
+
+// Close OTP Modal
+function closeOTPModal() {
+    document.getElementById('otpVerificationModal').style.display = 'none';
+    document.body.style.overflow = '';
+    document.getElementById('otpInput').value = '';
+    document.getElementById('otpMessages').innerHTML = '';
+    if (otpCountdownTimer) {
+        clearInterval(otpCountdownTimer);
+    }
+}
+
+// Verify OTP
+function verifyOTP(e) {
+    e.preventDefault();
+    
+    const otp = document.getElementById('otpInput').value;
+    const btn = document.getElementById('otpVerifyBtn');
+    
+    if (otp.length !== 6) {
+        showOTPMessage('Please enter a valid 6-digit OTP', 'error');
+        return;
+    }
+    
+    btn.disabled = true;
+    btn.textContent = 'Verifying...';
+    
+    // Verify OTP
+    fetch('{% url "verify_checkout_otp" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': csrftoken
+        },
+        body: `otp=${otp}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showOTPMessage('OTP Verified! Placing your order...', 'success');
+            
+            // Submit the actual checkout form
+            setTimeout(() => {
+                submitCheckoutForm();
+            }, 1000);
+        } else {
+            showOTPMessage(data.message || 'Invalid OTP. Please try again.', 'error');
+            btn.disabled = false;
+            btn.textContent = 'Verify & Place Order';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showOTPMessage('An error occurred. Please try again.', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Verify & Place Order';
+    });
+}
+
+// Submit checkout form after OTP verification
+function submitCheckoutForm() {
+    const form = document.querySelector('form[action="{% url 'checkout_action' %}"]');
+    form.submit();
+}
+
+// Resend OTP
+function resendOTP() {
+    const resendBtn = document.getElementById('otpResendBtn');
+    resendBtn.disabled = true;
+    
+    fetch('{% url "send_checkout_otp" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showOTPMessage('New OTP sent to your email!', 'success');
+            startOTPTimer();
+        } else {
+            showOTPMessage(data.message || 'Failed to resend OTP', 'error');
+            resendBtn.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showOTPMessage('An error occurred', 'error');
+        resendBtn.disabled = false;
+    });
+}
+
+// OTP Timer
+function startOTPTimer() {
+    const resendBtn = document.getElementById('otpResendBtn');
+    const resendTimer = document.getElementById('otpResendTimer');
+    const countdown = document.getElementById('otpCountdown');
+    
+    resendBtn.disabled = true;
+    resendTimer.style.display = 'inline';
+    
+    otpTimeLeft = 60;
+    countdown.textContent = otpTimeLeft;
+    
+    if (otpCountdownTimer) {
+        clearInterval(otpCountdownTimer);
+    }
+    
+    otpCountdownTimer = setInterval(() => {
+        otpTimeLeft--;
+        countdown.textContent = otpTimeLeft;
+        
+        if (otpTimeLeft <= 0) {
+            clearInterval(otpCountdownTimer);
+            resendBtn.disabled = false;
+            resendTimer.style.display = 'none';
+        }
+    }, 1000);
+}
+
+// Show message
+function showOTPMessage(message, type) {
+    const messagesDiv = document.getElementById('otpMessages');
+    messagesDiv.innerHTML = `<div class="otp-alert otp-alert-${type}">${message}</div>`;
+    
+    if (type === 'success') {
+        setTimeout(() => {
+            messagesDiv.innerHTML = '';
+        }, 3000);
+    }
+}
+
+// Auto-format OTP input
+document.getElementById('otpInput').addEventListener('input', function(e) {
+    this.value = this.value.replace(/[^0-9]/g, '');
+});
+
+// Close modal on escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeOTPModal();
+    }
+});
+</script>
 {% endblock %}
