@@ -2328,19 +2328,19 @@ z-index:98">
                           </div>
                         </xo-product>
                       </div>
-                     <div class="cart-item" id="cart-item-{{ item.id }}" data-item-id="{{ item.id }}">
+                     <div class=" " id="cart-item-{{ item.id }}" data-item-id="{{ item.id }}">
   
-  <div class="cart-item__remove">
-    <button class="remove-item" 
-            data-item-id="{{ item.id }}" 
-            data-url="{% url 'remove_item' item.id %}">
-      <svg width="16" height="16" viewBox="0 0 320 512" fill="currentColor">
-        <path d="M193.94 256L296.5 153.44l21.15-21.15c3.12-3.12 3.12-8.19 0-11.31l-22.63-22.63c-3.12-3.12-8.19-3.12-11.31 0L160 222.06 36.29 98.34c-3.12-3.12-8.19-3.12-11.31 0L2.34 120.97c-3.12 3.12-3.12 8.19 0 11.31L126.06 256 2.34 379.71c-3.12 3.12-3.12 8.19 0 11.31l22.63 22.63c3.12 3.12 8.19 3.12 11.31 0L160 289.94 262.56 392.5l21.15 21.15c3.12 3.12 8.19 3.12 11.31 0l22.63-22.63c3.12-3.12 3.12-8.19 0-11.31L193.94 256z"></path>
-      </svg>
-    </button>
-  </div>
+                      <div class="cart-item__remove">
+                        <button class="remove-item" 
+                                data-item-id="{{ item.id }}" 
+                                data-url="{% url 'remove_item' item.id %}">
+                          <svg width="16" height="16" viewBox="0 0 320 512" fill="currentColor">
+                            <path d="M193.94 256L296.5 153.44l21.15-21.15c3.12-3.12 3.12-8.19 0-11.31l-22.63-22.63c-3.12-3.12-8.19-3.12-11.31 0L160 222.06 36.29 98.34c-3.12-3.12-8.19-3.12-11.31 0L2.34 120.97c-3.12 3.12-3.12 8.19 0 11.31L126.06 256 2.34 379.71c-3.12 3.12-3.12 8.19 0 11.31l22.63 22.63c3.12 3.12 8.19 3.12 11.31 0L160 289.94 262.56 392.5l21.15 21.15c3.12 3.12 8.19 3.12 11.31 0l22.63-22.63c3.12-3.12 3.12-8.19 0-11.31L193.94 256z"></path>
+                          </svg>
+                        </button>
+                      </div>
   
-  </div>
+                </div>
                       <div class="cart-item__total item-total-{{ item.id }}">₹{{ item.total_price }}</div>
 
                     </div>
@@ -2466,7 +2466,7 @@ z-index:98">
 
 
 
-          <script>
+          <!-- <script>
             const timeout = 5000;
 
             function showToast(message, type = "success") {
@@ -2642,9 +2642,170 @@ z-index:98">
                   });
               });
             });
-          </script>
+          </script> -->
  
+<script>// Cart Modal Remove Item - Fixed Version
+document.addEventListener("click", function (e) {
 
+  // Handle quantity increase/decrease
+  if (e.target.classList.contains("increase-qty") || e.target.classList.contains("decrease-qty")) {
+    e.preventDefault();
+
+    let itemID = e.target.dataset.itemId;
+    let url = e.target.dataset.url;
+
+    fetch(url, {
+      method: "GET",
+      headers: {
+        "X-Requested-With": "XMLHttpRequest",
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.deleted) {
+          document.querySelector(`.cart-item[data-item-id="${itemID}"]`).remove();
+          return;
+        }
+
+        document.querySelectorAll(".item-quantity-" + itemID).forEach(el => {
+          el.value = data.quantity;
+        });
+
+        document.querySelector(".item-total-" + itemID).innerHTML = "₹" + data.item_total;
+        document.getElementById("cart-total").innerHTML = "₹" + data.cart_total;
+
+        document.querySelectorAll(`.increase-qty[data-item-id="${itemID}"]`).forEach(btn => {
+          if (data.quantity >= data.stock) {
+            btn.classList.add("disabled");
+          } else {
+            btn.classList.remove("disabled");
+          }
+        });
+      });
+  }
+
+  // Handle remove item - FIXED
+  if (e.target.closest(".remove-item")) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    let btn = e.target.closest(".remove-item");
+    let itemID = btn.dataset.itemId;
+    let url = btn.dataset.url;
+
+    console.log("Removing item:", itemID, url); // Debug
+
+    fetch(url, {
+      method: "GET",
+      headers: {
+        "X-Requested-With": "XMLHttpRequest",
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
+        console.log("Response:", data); // Debug
+
+        if (data.success) {
+          // Find and remove the cart item
+          let cartItem = document.querySelector(`.cart-item[data-item-id="${itemID}"]`);
+          if (cartItem) {
+            cartItem.style.transition = "opacity 0.3s ease";
+            cartItem.style.opacity = "0";
+            setTimeout(() => {
+              cartItem.remove();
+
+              // Check if cart is empty
+              let remainingItems = document.querySelectorAll(".cart-item");
+              if (remainingItems.length === 0) {
+                location.reload(); // Reload to show empty cart
+              }
+            }, 300);
+          }
+
+          // Update totals
+          document.getElementById("cart-total").innerHTML = "₹" + data.cart_total;
+          
+          let subtotal = document.querySelector(".cart-subtotal");
+          if (subtotal) {
+            subtotal.innerHTML = "₹" + data.cart_total;
+          }
+
+          // Update header cart count
+          let cartCountElements = document.querySelectorAll(".cart-count, #cart-count, [data-cart-count]");
+          cartCountElements.forEach(el => {
+            el.textContent = data.cart_count;
+          });
+
+          // Show toast notification
+          if (typeof showToast === 'function') {
+            showToast(data.message, "success");
+          }
+        }
+      })
+      .catch(error => {
+        console.error("Error:", error);
+        if (typeof showToast === 'function') {
+          showToast("Failed to remove item", "error");
+        }
+      });
+  }
+
+});
+
+// Wishlist functionality
+function updateWishlistUI(added, btn, newCount) {
+  if (added) {
+    btn.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="red">
+        <path d="M12 21s-6.7-4.4-10-9c-3.3-4.6.2-11 6-9 2 .6 4 2.4 4 2.4s2-1.8 4-2.4c5.8-2 9.3 4.4 6 9-3.3 4.6-10 9-10 9z" />
+      </svg>
+    `;
+  } else {
+    btn.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2">
+        <path d="M12 21s-6.7-4.4-10-9c-3.3-4.6.2-11 6-9 2 .6 4 2.4 4 2.4s2-1.8 4-2.4c5.8-2 9.3 4.4 6 9-3.3 4.6-10 9-10 9z"/>
+      </svg>
+    `;
+  }
+
+  const headerCount = document.getElementById("wishlist-count");
+  if (headerCount) {
+    headerCount.textContent = newCount;
+    headerCount.classList.add("wishlist-count-bump");
+    setTimeout(() => headerCount.classList.remove("wishlist-count-bump"), 300);
+  }
+}
+
+document.querySelectorAll(".wishlist-btn").forEach(btn => {
+  btn.addEventListener("click", function () {
+    const productId = this.dataset.productId;
+
+    fetch(`/wishlist/toggle/${productId}/`, {
+      method: "POST",
+      headers: { "X-CSRFToken": getCookie("csrftoken") }
+    })
+      .then(res => res.json())
+      .then(data => {
+        updateWishlistUI(data.added, this, data.wishlist_count);
+      });
+  });
+});
+
+// Helper function to get CSRF token
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}</script>
 </body>
 
 </html>
