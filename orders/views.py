@@ -2,11 +2,18 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
+from django.core.mail import send_mail
+from django.conf import settings
+from django.utils import timezone
+from datetime import timedelta
 from decimal import Decimal
+import random
+
 from .models import Order, OrderItem, ShippingAddress
 from products.models import Product
 from cart.models import Cart, CartItem
 from cart.views import get_cart
+
 
 # -----------------------------
 # BUY NOW - Store in Session
@@ -14,10 +21,8 @@ from cart.views import get_cart
 @login_required
 def buy_now(request, product_id):
     product = get_object_or_404(Product, id=product_id)
-    
     qty = int(request.POST.get("quantity", 1))
     
-    # Store buy_now product in session (doesn't affect cart)
     request.session['buy_now_item'] = {
         'product_id': product.id,
         'quantity': qty
@@ -28,11 +33,10 @@ def buy_now(request, product_id):
 
 
 # -----------------------------
-# UPDATE BUY NOW QUANTITY (AJAX SUPPORT)
+# UPDATE BUY NOW QUANTITY (AJAX)
 # -----------------------------
 @login_required
 def update_buy_now_quantity(request, action):
-    """Update quantity for buy_now item in session"""
     buy_now_item = request.session.get('buy_now_item')
     
     if buy_now_item:
@@ -48,9 +52,7 @@ def update_buy_now_quantity(request, action):
         request.session['buy_now_item'] = buy_now_item
         request.session.modified = True
         
-        # Check if AJAX request
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            # Calculate new totals
             subtotal = product.price * buy_now_item['quantity']
             shipping = Decimal('50.00')
             tax = round(subtotal * Decimal('0.18'), 2)
@@ -73,7 +75,6 @@ def update_buy_now_quantity(request, action):
 # -----------------------------
 @login_required
 def cancel_buy_now(request):
-    """Cancel buy now and return to previous page"""
     if 'buy_now_item' in request.session:
         del request.session['buy_now_item']
         request.session.modified = True
@@ -82,33 +83,28 @@ def cancel_buy_now(request):
 
 
 # -----------------------------
-# CHECKOUT PAGE (GET) - FIXED
+# CHECKOUT PAGE (GET)
 # -----------------------------
 @login_required
 def checkout_page(request):
     cart = get_cart(request)
     
-    # Check if user came from cart (has ?from=cart or has cart items)
     from_cart = request.GET.get('from') == 'cart'
     has_cart_items = cart.items.exists()
     
-    # If coming from cart and has items, clear any old buy_now session
     if from_cart and has_cart_items:
         if 'buy_now_item' in request.session:
             del request.session['buy_now_item']
             request.session.modified = True
     
-    # Check if this is a "Buy Now" checkout
     buy_now_item = request.session.get('buy_now_item')
     
     if buy_now_item:
-        # BUY NOW MODE - Show only the buy_now product
         product = get_object_or_404(Product, id=buy_now_item['product_id'])
         
-        # Create a temporary item structure (not saved to database)
         class TempItem:
             def __init__(self, product, quantity):
-                self.id = None  # No database ID for session items
+                self.id = None
                 self.product = product
                 self.quantity = quantity
                 self.total_price = product.price * quantity
@@ -117,7 +113,6 @@ def checkout_page(request):
         is_buy_now = True
         
     else:
-        # REGULAR CART CHECKOUT - Show all cart items
         items = cart.items.all()
         is_buy_now = False
         
@@ -125,7 +120,6 @@ def checkout_page(request):
             messages.info(request, "Your cart is empty. Add some products first!")
             return redirect("cart_page")
     
-    # Calculate totals
     subtotal = sum(item.total_price for item in items)
     shipping = Decimal('50.00')
     tax = round(subtotal * Decimal('0.18'), 2)
@@ -147,11 +141,138 @@ def checkout_page(request):
 
 
 # -----------------------------
-# CHECKOUT ACTION (POST)
+# SEND OTP FOR CHECKOUT
+# -----------------------------
+@login_required
+def send_checkout_otp(request):
+    """Send OTP to user's email for checkout verification"""
+    if request.method == 'POST':
+        user = request.user
+        
+        # Generate 6-digit OTP
+        otp = str(random.randint(100000, 999999))
+        
+        # Store OTP in session (expires in 10 minutes)
+        request.session['checkout_otp'] = otp
+        request.session['checkout_otp_time'] = timezone.now().isoformat()
+        request.session['otp_verified'] = False
+        request.session.modified = True
+        
+        # Email content
+        subject = "🔐 Order Verification Code"
+        message = f"""
+Hello {user.first_name or user.username},
+
+Your verification code for completing your order is:
+
+{otp}
+
+⏰ This code will expire in 10 minutes.
+🔒 Do not share this code with anyone.
+
+Thank you for shopping with us!
+
+Best regards,
+Your Store Team
+"""
+        
+        try:
+            send_mail(
+                subject,
+                message,
+                settings.EMAIL_HOST_USER,
+                [user.email],
+                fail_silently=False
+            )
+            return JsonResponse({
+                'success': True, 
+                'message': f'OTP sent to {user.email}'
+            })
+        except Exception as e:
+            print(f"❌ Email error: {e}")
+            return JsonResponse({
+                'success': False, 
+                'message': 'Failed to send OTP. Please check your email settings.'
+            })
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+
+# -----------------------------
+# VERIFY OTP
+# -----------------------------
+@login_required
+def verify_checkout_otp(request):
+    """Verify OTP entered by user"""
+    if request.method == 'POST':
+        entered_otp = request.POST.get('otp', '').strip()
+        stored_otp = request.session.get('checkout_otp')
+        otp_time_str = request.session.get('checkout_otp_time')
+        
+        print(f"🔍 Entered OTP: {entered_otp}")
+        print(f"🔍 Stored OTP: {stored_otp}")
+        
+        # Check if OTP exists
+        if not stored_otp or not otp_time_str:
+            return JsonResponse({
+                'success': False, 
+                'message': 'OTP expired. Please request a new one.'
+            })
+        
+        # Check if OTP is expired (10 minutes)
+        try:
+            otp_time = timezone.datetime.fromisoformat(otp_time_str)
+            if timezone.is_naive(otp_time):
+                otp_time = timezone.make_aware(otp_time)
+            
+            if timezone.now() - otp_time > timedelta(minutes=10):
+                # Clear expired OTP
+                request.session['checkout_otp'] = None
+                request.session.modified = True
+                return JsonResponse({
+                    'success': False, 
+                    'message': 'OTP expired. Please request a new one.'
+                })
+        except Exception as e:
+            print(f"❌ OTP time error: {e}")
+            return JsonResponse({
+                'success': False, 
+                'message': 'Invalid OTP session. Please try again.'
+            })
+        
+        # Verify OTP
+        if entered_otp == stored_otp:
+            # Mark OTP as verified
+            request.session['otp_verified'] = True
+            request.session.modified = True
+            
+            print("✅ OTP Verified successfully!")
+            
+            return JsonResponse({
+                'success': True, 
+                'message': 'OTP verified successfully!'
+            })
+        else:
+            print("❌ Invalid OTP")
+            return JsonResponse({
+                'success': False, 
+                'message': 'Invalid OTP. Please try again.'
+            })
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+
+# -----------------------------
+# CHECKOUT ACTION (POST) - WITH OTP CHECK
 # -----------------------------
 @login_required
 def checkout_action(request):
     if request.method != 'POST':
+        return redirect('checkout_page')
+    
+    # ⚠️ CRITICAL: Check if OTP was verified
+    if not request.session.get('otp_verified', False):
+        messages.error(request, "⚠️ Please verify OTP before placing order!")
         return redirect('checkout_page')
     
     cart = get_cart(request)
@@ -159,9 +280,15 @@ def checkout_action(request):
     
     # Determine if this is Buy Now or Cart checkout
     if buy_now_item:
-        # BUY NOW MODE - Process only buy_now item
+        # BUY NOW MODE
         product = get_object_or_404(Product, id=buy_now_item['product_id'])
         quantity = buy_now_item['quantity']
+        
+        # Check stock
+        if quantity > product.stock:
+            messages.error(request, f"Only {product.stock} items available!")
+            return redirect('checkout_page')
+        
         total_price = product.price * quantity
         
         # Create order
@@ -170,7 +297,7 @@ def checkout_action(request):
             total_price=total_price
         )
         
-        # Create single order item
+        # Create order item
         OrderItem.objects.create(
             order=order,
             product=product,
@@ -178,17 +305,27 @@ def checkout_action(request):
             price=product.price
         )
         
-        # Clear buy_now session after successful order
+        # Reduce stock
+        product.stock -= quantity
+        product.save()
+        
+        # Clear buy_now session
         del request.session['buy_now_item']
         request.session.modified = True
         
     else:
-        # REGULAR CART MODE - Process all cart items
+        # CART MODE
         items = cart.items.all()
         
         if not items:
             messages.error(request, "Your cart is empty!")
             return redirect("cart_page")
+        
+        # Check stock for all items
+        for item in items:
+            if item.quantity > item.product.stock:
+                messages.error(request, f"Only {item.product.stock} of {item.product.name} available!")
+                return redirect('checkout_page')
         
         total_price = sum(i.total_price for i in items)
         
@@ -198,7 +335,7 @@ def checkout_action(request):
             total_price=total_price
         )
         
-        # Create order items from cart
+        # Create order items and reduce stock
         for item in items:
             OrderItem.objects.create(
                 order=order,
@@ -206,11 +343,15 @@ def checkout_action(request):
                 quantity=item.quantity,
                 price=item.product.price
             )
+            
+            # Reduce stock
+            item.product.stock -= item.quantity
+            item.product.save()
         
-        # Clear cart after order
+        # Clear cart
         cart.items.all().delete()
     
-    # Create shipping address (common for both)
+    # Create shipping address
     ShippingAddress.objects.create(
         order=order,
         full_name=request.POST.get('name', ''),
@@ -220,6 +361,11 @@ def checkout_action(request):
         country=request.POST.get('country', ''),
         phone=request.POST.get('phone', ''),
     )
+    
+    # Clear OTP session
+    request.session['otp_verified'] = False
+    request.session['checkout_otp'] = None
+    request.session.modified = True
     
     messages.success(request, "🎉 Order placed successfully!")
     return redirect("order_detail_page", order_id=order.id)
@@ -268,91 +414,3 @@ def track_order_page(request, order_id):
 def order_list_page(request):
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
     return render(request, "order_list.html", {"orders": orders})
-
-
-
-from django.core.mail import send_mail
-from django.conf import settings
-import random
-
-# Create a model to store OTPs (add this to your models.py)
-# from django.db import models
-# class CheckoutOTP(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     otp = models.CharField(max_length=6)
-#     created_at = models.DateTimeField(auto_now_add=True)
-
-from django.utils import timezone
-from datetime import timedelta
-
-@login_required
-def send_checkout_otp(request):
-    """Send OTP to user's email for checkout verification"""
-    if request.method == 'POST':
-        user = request.user
-        otp = str(random.randint(100000, 999999))
-        
-        # Store OTP in session (expires in 10 minutes)
-        request.session['checkout_otp'] = otp
-        request.session['checkout_otp_time'] = timezone.now().isoformat()
-        request.session.modified = True
-        
-        # Send email
-        subject = "Order Verification Code"
-        message = f"""
-Hello {user.first_name or user.username},
-
-Your verification code for completing your order is: {otp}
-
-This code will expire in 10 minutes.
-
-Do not share this code with anyone.
-
-Thank you for shopping with us!
-"""
-        
-        try:
-            send_mail(
-                subject,
-                message,
-                settings.EMAIL_HOST_USER,
-                [user.email],
-                fail_silently=False
-            )
-            return JsonResponse({'success': True, 'message': 'OTP sent successfully'})
-        except Exception as e:
-            print(f"Email error: {e}")
-            return JsonResponse({'success': False, 'message': 'Failed to send OTP'})
-    
-    return JsonResponse({'success': False, 'message': 'Invalid request'})
-
-
-@login_required
-def verify_checkout_otp(request):
-    """Verify OTP entered by user"""
-    if request.method == 'POST':
-        entered_otp = request.POST.get('otp', '')
-        stored_otp = request.session.get('checkout_otp')
-        otp_time_str = request.session.get('checkout_otp_time')
-        
-        if not stored_otp or not otp_time_str:
-            return JsonResponse({'success': False, 'message': 'OTP expired. Please request a new one.'})
-        
-        # Check if OTP is expired (10 minutes)
-        otp_time = timezone.datetime.fromisoformat(otp_time_str)
-        if timezone.is_naive(otp_time):
-            otp_time = timezone.make_aware(otp_time)
-        
-        if timezone.now() - otp_time > timedelta(minutes=10):
-            return JsonResponse({'success': False, 'message': 'OTP expired. Please request a new one.'})
-        
-        # Verify OTP
-        if entered_otp == stored_otp:
-            # Mark OTP as verified
-            request.session['otp_verified'] = True
-            request.session.modified = True
-            return JsonResponse({'success': True, 'message': 'OTP verified successfully'})
-        else:
-            return JsonResponse({'success': False, 'message': 'Invalid OTP. Please try again.'})
-    
-    return JsonResponse({'success': False, 'message': 'Invalid request'})

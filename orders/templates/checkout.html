@@ -1119,4 +1119,25 @@ document.addEventListener('keydown', function(e) {
     }
 });
 </script>
+<script>
+// CRITICAL FIX: Make sure form selector is correct
+document.addEventListener('DOMContentLoaded', function() {
+    const checkoutForm = document.getElementById('checkoutForm');
+    
+    if (checkoutForm) {
+        checkoutForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log('✅ Form submission intercepted');
+            
+            // Store form data
+            checkoutFormData = new FormData(this);
+            
+            // Send OTP
+            sendOTP();
+        });
+    } else {
+        console.error('❌ Checkout form not found!');
+    }
+});
+</script>
 {% endblock %}
