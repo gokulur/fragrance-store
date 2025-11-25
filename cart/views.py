@@ -27,9 +27,68 @@ def get_cart(request):
     return cart
 
 
-# -------------------------------
-# ADD TO CART
-# -------------------------------
+# # -------------------------------
+# # ADD TO CART
+# # -------------------------------
+# def add_to_cart(request, product_id):
+#     if request.method != "POST":
+#         return JsonResponse({"success": False, "error": "POST required"}, status=400)
+    
+#     cart = get_cart(request)
+#     product = get_object_or_404(Product, id=product_id)
+
+#     # Get or create cart item
+#     item, created = CartItem.objects.get_or_create(cart=cart, product=product)
+
+#     # Get quantity from form
+#     qty = int(request.POST.get("quantity", 1))
+
+#     # Check stock limit
+#     if item.quantity + qty > product.stock:
+#         # Set to max stock
+#         item.quantity = product.stock
+#         item.save()
+
+#         # Check if AJAX request
+#         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+#             items = cart.items.all()
+#             return JsonResponse({
+#                 "success": False,
+#                 "limit": True,
+#                 "message": f"Only {product.stock} items available in stock!",
+#                 "cart_count": items.count(),  # COUNT OF UNIQUE PRODUCTS
+#                 "cart_total": float(sum(i.total_price for i in items))
+#             })
+        
+#         messages.warning(request, f"Only {product.stock} items available!")
+#         return redirect("cart_page")
+
+ 
+#     if not created:
+#         item.quantity += qty
+#     else:
+#         item.quantity = qty
+    
+#     item.save()
+
+#     # Check if AJAX request
+#     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+#         items = cart.items.all()
+#         return JsonResponse({
+#             "success": True,
+#             "limit": False,
+#             "message": "Product added to cart successfully!",
+#             "cart_count": items.count(),  # COUNT OF UNIQUE PRODUCTS
+#             "cart_total": float(sum(i.total_price for i in items)),
+#             "product_name": product.name
+#         })
+    
+    
+#     messages.success(request, f"{product.name} added to cart!")
+#     return redirect("cart_page")
+
+# cart/views.py
+
 def add_to_cart(request, product_id):
     if request.method != "POST":
         return JsonResponse({"success": False, "error": "POST required"}, status=400)
@@ -45,25 +104,25 @@ def add_to_cart(request, product_id):
 
     # Check stock limit
     if item.quantity + qty > product.stock:
-        # Set to max stock
         item.quantity = product.stock
         item.save()
 
-        # Check if AJAX request
+        # AJAX request
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             items = cart.items.all()
             return JsonResponse({
                 "success": False,
                 "limit": True,
                 "message": f"Only {product.stock} items available in stock!",
-                "cart_count": items.count(),  # COUNT OF UNIQUE PRODUCTS
+                "cart_count": items.count(),
                 "cart_total": float(sum(i.total_price for i in items))
             })
         
         messages.warning(request, f"Only {product.stock} items available!")
-        return redirect("cart_page")
+        # ✅ REDIRECT TO PREVIOUS PAGE INSTEAD OF cart_page
+        return redirect(request.META.get('HTTP_REFERER', 'cart_page'))
 
- 
+    # Normal add
     if not created:
         item.quantity += qty
     else:
@@ -71,21 +130,21 @@ def add_to_cart(request, product_id):
     
     item.save()
 
-    # Check if AJAX request
+    # AJAX request
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         items = cart.items.all()
         return JsonResponse({
             "success": True,
             "limit": False,
             "message": "Product added to cart successfully!",
-            "cart_count": items.count(),  # COUNT OF UNIQUE PRODUCTS
+            "cart_count": items.count(),
             "cart_total": float(sum(i.total_price for i in items)),
             "product_name": product.name
         })
     
-    
     messages.success(request, f"{product.name} added to cart!")
-    return redirect("cart_page")
+    # ✅ REDIRECT TO PREVIOUS PAGE INSTEAD OF cart_page
+    return redirect(request.META.get('HTTP_REFERER', 'cart_page'))
 
 # def add_to_cart(request, product_id):
 #     if request.method != "POST":
