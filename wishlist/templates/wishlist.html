@@ -155,12 +155,18 @@
                                                     </span>
                                                 </button>
                                             </form>
-                                            <form method="post" action="{% url 'wishlist:toggle' product.id %}" class="wishlist-toggle-form" style="display: inline;">
-
+                                            <!-- wishlist.html - Add to cart button -->
+                                            <form method="POST" action="{% url 'add_to_cart' product.id %}" class="add-to-cart-form" style="display: inline;">
                                                 {% csrf_token %}
-                                                <button class="xo-btn xo-btn--dark xo-btn--secondary xo-btn--xs xo-btn--slide-up" style="border-radius: 100rem;">
+                                                <input type="hidden" name="quantity" value="1">
+                                                
+                                                <button type="button"
+                                                    class="xo-btn xo-btn--light xo-btn--primary xo-btn--xs xo-btn--slide-up add-to-cart-wishlist-btn"
+                                                    data-product-id="{{ product.id }}"
+                                                    data-url="{% url 'add_to_cart' product.id %}"
+                                                    style="border-radius: 100rem;">
                                                     <span class="xo-btn__content">
-                                                        <span class="xo-btn__text" data-text="Remove">Remove</span>
+                                                        <span class="xo-btn__text" data-text="Add to Cart">Add to Cart</span>
                                                     </span>
                                                 </button>
                                             </form>
