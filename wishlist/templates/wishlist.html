@@ -7,7 +7,8 @@
 <main class="content-for-layout focus-none" id="xo-main-content" role="main" tabindex="-1">
     <!-- Page Heading Section -->
     <div class="shopify-section" id="shopify-section-template--19284046643390__main-page-heading">
-        <section class="xo-section xo-section--template--19284046643390__main-page-heading color-background-1" style="--margin: 0;--pt: 50;--pb: 0;">
+        <section class="xo-section xo-section--template--19284046643390__main-page-heading color-background-1"
+            style="--margin: 0;--pt: 50;--pb: 0;">
             <xo-animate class="xo-section-bg" xo-disabled="" xo-duration="1000">
                 <xo-parallax class="xo-section-bg-image__item" xo-lerp-ease="0.4">
                     <xo-parallax-scroll class="xo-section-bg-image__url xo-background-lazyload" xo-keyframes="{
@@ -50,20 +51,18 @@
                                     <!-- Product Column -->
                                     <td role="cell" data-th="Product">
                                         <div class="wishlist-table__item">
-                                            <a href="{% url 'product_detail' product.slug %}" class="wishlist-table__item-image">
-                                                <div class="xo-image" style="--xo-ratio-percent: 1/1; --x-pos: 50.0%; --y-pos: 50.0%;">
+                                            <a href="{% url 'product_detail' product.slug %}"
+                                                class="wishlist-table__item-image">
+                                                <div class="xo-image"
+                                                    style="--xo-ratio-percent: 1/1; --x-pos: 50.0%; --y-pos: 50.0%;">
                                                     {% if product.images.first %}
-                                                        <img src="{{ product.images.first.image.url }}" 
-                                                             alt="{{ product.name }}" 
-                                                             width="860" 
-                                                             height="860" 
-                                                             loading="lazy">
+                                                    <img src="{{ product.images.first.image.url }}"
+                                                        alt="{{ product.name }}" width="860" height="860"
+                                                        loading="lazy">
                                                     {% else %}
-                                                        <img src="https://via.placeholder.com/860x860?text=No+Image" 
-                                                             alt="{{ product.name }}" 
-                                                             width="860" 
-                                                             height="860" 
-                                                             loading="lazy">
+                                                    <img src="https://via.placeholder.com/860x860?text=No+Image"
+                                                        alt="{{ product.name }}" width="860" height="860"
+                                                        loading="lazy">
                                                     {% endif %}
                                                 </div>
                                             </a>
@@ -73,7 +72,7 @@
                                                 </a>
                                             </h3>
                                         </div>
-                                        
+
                                         <!-- Mobile View -->
                                         <div class="wishlist-table__desktop-hidden">
                                             <div class="xo-price" role="status">
@@ -81,9 +80,9 @@
                                                     <div class="xo-price__regular">
                                                         <span class="xo-price__item">
                                                             {% if product.discount_price %}
-                                                                ${{ product.discount_price }}
+                                                            ${{ product.discount_price }}
                                                             {% else %}
-                                                                ${{ product.price }}
+                                                            ${{ product.price }}
                                                             {% endif %}
                                                         </span>
                                                     </div>
@@ -91,24 +90,31 @@
                                             </div>
                                             <div>
                                                 {% if product.stock > 0 %}
-                                                    In stock
+                                                In stock
                                                 {% else %}
-                                                    Out of stock
+                                                Out of stock
                                                 {% endif %}
                                             </div>
                                             <div class="wishlist-table__action">
-                                                <form method="post" action="{% url 'add_to_cart' product.id %}" style="display: inline;">
+                                                <form method="post" action="{% url 'add_to_cart' product.id %}"
+                                                    style="display: inline;">
                                                     {% csrf_token %}
-                                                    <button class="xo-btn xo-btn--light xo-btn--primary xo-btn--xs xo-btn--slide-up" style="border-radius: 100rem;">
+                                                    <button
+                                                        class="xo-btn xo-btn--light xo-btn--primary xo-btn--xs xo-btn--slide-up"
+                                                        style="border-radius: 100rem;">
                                                         <span class="xo-btn__content">
-                                                            <span class="xo-btn__text" data-text="Add to Cart">Add to Cart</span>
+                                                            <span class="xo-btn__text" data-text="Add to Cart">Add to
+                                                                Cart</span>
                                                         </span>
                                                     </button>
                                                 </form>
-                                                <form method="post" action="{% url 'wishlist:toggle' product.id %}" class="wishlist-toggle-form" style="display: inline;">
+                                                <form method="post" action="{% url 'wishlist:toggle' product.id %}"
+                                                    class="wishlist-toggle-form" style="display: inline;">
 
                                                     {% csrf_token %}
-                                                    <button class="xo-btn xo-btn--dark xo-btn--secondary xo-btn--xs xo-btn--slide-up" style="border-radius: 100rem;">
+                                                    <button
+                                                        class="xo-btn xo-btn--dark xo-btn--secondary xo-btn--xs xo-btn--slide-up"
+                                                        style="border-radius: 100rem;">
                                                         <span class="xo-btn__content">
                                                             <span class="xo-btn__text" data-text="Remove">Remove</span>
                                                         </span>
@@ -125,9 +131,9 @@
                                                 <div class="xo-price__regular">
                                                     <span class="xo-price__item">
                                                         {% if product.discount_price %}
-                                                            ${{ product.discount_price }}
+                                                        ${{ product.discount_price }}
                                                         {% else %}
-                                                            ${{ product.price }}
+                                                        ${{ product.price }}
                                                         {% endif %}
                                                     </span>
                                                 </div>
@@ -138,35 +144,36 @@
                                     <!-- Stock Status Column -->
                                     <td role="cell" data-th="Stock" class="wishlist-table__stock">
                                         {% if product.stock > 0 %}
-                                            In stock
+                                        In stock
                                         {% else %}
-                                            Out of stock
+                                        Out of stock
                                         {% endif %}
                                     </td>
 
                                     <!-- Action Column -->
                                     <td role="cell" data-th="Action">
                                         <div class="wishlist-table__action">
-                                            <form method="post" action="{% url 'add_to_cart' product.id %}" style="display: inline;">
+                                            <form method="post" action="{% url 'add_to_cart' product.id %}"
+                                                style="display: inline;">
                                                 {% csrf_token %}
-                                                <button class="xo-btn xo-btn--light xo-btn--primary xo-btn--xs xo-btn--slide-up" style="border-radius: 100rem;">
+                                                <button
+                                                    class="xo-btn xo-btn--light xo-btn--primary xo-btn--xs xo-btn--slide-up"
+                                                    style="border-radius: 100rem;">
                                                     <span class="xo-btn__content">
-                                                        <span class="xo-btn__text" data-text="Add to Cart">Add to Cart</span>
+                                                        <span class="xo-btn__text" data-text="Add to Cart">Add to
+                                                            Cart</span>
                                                     </span>
                                                 </button>
                                             </form>
-                                            <!-- wishlist.html - Add to cart button -->
-                                            <form method="POST" action="{% url 'add_to_cart' product.id %}" class="add-to-cart-form" style="display: inline;">
+                                            <form method="post" action="{% url 'wishlist:toggle' product.id %}"
+                                                class="wishlist-toggle-form" style="display: inline;">
+
                                                 {% csrf_token %}
-                                                <input type="hidden" name="quantity" value="1">
-                                                
-                                                <button type="button"
-                                                    class="xo-btn xo-btn--light xo-btn--primary xo-btn--xs xo-btn--slide-up add-to-cart-wishlist-btn"
-                                                    data-product-id="{{ product.id }}"
-                                                    data-url="{% url 'add_to_cart' product.id %}"
+                                                <button
+                                                    class="xo-btn xo-btn--dark xo-btn--secondary xo-btn--xs xo-btn--slide-up"
                                                     style="border-radius: 100rem;">
                                                     <span class="xo-btn__content">
-                                                        <span class="xo-btn__text" data-text="Add to Cart">Add to Cart</span>
+                                                        <span class="xo-btn__text" data-text="Remove">Remove</span>
                                                     </span>
                                                 </button>
                                             </form>
@@ -203,9 +210,13 @@
                 <div id="empty-wishlist" style="{% if products %}display:none{% endif %}">
                     <div class="xo-empty" style="--align: center">
                         <div class="xo-empty__icon">
-                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="14rem">
-                                <path fill="currentColor" d="M31.71,15.29c-4.09-4.08-4-4.07-4.28-4.19l-7-3.19a1,1,0,1,0-.82,1.82l5,2.27L16,15.9,7.42,12l5-2.27a1,1,0,0,0-.82-1.82c-4.87,2.21-7.13,3.25-7,3.19-.24.12-.13.05-4.28,4.19a1,1,0,0,0,.3,1.62l11,5a1,1,0,0,0,1.12-.2L15,19.41v10L6,25.36V22a1,1,0,0,0-2,0c0,4.42,0,4.2.18,4.54a.6.6,0,0,0,.3.29c.1.07,0,.05.13.09C16.59,32.36,15.69,32,16,32s-.5.32,11.41-5.09A1,1,0,0,0,28,26V18.46l3.41-1.55A1,1,0,0,0,31.71,15.29ZM11.78,19.8l-9-4.11L5.22,13.2l9.05,4.11ZM26,25.36l-9,4.09v-10C19.46,21.87,19.45,22,20,22c.33,0,.07.07,6-2.63ZM20.22,19.8l-2.49-2.49,9.05-4.11,2.49,2.49Z"></path>
-                                <path fill="currentColor" d="M15,8.91a3.61,3.61,0,0,1,2-3.16,2,2,0,0,0,1-2.12,2,2,0,1,0-3.86,1,1,1,0,0,1-.6,1.27,1,1,0,0,1-1.28-.61,4,4,0,1,1,5.7,2.17A1.67,1.67,0,0,0,17,8.91,1,1,0,1,1,15,8.91Z"></path>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="14rem">
+                                <path fill="currentColor"
+                                    d="M31.71,15.29c-4.09-4.08-4-4.07-4.28-4.19l-7-3.19a1,1,0,1,0-.82,1.82l5,2.27L16,15.9,7.42,12l5-2.27a1,1,0,0,0-.82-1.82c-4.87,2.21-7.13,3.25-7,3.19-.24.12-.13.05-4.28,4.19a1,1,0,0,0,.3,1.62l11,5a1,1,0,0,0,1.12-.2L15,19.41v10L6,25.36V22a1,1,0,0,0-2,0c0,4.42,0,4.2.18,4.54a.6.6,0,0,0,.3.29c.1.07,0,.05.13.09C16.59,32.36,15.69,32,16,32s-.5.32,11.41-5.09A1,1,0,0,0,28,26V18.46l3.41-1.55A1,1,0,0,0,31.71,15.29ZM11.78,19.8l-9-4.11L5.22,13.2l9.05,4.11ZM26,25.36l-9,4.09v-10C19.46,21.87,19.45,22,20,22c.33,0,.07.07,6-2.63ZM20.22,19.8l-2.49-2.49,9.05-4.11,2.49,2.49Z">
+                                </path>
+                                <path fill="currentColor"
+                                    d="M15,8.91a3.61,3.61,0,0,1,2-3.16,2,2,0,0,0,1-2.12,2,2,0,1,0-3.86,1,1,1,0,0,1-.6,1.27,1,1,0,0,1-1.28-.61,4,4,0,1,1,5.7,2.17A1.67,1.67,0,0,0,17,8.91,1,1,0,1,1,15,8.91Z">
+                                </path>
                                 <path fill="currentColor" d="M16,13a1,1,0,1,1,1-1A1,1,0,0,1,16,13Z"></path>
                             </svg>
                         </div>
@@ -214,7 +225,8 @@
                             <a href="{% url 'all_collections' %}">
                                 <button class="xo-btn xo-btn--dark xo-btn--link xo-btn--slide-up">
                                     <span class="xo-btn__content">
-                                        <span class="xo-btn__text" data-text="Continue shopping">Continue shopping</span>
+                                        <span class="xo-btn__text" data-text="Continue shopping">Continue
+                                            shopping</span>
                                     </span>
                                 </button>
                             </a>
@@ -229,37 +241,37 @@
 
 </main>
 <script>
-document.addEventListener("submit", function(e) {
-    if (e.target.classList.contains("wishlist-toggle-form")) {
-        e.preventDefault();
+    document.addEventListener("submit", function (e) {
+        if (e.target.classList.contains("wishlist-toggle-form")) {
+            e.preventDefault();
 
-        let form = e.target;
-        let url = form.action;
+            let form = e.target;
+            let url = form.action;
 
-        fetch(url, {
-            method: "POST",
-            headers: {
-                "X-Requested-With": "XMLHttpRequest",
-                "X-CSRFToken": "{{ csrf_token }}"
-            }
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (!data.added) {
-                let row = form.closest("tr");
-                row.remove();
-
-                let tbody = document.querySelector(".wishlist-table tbody");
-
-                // If no items left → show empty box without refresh
-                if (tbody.children.length === 0) {
-                    document.querySelector(".wishlist-table").style.display = "none";
-                    document.getElementById("empty-wishlist").style.display = "block";
+            fetch(url, {
+                method: "POST",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    "X-CSRFToken": "{{ csrf_token }}"
                 }
-            }
-        });
-    }
-});
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.added) {
+                        let row = form.closest("tr");
+                        row.remove();
+
+                        let tbody = document.querySelector(".wishlist-table tbody");
+
+                        // If no items left → show empty box without refresh
+                        if (tbody.children.length === 0) {
+                            document.querySelector(".wishlist-table").style.display = "none";
+                            document.getElementById("empty-wishlist").style.display = "block";
+                        }
+                    }
+                });
+        }
+    });
 
 </script>
 

@@ -152,7 +152,7 @@ def order_update_status(request, pk):
         order.save()
         messages.success(request, f"Order #{order.id} updated to {status}")
         return redirect('admin_order_list')
-    return render(request, 'adminpanel/order_update.html', {'order': order})
+    return render(request, 'order_update.html', {'order': order})
 
 
 # -------------------------------
