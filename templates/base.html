@@ -1808,34 +1808,44 @@ z-index:98">
                           {% endif %}
                         </div>
                         <div class="xo-product-card__actions xo-product-card__actions--style9">
-                            <!-- base.html - Product grid add to cart -->
-                            <xo-tooltip class="xo-product-card__icon" xo-title="Add to Cart">
-                                <form method="POST" action="{% url 'add_to_cart' product.id %}" class="add-to-cart-form">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="quantity" value="1">
-                                    
-                                    <button type="button"
-                                        class="xo-btn xo-btn--light xo-btn--primary xo-btn--circle xo-btn--sm xo-btn--slide-up circle add-to-cart-grid-btn"
-                                        data-product-id="{{ product.id }}"
-                                        data-url="{% url 'add_to_cart' product.id %}">
-                                        <span class="xo-btn__content">
-                                            <span class="xo-btn__icon">
-                                                <!-- cart icon SVG -->
-                                                <svg height="20" id="Layer_1" style="enable-background:new 0 0 24 24;" version="1.1" viewbox="0 0 24 24" width="20" x="0px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" y="0px">
-                                                    <path d="M12,0C9.1,0,6.7,2.4,6.7,5.3v1h10.5v-1C17.2,2.4,14.9,0,12,0z M12,1.8c1.6,0,3,1.1,3.4,2.7H8.6C9,2.9,10.4,1.8,12,1.8" fill="currentColor"></path>
-                                                    <g><path d="M17.6,6.2c0.9,0,1.6,0.7,1.6,1.6v12.9c0,0.9-0.7,1.6-1.6,1.6H6.4c-0.9,0-1.6-0.7-1.6-1.6V7.8c0-0.9,0.7-1.6,1.6-1.6H17.6 M17.6,4.5H6.4C4.5,4.5,3,6,3,7.8v12.9C3,22.5,4.5,24,6.4,24h11.3c1.8,0,3.3-1.5,3.3-3.3V7.8C21,6,19.5,4.5,17.6,4.5L17.6,4.5z" fill="currentColor"></path></g>
-                                                    <path d="M14.8,8.8H9.2c-0.4,0-0.7-0.3-0.7-0.7v0c0-0.4,0.3-0.7,0.7-0.7h5.7c0.4,0,0.7,0.3,0.7,0.7v0C15.5,8.5,15.2,8.8,14.8,8.8z" fill="currentColor"></path>
-                                                </svg>
-                                            </span>
-                                        </span>
-                                        <span class="xo-btn__loading">
-                                            <div class="xo-loader-3" style="--size: 8; --color: currentColor; --duration: 1000;">
-                                                <div></div>
-                                            </div>
-                                        </span>
-                                    </button>
-                                </form>
-                            </xo-tooltip>
+                          <!-- base.html - Product grid add to cart -->
+                          <xo-tooltip class="xo-product-card__icon" xo-title="Add to Cart">
+                            <form method="POST" action="{% url 'add_to_cart' product.id %}" class="add-to-cart-form">
+                              {% csrf_token %}
+                              <input type="hidden" name="quantity" value="1">
+
+                              <button type="button"
+                                class="xo-btn xo-btn--light xo-btn--primary xo-btn--circle xo-btn--sm xo-btn--slide-up circle add-to-cart-grid-btn"
+                                data-product-id="{{ product.id }}" data-url="{% url 'add_to_cart' product.id %}">
+                                <span class="xo-btn__content">
+                                  <span class="xo-btn__icon">
+                                    <!-- cart icon SVG -->
+                                    <svg height="20" id="Layer_1" style="enable-background:new 0 0 24 24;" version="1.1"
+                                      viewbox="0 0 24 24" width="20" x="0px" xml:space="preserve"
+                                      xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                      y="0px">
+                                      <path
+                                        d="M12,0C9.1,0,6.7,2.4,6.7,5.3v1h10.5v-1C17.2,2.4,14.9,0,12,0z M12,1.8c1.6,0,3,1.1,3.4,2.7H8.6C9,2.9,10.4,1.8,12,1.8"
+                                        fill="currentColor"></path>
+                                      <g>
+                                        <path
+                                          d="M17.6,6.2c0.9,0,1.6,0.7,1.6,1.6v12.9c0,0.9-0.7,1.6-1.6,1.6H6.4c-0.9,0-1.6-0.7-1.6-1.6V7.8c0-0.9,0.7-1.6,1.6-1.6H17.6 M17.6,4.5H6.4C4.5,4.5,3,6,3,7.8v12.9C3,22.5,4.5,24,6.4,24h11.3c1.8,0,3.3-1.5,3.3-3.3V7.8C21,6,19.5,4.5,17.6,4.5L17.6,4.5z"
+                                          fill="currentColor"></path>
+                                      </g>
+                                      <path
+                                        d="M14.8,8.8H9.2c-0.4,0-0.7-0.3-0.7-0.7v0c0-0.4,0.3-0.7,0.7-0.7h5.7c0.4,0,0.7,0.3,0.7,0.7v0C15.5,8.5,15.2,8.8,14.8,8.8z"
+                                        fill="currentColor"></path>
+                                    </svg>
+                                  </span>
+                                </span>
+                                <span class="xo-btn__loading">
+                                  <div class="xo-loader-3" style="--size: 8; --color: currentColor; --duration: 1000;">
+                                    <div></div>
+                                  </div>
+                                </span>
+                              </button>
+                            </form>
+                          </xo-tooltip>
 
                           <xo-tooltip class="xo-product-card__icon" xo-title="Quickview">
                             <xo-product-quick-view-trigger xo-modal-name="quick-view"
@@ -1868,22 +1878,23 @@ z-index:98">
                             </xo-product-quick-view-trigger>
                           </xo-tooltip>
                           <xo-tooltip class="xo-product-card__icon" xo-title="Add to wishlist">
-                          <button class="wishlist-btn circle-btn" data-product-id="{{ product.id }}" >
-                            {% if product in request.user.wishlist.products.all %}
-                            <!-- Filled heart -->
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="red">
-                              <path
-                                d="M12 21s-6.7-4.4-10-9c-3.3-4.6.2-11 6-9 2 .6 4 2.4 4 2.4s2-1.8 4-2.4c5.8-2 9.3 4.4 6 9-3.3 4.6-10 9-10 9z" />
-                            </svg>
-                            {% else %}
-                            <!-- Outline heart -->
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2">
-                              <path
-                                d="M12 21s-6.7-4.4-10-9c-3.3-4.6.2-11 6-9 2 .6 4 2.4 4 2.4s2-1.8 4-2.4c5.8-2 9.3 4.4 6 9-3.3 4.6-10 9-10 9z" />
-                            </svg>
-                            {% endif %}
-                          </button>
-                        </xo-tooltip>
+                            <button class="wishlist-btn circle-btn" data-product-id="{{ product.id }}">
+                              {% if product in request.user.wishlist.products.all %}
+                              <!-- Filled heart -->
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="red">
+                                <path
+                                  d="M12 21s-6.7-4.4-10-9c-3.3-4.6.2-11 6-9 2 .6 4 2.4 4 2.4s2-1.8 4-2.4c5.8-2 9.3 4.4 6 9-3.3 4.6-10 9-10 9z" />
+                              </svg>
+                              {% else %}
+                              <!-- Outline heart -->
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black"
+                                stroke-width="2">
+                                <path
+                                  d="M12 21s-6.7-4.4-10-9c-3.3-4.6.2-11 6-9 2 .6 4 2.4 4 2.4s2-1.8 4-2.4c5.8-2 9.3 4.4 6 9-3.3 4.6-10 9-10 9z" />
+                              </svg>
+                              {% endif %}
+                            </button>
+                          </xo-tooltip>
 
                         </div>
                       </div>
@@ -2333,19 +2344,20 @@ z-index:98">
                           </div>
                         </xo-product>
                       </div>
-                     <div class=" " id="cart-item-{{ item.id }}" data-item-id="{{ item.id }}">
-  
-                      <div class="cart-item__remove">
-                        <button class="remove-item" 
-                                data-item-id="{{ item.id }}" 
-                                data-url="{% url 'remove_item' item.id %}">
-                          <svg width="16" height="16" viewBox="0 0 320 512" fill="currentColor">
-                            <path d="M193.94 256L296.5 153.44l21.15-21.15c3.12-3.12 3.12-8.19 0-11.31l-22.63-22.63c-3.12-3.12-8.19-3.12-11.31 0L160 222.06 36.29 98.34c-3.12-3.12-8.19-3.12-11.31 0L2.34 120.97c-3.12 3.12-3.12 8.19 0 11.31L126.06 256 2.34 379.71c-3.12 3.12-3.12 8.19 0 11.31l22.63 22.63c3.12 3.12 8.19 3.12 11.31 0L160 289.94 262.56 392.5l21.15 21.15c3.12 3.12 8.19 3.12 11.31 0l22.63-22.63c3.12-3.12 3.12-8.19 0-11.31L193.94 256z"></path>
-                          </svg>
-                        </button>
+                      <div class=" " id="cart-item-{{ item.id }}" data-item-id="{{ item.id }}">
+
+                        <div class="cart-item__remove">
+                          <button class="remove-item" data-item-id="{{ item.id }}"
+                            data-url="{% url 'remove_item' item.id %}">
+                            <svg width="16" height="16" viewBox="0 0 320 512" fill="currentColor">
+                              <path
+                                d="M193.94 256L296.5 153.44l21.15-21.15c3.12-3.12 3.12-8.19 0-11.31l-22.63-22.63c-3.12-3.12-8.19-3.12-11.31 0L160 222.06 36.29 98.34c-3.12-3.12-8.19-3.12-11.31 0L2.34 120.97c-3.12 3.12-3.12 8.19 0 11.31L126.06 256 2.34 379.71c-3.12 3.12-3.12 8.19 0 11.31l22.63 22.63c3.12 3.12 8.19 3.12 11.31 0L160 289.94 262.56 392.5l21.15 21.15c3.12 3.12 8.19 3.12 11.31 0l22.63-22.63c3.12-3.12 3.12-8.19 0-11.31L193.94 256z">
+                              </path>
+                            </svg>
+                          </button>
+                        </div>
+
                       </div>
-  
-                </div>
                       <div class="cart-item__total item-total-{{ item.id }}">₹{{ item.total_price }}</div>
 
                     </div>
@@ -2365,34 +2377,34 @@ z-index:98">
                     <span>Subtotal:</span>
                     <span class="cart-subtotal">₹{{ cart.get_subtotal|floatformat:2 }}</span>
                   </div>
-                  <div class="cart-summary">
-                  <span>Total:</span>
-                  <span id="cart-total">₹{{ cart.get_total }}</span>
-                </div>
+                  <div class="cart-summary__row"> <!-- ✅ CORRECT -->
+                    <span>Total:</span>
+                    <span id="cart-total">₹{{ cart.get_total }}</span>
+                  </div>
 
-                   <div class="checkout-row" style="display:flex; gap:1rem; margin-top:1rem;">
-        
-        <a href="{% url 'checkout_page' %}"
-           class="xo-btn xo-btn--dark xo-btn--primary xo-btn--md xo-btn--slide-up"
-           style="flex:1; text-align:center;">
-            <span class="xo-btn__content">
-                <span class="xo-btn__text" data-text="Proceed to Checkout">
-                    Proceed to Checkout
-                </span>
-            </span>
-        </a>
+                  <div class="checkout-row" style="display:flex; gap:1rem; margin-top:1rem;">
 
-        <a href="{% url 'cart_page' %}"
-           class="xo-btn xo-btn--light xo-btn--primary xo-btn--md xo-btn--slide-up"
-           style="flex:1; text-align:center;">
-            <span class="xo-btn__content">
-                <span class="xo-btn__text" data-text="View Cart">
-                    View Cart
-                </span>
-            </span>
-        </a>
+                    <a href="{% url 'checkout_page' %}"
+                      class="xo-btn xo-btn--dark xo-btn--primary xo-btn--md xo-btn--slide-up"
+                      style="flex:1; text-align:center;">
+                      <span class="xo-btn__content">
+                        <span class="xo-btn__text" data-text="Proceed to Checkout">
+                          Proceed to Checkout
+                        </span>
+                      </span>
+                    </a>
 
-    </div>
+                    <a href="{% url 'cart_page' %}"
+                      class="xo-btn xo-btn--light xo-btn--primary xo-btn--md xo-btn--slide-up"
+                      style="flex:1; text-align:center;">
+                      <span class="xo-btn__content">
+                        <span class="xo-btn__text" data-text="View Cart">
+                          View Cart
+                        </span>
+                      </span>
+                    </a>
+
+                  </div>
                 </div>
                 {% endif %}
 
@@ -2471,140 +2483,7 @@ z-index:98">
 
 
 
-          <script>
-            const timeout = 5000;
 
-            function showToast(message, type = "success") {
-              const toastContainer = document.querySelector(".toast-container");
-
-              const toast = document.createElement("div");
-              toast.classList.add("toast", type);
-
-              toast.innerHTML = `
-    <div class="toast-content">
-      <i class="bi icon bi-${getIcon(type)}"></i>
-      <div class="message">
-        <span class="text text-1">${capitalize(type)}</span>
-        <span class="text text-2">${message}</span>
-      </div>
-    </div>
-    <i class="bi bi-x-lg close"></i>
-    <div class="progress active"></div>
-  `;
-
-              toastContainer.appendChild(toast);
-
-              setTimeout(() => {
-                void toast.offsetHeight;
-                toast.classList.add("active");
-              }, 10);
-
-              const progress = toast.querySelector(".progress");
-              const closeIcon = toast.querySelector(".close");
-
-              const timer1 = setTimeout(() => toast.classList.remove("active"), timeout);
-              const timer2 = setTimeout(() => {
-                progress.classList.remove("active");
-                setTimeout(() => toast.remove(), 400);
-              }, timeout + 300);
-
-              closeIcon.addEventListener("click", () => {
-                toast.classList.remove("active");
-                clearTimeout(timer1);
-                clearTimeout(timer2);
-                setTimeout(() => toast.remove(), 400);
-              });
-            }
-
-            function getIcon(type) {
-              switch (type) {
-                case "success": return "check-circle-fill";
-                case "error": return "x-circle-fill";
-                case "warning": return "exclamation-triangle-fill";
-                case "info": return "info-circle-fill";
-                default: return "check-circle-fill";
-              }
-            }
-
-            function capitalize(str) {
-              return str.charAt(0).toUpperCase() + str.slice(1);
-            }
-          </script>
-          <script>
-            document.addEventListener("click", function (e) {
-
-
-              if (e.target.classList.contains("increase-qty") || e.target.classList.contains("decrease-qty")) {
-                e.preventDefault();
-
-                let itemID = e.target.dataset.itemId;
-                let url = e.target.dataset.url;
-
-                fetch(url, {
-                  method: "GET",
-                  headers: {
-                    "X-Requested-With": "XMLHttpRequest",
-                  }
-                })
-                  .then(res => res.json())
-                  .then(data => {
-
-
-                    if (data.deleted) {
-                      document.getElementById("cart-row-" + itemID).remove();
-                      return;
-                    }
-
-
-                    document.querySelectorAll(".item-quantity-" + itemID).forEach(el => {
-                      el.value = data.quantity;
-                    });
-
-
-                    document.querySelector(".item-total-" + itemID).innerHTML = "₹" + data.item_total;
-                    document.getElementById("cart-total").innerHTML = "₹" + data.cart_total;
-
-
-                    document.querySelectorAll(`.increase-qty[data-item-id="${itemID}"]`).forEach(btn => {
-                      if (data.quantity >= data.stock) {
-                        btn.classList.add("disabled");
-                      } else {
-                        btn.classList.remove("disabled");
-                      }
-                    });
-                  });
-              }
-
-
-
-              if (e.target.closest(".remove-item-btn")) {
-                e.preventDefault();
-
-                let btn = e.target.closest(".remove-item-btn");
-                let itemID = btn.dataset.itemId;
-                let url = btn.dataset.url;
-
-                fetch(url, {
-                  method: "GET",
-                  headers: {
-                    "X-Requested-With": "XMLHttpRequest",
-                  }
-                })
-                  .then(res => res.json())
-                  .then(data => {
-                    let row = document.getElementById("cart-row-" + itemID);
-                    row.style.opacity = "0";
-                    setTimeout(() => row.remove(), 250);
-
-
-                    document.querySelector(".item-total-" + itemID).innerHTML = "₹" + data.item_total;
-                    document.getElementById("cart-total").innerHTML = "₹" + data.cart_total;
-
-                  });
-              }
-
-            });
-          </script>
           <script>
             function updateWishlistUI(added, btn, newCount) {
               // change button icon
@@ -2633,130 +2512,56 @@ z-index:98">
 
 
             // wishlist button click
-            document.querySelectorAll(".wishlist-btn").forEach(btn => {
-              btn.addEventListener("click", function () {
-                const productId = this.dataset.productId;
+            // document.querySelectorAll(".wishlist-btn").forEach(btn => {
+            //   btn.addEventListener("click", function () {
+            //     const productId = this.dataset.productId;
 
-                fetch(`/wishlist/toggle/${productId}/`, {
-                  method: "POST",
-                  headers: { "X-CSRFToken": "{{ csrf_token }}" }
-                })
-                  .then(res => res.json())
-                  .then(data => {
-                    updateWishlistUI(data.added, this, data.wishlist_count);
-                  });
-              });
+            //     fetch(`/wishlist/toggle/${productId}/`, {
+            //       method: "POST",
+            //       headers: { "X-CSRFToken": "{{ csrf_token }}" }
+            //     })
+            //       .then(res => res.json())
+            //       .then(data => {
+            //         updateWishlistUI(data.added, this, data.wishlist_count);
+            //       });
+            //   });
+            // });
+          </script>
+
+
+
+
+          <script>
+            document.addEventListener("DOMContentLoaded", function () {
+              refreshCartModal();   // Load totals + wishlist states AFTER all JS is ready
             });
 
-            document.addEventListener("click", function (e) {
-
-    // Increase / Decrease quantity
-    if (e.target.classList.contains("increase-qty") || e.target.classList.contains("decrease-qty")) {
-        e.preventDefault();
-        let btn = e.target;
-        fetch(btn.dataset.url, {
-            method: "GET",
-            headers: { "X-Requested-With": "XMLHttpRequest" }
-        })
-        .then(res => res.json())
-        .then(data => {
-
-            if (data.deleted) {
-                document.querySelector(`.cart-item[data-item-id="${btn.dataset.itemId}"]`).remove();
-                
-                // 🔥 CHECK IF CART IS EMPTY AND REFRESH MODAL
-                setTimeout(() => {
-                    if (document.querySelectorAll('.cart-item').length === 0) {
-                        refreshCartModal();
-                    }
-                }, 300);
-                return;
+            /* -----------------------------
+               GET CSRF TOKEN
+            ----------------------------- */
+            function getCookie(name) {
+              let cookieValue = null;
+              if (document.cookie) {
+                document.cookie.split(";").forEach(cookie => {
+                  cookie = cookie.trim();
+                  if (cookie.startsWith(name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
+                  }
+                });
+              }
+              return cookieValue;
             }
+            const csrftoken = getCookie("csrftoken");
 
-            document.querySelectorAll(".item-quantity-" + btn.dataset.itemId)
-                .forEach(el => el.value = data.quantity);
+            /* -----------------------------
+               NOTIFICATION POPUP
+            ----------------------------- */
+            function showNotification(message, type = "success") {
+              document.querySelectorAll(".custom-notification").forEach(n => n.remove());
 
-            let itemTotal = document.querySelector(".item-total-" + btn.dataset.itemId);
-            if (itemTotal) itemTotal.innerHTML = "₹" + data.item_total;
-
-            let cartTotal = document.getElementById("cart-total");
-            if (cartTotal) cartTotal.innerHTML = "₹" + data.cart_total;
-            
-            let cartSubtotal = document.querySelector(".cart-subtotal");
-            if (cartSubtotal) cartSubtotal.innerHTML = "₹" + data.cart_total;
-        });
-    }
-
-    // Remove item
-    if (e.target.closest(".remove-item")) {
-        e.preventDefault();
-        let btn = e.target.closest(".remove-item");
-
-        fetch(btn.dataset.url, {
-            method: "GET",
-            headers: { "X-Requested-With": "XMLHttpRequest" }
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                let item = document.querySelector(`.cart-item[data-item-id="${btn.dataset.itemId}"]`);
-                if (item) {
-                    item.style.opacity = "0";
-                    setTimeout(() => {
-                        item.remove();
-                        
-                        // 🔥 CHECK IF CART IS EMPTY AND REFRESH MODAL
-                        if (document.querySelectorAll('.cart-item').length === 0) {
-                            refreshCartModal();
-                        }
-                    }, 300);
-                }
-
-                updateCartCount(data.cart_count);
-
-                let total = document.getElementById("cart-total");
-                if (total) total.innerHTML = "₹" + data.cart_total;
-                
-                let subtotal = document.querySelector(".cart-subtotal");
-                if (subtotal) subtotal.innerHTML = "₹" + data.cart_total;
-
-                showNotification(data.message, "success");
-            }
-        });
-    }
-});
-          </script> 
- 
- 
-
-
-<script>
-/* -----------------------------
-   GET CSRF TOKEN
------------------------------ */
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie) {
-        document.cookie.split(";").forEach(cookie => {
-            cookie = cookie.trim();
-            if (cookie.startsWith(name + "=")) {
-                cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
-            }
-        });
-    }
-    return cookieValue;
-}
-const csrftoken = getCookie("csrftoken");
-
-/* -----------------------------
-   NOTIFICATION POPUP
------------------------------ */
-function showNotification(message, type = "success") {
-    document.querySelectorAll(".custom-notification").forEach(n => n.remove());
-
-    const el = document.createElement("div");
-    el.className = `custom-notification custom-notification--${type}`;
-    el.innerHTML = `
+              const el = document.createElement("div");
+              el.className = `custom-notification custom-notification--${type}`;
+              el.innerHTML = `
         <div class="custom-notification__content">
             <span class="custom-notification__icon">
                 ${type === "success" ? "✓" : type === "warning" ? "⚠" : "✕"}
@@ -2764,266 +2569,323 @@ function showNotification(message, type = "success") {
             <span class="custom-notification__message">${message}</span>
         </div>`;
 
-    document.body.appendChild(el);
+              document.body.appendChild(el);
 
-    setTimeout(() => el.classList.add("show"), 10);
-    setTimeout(() => {
-        el.classList.remove("show");
-        setTimeout(() => el.remove(), 300);
-    }, 3000);
-}
-
-/* -----------------------------
-   UPDATE CART COUNT IN HEADER
------------------------------ */
-function updateCartCount(count) {
-    document.querySelectorAll(".header-v24__cart-count, .cart-count, #cart-count")
-        .forEach(el => {
-            el.textContent = count;
-            el.style.transform = "scale(1.3)";
-            setTimeout(() => el.style.transform = "scale(1)", 300);
-        });
-}
-
-/* -----------------------------
-   🔥 NEW: REFRESH CART MODAL
------------------------------ */
-function refreshCartModal() {
-    fetch(window.location.href, {
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(res => res.text())
-    .then(html => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        
-        // Extract the cart modal content from the fresh HTML
-        const newCartModal = doc.querySelector('#xo-cart-mini .xo-modal-content-style1__inner');
-        const currentCartModal = document.querySelector('#xo-cart-mini .xo-modal-content-style1__inner');
-        
-        if (newCartModal && currentCartModal) {
-            currentCartModal.innerHTML = newCartModal.innerHTML;
-            console.log('✅ Cart modal refreshed');
-        }
-    })
-    .catch(err => console.error('Cart modal refresh error:', err));
-}
-
-/* -----------------------------
-   UNIVERSAL AJAX ADD TO CART
------------------------------ */
-function ajaxAddToCart(url, formData, btn) {
-    if (btn) {
-        btn.disabled = true;
-        btn.style.opacity = "0.6";
-    }
-
-    let icon = btn?.querySelector(".xo-btn__icon");
-    let loading = btn?.querySelector(".xo-btn__loading");
-
-    if (icon) icon.style.display = "none";
-    if (loading) loading.style.display = "block";
-
-    fetch(url, {
-        method: "POST",
-        headers: {
-            "X-Requested-With": "XMLHttpRequest",
-            "X-CSRFToken": csrftoken
-        },
-        body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            updateCartCount(data.cart_count);
-            showNotification(data.message || "Added to cart!", "success");
-            
-            // 🔥 REFRESH CART MODAL INSTANTLY
-            refreshCartModal();
-            
-        } else if (data.limit) {
-            showNotification(data.message, "warning");
-            updateCartCount(data.cart_count);
-            
-            // 🔥 REFRESH CART MODAL FOR STOCK LIMITS TOO
-            refreshCartModal();
-        } else {
-            showNotification("Failed to add product", "error");
-        }
-    })
-    .catch(() => showNotification("Something went wrong!", "error"))
-    .finally(() => {
-        if (btn) {
-            btn.disabled = false;
-            btn.style.opacity = "1";
-        }
-        if (icon) icon.style.display = "inline-block";
-        if (loading) loading.style.display = "none";
-    });
-}
-
-/* -----------------------------
-   CLICK HANDLER FOR ADD TO CART
------------------------------ */
-document.addEventListener("click", function (e) {
-
-    // PRODUCT DETAIL PAGE
-    if (e.target.closest(".add-to-cart-btn")) {
-        e.preventDefault();
-        let btn = e.target.closest(".add-to-cart-btn");
-        let form = btn.closest("form");
-        ajaxAddToCart(btn.dataset.url, new FormData(form), btn);
-    }
-
-    // BASE.html GRID BUTTON
-    if (e.target.closest(".add-to-cart-grid-btn")) {
-        e.preventDefault();
-        let btn = e.target.closest(".add-to-cart-grid-btn");
-        let form = btn.closest("form");
-        ajaxAddToCart(btn.dataset.url, new FormData(form), btn);
-    }
-
-    // WISHLIST PAGE BUTTON
-    if (e.target.closest(".add-to-cart-wishlist-btn")) {
-        e.preventDefault();
-        let btn = e.target.closest(".add-to-cart-wishlist-btn");
-        let form = btn.closest("form");
-        ajaxAddToCart(btn.dataset.url, new FormData(form), btn);
-    }
-});
-
-/* -----------------------------
-   CATCH ANY ADD TO CART FORMS
------------------------------ */
-document.addEventListener("submit", function (e) {
-    let form = e.target;
-
-    if (form.action.includes("add_to_cart")) {
-        e.preventDefault();
-        let btn = form.querySelector('button[type="submit"], button');
-        ajaxAddToCart(form.action, new FormData(form), btn);
-    }
-}, true);
-
-/* -----------------------------
-   CART QUANTITY + REMOVE
------------------------------ */
-document.addEventListener("click", function (e) {
-
-    // Increase / Decrease quantity
-    if (e.target.classList.contains("increase-qty") || e.target.classList.contains("decrease-qty")) {
-        e.preventDefault();
-        let btn = e.target;
-        fetch(btn.dataset.url, {
-            method: "GET",
-            headers: { "X-Requested-With": "XMLHttpRequest" }
-        })
-        .then(res => res.json())
-        .then(data => {
-
-            if (data.deleted) {
-                document.querySelector(`.cart-item[data-item-id="${btn.dataset.itemId}"]`).remove();
-                
-                // 🔥 CHECK IF CART IS EMPTY AND REFRESH MODAL
-                setTimeout(() => {
-                    if (document.querySelectorAll('.cart-item').length === 0) {
-                        refreshCartModal();
-                    }
-                }, 300);
-                return;
+              setTimeout(() => el.classList.add("show"), 10);
+              setTimeout(() => {
+                el.classList.remove("show");
+                setTimeout(() => el.remove(), 300);
+              }, 3000);
             }
 
-            document.querySelectorAll(".item-quantity-" + btn.dataset.itemId)
-                .forEach(el => el.value = data.quantity);
+            /* -----------------------------
+               UPDATE CART COUNT IN HEADER
+            ----------------------------- */
+            function updateCartCount(count) {
+              document.querySelectorAll(".header-v24__cart-count, .cart-count, #cart-count")
+                .forEach(el => {
+                  el.textContent = count;
+                  el.style.transform = "scale(1.3)";
+                  setTimeout(() => el.style.transform = "scale(1)", 300);
+                });
 
-            let itemTotal = document.querySelector(".item-total-" + btn.dataset.itemId);
-            if (itemTotal) itemTotal.innerHTML = "₹" + data.item_total;
+            }
 
-            let cartTotal = document.getElementById("cart-total");
-            if (cartTotal) cartTotal.innerHTML = "₹" + data.cart_total;
-            
-            let cartSubtotal = document.querySelector(".cart-subtotal");
-            if (cartSubtotal) cartSubtotal.innerHTML = "₹" + data.cart_total;
-        });
-    }
-
-    // Remove item
-    if (e.target.closest(".remove-item")) {
-        e.preventDefault();
-        let btn = e.target.closest(".remove-item");
-
-        fetch(btn.dataset.url, {
-            method: "GET",
-            headers: { "X-Requested-With": "XMLHttpRequest" }
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                let item = document.querySelector(`.cart-item[data-item-id="${btn.dataset.itemId}"]`);
-                if (item) {
-                    item.style.opacity = "0";
-                    setTimeout(() => {
-                        item.remove();
-                        
-                        // 🔥 CHECK IF CART IS EMPTY AND REFRESH MODAL
-                        if (document.querySelectorAll('.cart-item').length === 0) {
-                            refreshCartModal();
-                        }
-                    }, 300);
+            /* -----------------------------
+                NEW: REFRESH CART MODAL
+            ----------------------------- */
+            function refreshCartModal() {
+              fetch(window.location.href, {
+                headers: {
+                  'X-Requested-With': 'XMLHttpRequest'
                 }
+              })
+                .then(res => res.text())
+                .then(html => {
+                  const parser = new DOMParser();
+                  const doc = parser.parseFromString(html, 'text/html');
 
-                updateCartCount(data.cart_count);
+                  // Extract the cart modal content from the fresh HTML
+                  const newCartModal = doc.querySelector('#xo-cart-mini .xo-modal-content-style1__inner');
+                  const currentCartModal = document.querySelector('#xo-cart-mini .xo-modal-content-style1__inner');
 
-                let total = document.getElementById("cart-total");
-                if (total) total.innerHTML = "₹" + data.cart_total;
-                
-                let subtotal = document.querySelector(".cart-subtotal");
-                if (subtotal) subtotal.innerHTML = "₹" + data.cart_total;
-
-                showNotification(data.message, "success");
+                  if (newCartModal && currentCartModal) {
+                    currentCartModal.innerHTML = newCartModal.innerHTML;
+                    console.log('✅ Cart modal refreshed');
+                  }
+                })
+                .catch(err => console.error('Cart modal refresh error:', err));
             }
-        });
-    }
-});
 
- 
-</script>
+            /* -----------------------------
+               UNIVERSAL AJAX ADD TO CART
+            ----------------------------- */
+            function ajaxAddToCart(url, formData, btn) {
+              if (btn) {
+                btn.disabled = true;
+                btn.style.opacity = "0.6";
+              }
 
-<style>
-/*** NOTIFICATION ***/
-.custom-notification {
-    position: fixed;
-    top: 100px;
-    right: 20px;
-    background: #fff;
-    padding: 16px 24px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 99999;
-    transform: translateX(400px);
-    transition: .3s ease;
-}
-.custom-notification.show { transform: translateX(0); }
-.custom-notification__content { display: flex; gap: 12px; align-items: center; }
-.custom-notification__icon {
-    width: 24px; height: 24px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px; font-weight: bold; color: white;
-}
-.custom-notification--success .custom-notification__icon { background: #10b981; }
-.custom-notification--warning .custom-notification__icon { background: #f59e0b; }
-.custom-notification--error .custom-notification__icon { background: #ef4444; }
+              let icon = btn?.querySelector(".xo-btn__icon");
+              let loading = btn?.querySelector(".xo-btn__loading");
 
-.xo-btn__loading { display: none; }
+              if (icon) icon.style.display = "none";
+              if (loading) loading.style.display = "block";
 
-@media (max-width: 768px) {
-    .custom-notification {
-        right: 10px; left: 10px;
-    }
-}
-</style>
+              fetch(url, {
+                method: "POST",
+                headers: {
+                  "X-Requested-With": "XMLHttpRequest",
+                  "X-CSRFToken": csrftoken
+                },
+                body: formData
+              })
+                .then(res => res.json())
+                .then(data => {
+                  if (data.success) {
+                    updateCartCount(data.cart_count);
+                    showNotification(data.message || "Added to cart!", "success");
+
+                    // 🔥 REFRESH CART MODAL INSTANTLY
+                    refreshCartModal();
+                    setTimeout(() => {
+                      let total = document.getElementById("cart-total");
+                      if (total) total.innerHTML = "₹" + data.cart_total;
+
+                      let subtotal = document.querySelector(".cart-subtotal");
+                      if (subtotal) subtotal.innerHTML = "₹" + data.cart_total;
+                    }, 150);
+
+
+                  } else if (data.limit) {
+                    showNotification(data.message, "warning");
+                    updateCartCount(data.cart_count);
+
+                    // 🔥 REFRESH CART MODAL FOR STOCK LIMITS TOO
+                    refreshCartModal();
+                  } else {
+                    showNotification("Failed to add product", "error");
+                  }
+                })
+                .catch(() => showNotification("Something went wrong!", "error"))
+                .finally(() => {
+                  if (btn) {
+                    btn.disabled = false;
+                    btn.style.opacity = "1";
+                  }
+                  if (icon) icon.style.display = "inline-block";
+                  if (loading) loading.style.display = "none";
+                });
+            }
+
+            /* -----------------------------
+               CLICK HANDLER FOR ADD TO CART
+            ----------------------------- */
+            document.addEventListener("click", function (e) {
+
+
+              // PRODUCT DETAIL PAGE
+              if (e.target.closest(".add-to-cart-btn")) {
+                e.preventDefault();
+                let btn = e.target.closest(".add-to-cart-btn");
+                let form = btn.closest("form");
+                ajaxAddToCart(btn.dataset.url, new FormData(form), btn);
+
+              }
+
+              // BASE.html GRID BUTTON
+              if (e.target.closest(".add-to-cart-grid-btn")) {
+                e.preventDefault();
+                let btn = e.target.closest(".add-to-cart-grid-btn");
+                let form = btn.closest("form");
+                ajaxAddToCart(btn.dataset.url, new FormData(form), btn);
+              }
+
+              // WISHLIST PAGE BUTTON
+              if (e.target.closest(".add-to-cart-wishlist-btn")) {
+                e.preventDefault();
+                let btn = e.target.closest(".add-to-cart-wishlist-btn");
+                let form = btn.closest("form");
+                ajaxAddToCart(btn.dataset.url, new FormData(form), btn);
+              }
+            });
+
+            /* -----------------------------
+               CATCH ANY ADD TO CART FORMS
+            ----------------------------- */
+            document.addEventListener("submit", function (e) {
+              let form = e.target;
+
+              if (form.action.includes("add_to_cart")) {
+                e.preventDefault();
+                let btn = form.querySelector('button[type="submit"], button');
+                ajaxAddToCart(form.action, new FormData(form), btn);
+              }
+            }, true);
+
+            /* -----------------------------
+               CART QUANTITY + REMOVE
+            ----------------------------- */
+            document.addEventListener("click", function (e) {
+
+              // Increase / Decrease quantity
+              if (e.target.classList.contains("increase-qty") || e.target.classList.contains("decrease-qty")) {
+                e.preventDefault();
+                let btn = e.target;
+                fetch(btn.dataset.url, {
+                  method: "GET",
+                  headers: { "X-Requested-With": "XMLHttpRequest" }
+                })
+                  .then(res => res.json())
+                  .then(data => {
+
+                    if (data.deleted) {
+                      document.querySelector(`.cart-item[data-item-id="${btn.dataset.itemId}"]`).remove();
+
+                      // 🔥 CHECK IF CART IS EMPTY AND REFRESH MODAL
+                      setTimeout(() => {
+                        if (document.querySelectorAll('.cart-item').length === 0) {
+                          refreshCartModal();
+                        }
+                      }, 300);
+                      return;
+                    }
+
+                    document.querySelectorAll(".item-quantity-" + btn.dataset.itemId)
+                      .forEach(el => el.value = data.quantity);
+
+                    let itemTotal = document.querySelector(".item-total-" + btn.dataset.itemId);
+                    if (itemTotal) itemTotal.innerHTML = "₹" + data.item_total;
+
+                    let cartTotal = document.getElementById("cart-total");
+                    if (cartTotal) cartTotal.innerHTML = "₹" + data.cart_total;
+
+                    let cartSubtotal = document.querySelector(".cart-subtotal");
+                    if (cartSubtotal) cartSubtotal.innerHTML = "₹" + data.cart_total;
+                  });
+              }
+
+              // Remove item
+              if (e.target.closest(".remove-item")) {
+                e.preventDefault();
+                let btn = e.target.closest(".remove-item");
+
+                fetch(btn.dataset.url, {
+                  method: "GET",
+                  headers: { "X-Requested-With": "XMLHttpRequest" }
+                })
+                  .then(res => res.json())
+                  .then(data => {
+                    if (data.success) {
+                      let item = document.querySelector(`.cart-item[data-item-id="${btn.dataset.itemId}"]`);
+                      if (item) {
+                        item.style.opacity = "0";
+                        setTimeout(() => {
+                          item.remove();
+
+                          // 🔥 CHECK IF CART IS EMPTY AND REFRESH MODAL
+                          if (document.querySelectorAll('.cart-item').length === 0) {
+                            refreshCartModal();
+                          }
+                        }, 300);
+                      }
+
+                      updateCartCount(data.cart_count);
+
+                      let total = document.getElementById("cart-total");
+                      if (total) total.innerHTML = "₹" + data.cart_total;
+
+                      let subtotal = document.querySelector(".cart-subtotal");
+                      if (subtotal) subtotal.innerHTML = "₹" + data.cart_total;
+
+                      showNotification(data.message, "success");
+                    }
+                  });
+              }
+            });
+
+            /* -----------------------------
+               WISHLIST TOGGLE
+            ----------------------------- */
+            // document.addEventListener("click", function (e) {
+            //     if (e.target.closest(".wishlist-btn")) {
+            //         e.preventDefault();
+            //         let btn = e.target.closest(".wishlist-btn");
+
+            //         fetch(`/wishlist/toggle/${btn.dataset.productId}/`, {
+            //             method: "POST",
+            //             headers: { "X-CSRFToken": csrftoken }
+            //         })
+            //         .then(res => res.json())
+            //         .then(data => {
+            //             btn.innerHTML = data.added
+            //                 ? `<svg width="20" height="20" fill="red"><path d="M12 21s-6.7-4.4-10-9c-3.3-4.6.2-11 6-9 2 .6 4 2.4 4 2.4s2-1.8 4-2.4c5.8-2 9.3 4.4 6 9-3.3 4.6-10 9-10 9z"/></svg>`
+            //                 : `<svg width="20" height="20" fill="none" stroke="black" stroke-width="2"><path d="M12 21s-6.7-4.4-10-9c-3.3-4.6.2-11 6-9 2 .6 4 2.4 4 2.4s2-1.8 4-2.4c5.8-2 9.3 4.4 6 9-3.3 4.6-10 9-10 9z"/></svg>`;
+            //         });
+            //     }
+            // });
+          </script>
+
+          <style>
+            /*** NOTIFICATION ***/
+            .custom-notification {
+              position: fixed;
+              top: 100px;
+              right: 20px;
+              background: #fff;
+              padding: 16px 24px;
+              border-radius: 8px;
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+              z-index: 99999;
+              transform: translateX(400px);
+              transition: .3s ease;
+            }
+
+            .custom-notification.show {
+              transform: translateX(0);
+            }
+
+            .custom-notification__content {
+              display: flex;
+              gap: 12px;
+              align-items: center;
+            }
+
+            .custom-notification__icon {
+              width: 24px;
+              height: 24px;
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 14px;
+              font-weight: bold;
+              color: white;
+            }
+
+            .custom-notification--success .custom-notification__icon {
+              background: #10b981;
+            }
+
+            .custom-notification--warning .custom-notification__icon {
+              background: #f59e0b;
+            }
+
+            .custom-notification--error .custom-notification__icon {
+              background: #ef4444;
+            }
+
+            .xo-btn__loading {
+              display: none;
+            }
+
+            @media (max-width: 768px) {
+              .custom-notification {
+                right: 10px;
+                left: 10px;
+              }
+            }
+          </style>
 </body>
 
 </html>
