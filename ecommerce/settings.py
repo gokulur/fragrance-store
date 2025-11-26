@@ -167,11 +167,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 
 #Setting Email
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_USE_TLS = True                           
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'rhythmicmind10@gmail.com'   
-EMAIL_HOST_PASSWORD = 'fxcv oxjc fnxg vndb'
+ 
  
 
 
