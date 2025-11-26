@@ -9,6 +9,8 @@
 
 <!-- BOOTSTRAP 4.5.2 CSS -->
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<!-- Leaflet CSS for Map -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
 <style>
     /* Wrapper to isolate all styles */
@@ -48,26 +50,6 @@
     .checkout-page-title p {
         font-size: 15px;
         color: #6a6a6a;
-    }
-
-    /* Buy Now Badge */
-    .buy-now-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
-        color: white;
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-size: 13px;
-        font-weight: 600;
-        margin-left: 12px;
-        animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); }
     }
 
     /* LEFT SECTION - Form */
@@ -139,6 +121,73 @@
         margin: 30px 0;
     }
 
+    /* Location Picker Button */
+    .location-picker-btn {
+        width: 100%;
+        padding: 14px 16px;
+        background: #ffffff;
+        border: 2px solid #1a1a1a;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        color: #1a1a1a;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: all 0.2s ease;
+        margin-bottom: 24px;
+    }
+
+    .location-picker-btn:hover {
+        background: #1a1a1a;
+        color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .location-picker-btn svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    /* Selected Location Display */
+    .selected-location-display {
+        background: #e8f5e9;
+        border: 2px solid #4caf50;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 24px;
+        display: none;
+    }
+
+    .selected-location-display.active {
+        display: block;
+    }
+
+    .location-display-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #2e7d32;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .location-display-address {
+        font-size: 15px;
+        color: #1a1a1a;
+        line-height: 1.5;
+        margin-bottom: 8px;
+    }
+
+    .location-display-coords {
+        font-size: 13px;
+        color: #6a6a6a;
+        font-family: monospace;
+    }
+
     /* RIGHT SECTION - Order Summary */
     .checkout-summary-section {
         background: #ffffff;
@@ -200,44 +249,6 @@
         font-size: 14px;
         color: #6a6a6a;
         font-weight: 500;
-    }
-
-    .checkout-qty-controls {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-top: 10px;
-    }
-
-    .checkout-qty-btn {
-        width: 28px;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #f5f5f5;
-        border: 1px solid #e8e8e8;
-        border-radius: 6px;
-        color: #1a1a1a;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 16px;
-        transition: all 0.2s ease;
-    }
-
-    .checkout-qty-btn:hover {
-        background: #1a1a1a;
-        color: #ffffff;
-        border-color: #1a1a1a;
-        text-decoration: none;
-    }
-
-    .checkout-qty-number {
-        font-size: 14px;
-        font-weight: 600;
-        color: #1a1a1a;
-        min-width: 20px;
-        text-align: center;
     }
 
     .checkout-summary-row {
@@ -365,6 +376,253 @@
         font-size: 18px;
     }
 
+    /* Map Modal Overlay */
+    .map-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 100000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        animation: mapFadeIn 0.3s ease;
+    }
+
+    .map-modal-overlay.active {
+        display: flex;
+    }
+
+    @keyframes mapFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    /* Map Modal Container */
+    .map-modal-container {
+        width: 95%;
+        max-width: 1000px;
+        height: 90vh;
+        max-height: 700px;
+        background: #ffffff;
+        border-radius: 16px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        animation: mapSlideUp 0.3s ease;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    @keyframes mapSlideUp {
+        from {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Map Modal Header */
+    .map-modal-header {
+        background: #1a1a1a;
+        color: #ffffff;
+        padding: 20px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .map-modal-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .map-modal-close {
+        background: none;
+        border: none;
+        color: #ffffff;
+        cursor: pointer;
+        padding: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        transition: all 0.2s ease;
+    }
+
+    .map-modal-close:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Search Box */
+    .map-search-container {
+        padding: 16px 24px;
+        background: #f8f8f8;
+        border-bottom: 1px solid #e8e8e8;
+    }
+
+    .map-search-box {
+        position: relative;
+        display: flex;
+        gap: 10px;
+    }
+
+    .map-search-input {
+        flex: 1;
+        padding: 12px 16px 12px 44px;
+        border: 2px solid #e8e8e8;
+        border-radius: 8px;
+        font-size: 15px;
+        transition: all 0.2s ease;
+    }
+
+    .map-search-input:focus {
+        outline: none;
+        border-color: #1a1a1a;
+        box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
+    }
+
+    .map-search-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6a6a6a;
+    }
+
+    .map-current-location-btn {
+        padding: 12px 20px;
+        background: #1a1a1a;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .map-current-location-btn:hover {
+        background: #000000;
+        transform: translateY(-2px);
+    }
+
+    /* Map Container */
+    .map-container {
+        flex: 1;
+        position: relative;
+    }
+
+    #deliveryMap {
+        width: 100%;
+        height: 100%;
+    }
+
+    /* Selected Location Info */
+    .map-selected-info {
+        background: #ffffff;
+        padding: 20px 24px;
+        border-top: 1px solid #e8e8e8;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .map-selected-details {
+        flex: 1;
+    }
+
+    .map-selected-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #6a6a6a;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .map-selected-address {
+        font-size: 15px;
+        color: #1a1a1a;
+        line-height: 1.5;
+        margin-bottom: 4px;
+    }
+
+    .map-selected-coords {
+        font-size: 13px;
+        color: #6a6a6a;
+        font-family: monospace;
+    }
+
+    .map-confirm-btn {
+        padding: 14px 32px;
+        background: #1a1a1a;
+        color: #ffffff;
+        border: none;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .map-confirm-btn:hover {
+        background: #000000;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .map-confirm-btn:disabled {
+        background: #e8e8e8;
+        color: #b0b0b0;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Loading Spinner */
+    .map-loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(255, 255, 255, 0.95);
+        padding: 20px 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        display: none;
+        align-items: center;
+        gap: 12px;
+        z-index: 1000;
+    }
+
+    .map-loading.active {
+        display: flex;
+    }
+
+    .map-spinner {
+        width: 24px;
+        height: 24px;
+        border: 3px solid #e8e8e8;
+        border-top-color: #1a1a1a;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
     /* OTP Modal Styles */
     .otp-modal-overlay {
         position: fixed;
@@ -373,7 +631,7 @@
         width: 100%;
         height: 100%;
         background: rgba(0, 0, 0, 0.7);
-        z-index: 100000;
+        z-index: 100001;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -615,6 +873,31 @@
         .otp-input {
             letter-spacing: 8px;
         }
+
+        .map-modal-container {
+            width: 100%;
+            height: 100vh;
+            max-height: 100vh;
+            border-radius: 0;
+        }
+
+        .map-search-box {
+            flex-direction: column;
+        }
+
+        .map-current-location-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .map-selected-info {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .map-confirm-btn {
+            width: 100%;
+        }
     }
 
     @media (max-width: 576px) {
@@ -678,6 +961,26 @@
             <form method="POST" action="{% url 'checkout_action' %}" id="checkoutForm">
                 {% csrf_token %}
 
+                <!-- Location Picker Button -->
+                <button type="button" class="location-picker-btn" onclick="openMapModal()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span>Select Delivery Location on Map</span>
+                </button>
+
+                <!-- Selected Location Display -->
+                <div id="selectedLocationDisplay" class="selected-location-display">
+                    <div class="location-display-title">📍 Selected Delivery Location</div>
+                    <div class="location-display-address" id="displayAddress">No location selected</div>
+                    <div class="location-display-coords" id="displayCoords"></div>
+                </div>
+
+                <!-- Hidden Inputs for Lat/Lng -->
+                <input type="hidden" id="delivery_latitude" name="delivery_latitude" value="">
+                <input type="hidden" id="delivery_longitude" name="delivery_longitude" value="">
+
                 <div class="checkout-row">
                     <div class="checkout-form-group">
                         <label class="checkout-label">Full Name</label>
@@ -702,20 +1005,20 @@
 
                 <div class="checkout-form-group">
                     <label class="checkout-label">Street Address</label>
-                    <input class="checkout-input" type="text" name="address_line"
+                    <input class="checkout-input" type="text" name="address_line" id="address_line"
                         value="{{ profile.address|default:'' }}" placeholder="123 Main Street, Apartment 4B" required>
                 </div>
 
                 <div class="checkout-row">
                     <div class="checkout-form-group">
                         <label class="checkout-label">City</label>
-                        <input class="checkout-input" type="text" name="city" value="{{ profile.city|default:'' }}"
+                        <input class="checkout-input" type="text" name="city" id="city" value="{{ profile.city|default:'' }}"
                             placeholder="Kochi" required>
                     </div>
 
                     <div class="checkout-form-group">
                         <label class="checkout-label">Postal Code</label>
-                        <input class="checkout-input" type="text" name="postal_code"
+                        <input class="checkout-input" type="text" name="postal_code" id="postal_code"
                             value="{{ profile.postal|default:'' }}" placeholder="682001" required>
                     </div>
                 </div>
@@ -781,6 +1084,60 @@
     </div>
 </div>
 
+<!-- Map Modal -->
+<div id="mapModal" class="map-modal-overlay">
+    <div class="map-modal-container">
+        <!-- Header -->
+        <div class="map-modal-header">
+            <h3 class="map-modal-title">Select Delivery Location</h3>
+            <button type="button" class="map-modal-close" onclick="closeMapModal()">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Search Box -->
+        <div class="map-search-container">
+            <div class="map-search-box">
+                <span class="map-search-icon">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </span>
+                <input type="text" id="mapSearchInput" class="map-search-input" placeholder="Search for a location...">
+                <button type="button" class="map-current-location-btn" onclick="getCurrentLocation()">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                    </svg>
+                    Current Location
+                </button>
+            </div>
+        </div>
+
+        <!-- Map Container -->
+        <div class="map-container">
+            <div id="deliveryMap"></div>
+            <div id="mapLoading" class="map-loading">
+                <div class="map-spinner"></div>
+                <span>Loading map...</span>
+            </div>
+        </div>
+
+        <!-- Selected Location Info -->
+        <div class="map-selected-info">
+            <div class="map-selected-details">
+                <div class="map-selected-label">Selected Location</div>
+                <div class="map-selected-address" id="selectedAddress">Click on the map to select a location</div>
+                <div class="map-selected-coords" id="selectedCoords"></div>
+            </div>
+            <button type="button" class="map-confirm-btn" id="confirmLocationBtn" onclick="confirmLocation()" disabled>
+                Confirm Location
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- OTP Verification Modal -->
 <div id="otpVerificationModal" class="otp-modal-overlay" style="display: none;">
     <div class="otp-modal-container">
@@ -838,6 +1195,8 @@
     </div>
 </div>
 
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
 // Get CSRF Token
@@ -857,92 +1216,261 @@ function getCookie(name) {
 }
 const csrftoken = getCookie('csrftoken');
 
-document.addEventListener("click", function(e) {
-    let btn = e.target.closest(".checkout-qty-btn");
-    if (!btn) return;
+// ============================================
+// MAP FUNCTIONALITY
+// ============================================
+let map;
+let marker;
+let selectedLat = null;
+let selectedLng = null;
+let selectedAddressText = '';
 
-    e.preventDefault();
+function openMapModal() {
+    document.getElementById('mapModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    setTimeout(() => {
+        initializeMap();
+    }, 300);
+}
 
-    let row = btn.closest(".checkout-order-item");
-    let qtySpan = row.querySelector(".checkout-qty-number");
-    let priceText = row.querySelector(".checkout-item-price").innerText;
-    let price = parseFloat(priceText.replace("₹", "").replace(" each", "").trim());
+function closeMapModal() {
+    document.getElementById('mapModal').classList.remove('active');
+    document.body.style.overflow = '';
+}
 
-    // 1. Update quantity immediately (Optimistic UI)
-    let currentQty = parseInt(qtySpan.innerText);
-    if (btn.innerText === "+") {
-        currentQty += 1;
-    } else if (btn.innerText === "−") {
-        currentQty = Math.max(1, currentQty - 1);
+function initializeMap() {
+    if (map) {
+        map.remove();
     }
-    qtySpan.innerText = currentQty;
-
-    // 2. Calculate new subtotal
-    let subtotal = 0;
-    document.querySelectorAll(".checkout-order-item").forEach(item => {
-        let q = parseInt(item.querySelector(".checkout-qty-number").innerText);
-        let pText = item.querySelector(".checkout-item-price").innerText;
-        let p = parseFloat(pText.replace("₹", "").replace(" each", "").trim());
-        subtotal += q * p;
+    
+    document.getElementById('mapLoading').classList.add('active');
+    
+    // Default to India - Kochi coordinates
+    let defaultLat = 9.9312;
+    let defaultLng = 76.2673;
+    
+    // Initialize map
+    map = L.map('deliveryMap').setView([defaultLat, defaultLng], 13);
+    
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19
+    }).addTo(map);
+    
+    // Custom marker icon
+    const customIcon = L.divIcon({
+        className: 'custom-marker',
+        html: '<div style="width: 40px; height: 40px; background: #1a1a1a; border: 3px solid #ffffff; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); display: flex; align-items: center; justify-content: center;"><div style="width: 12px; height: 12px; background: #ffffff; border-radius: 50%; transform: rotate(45deg);"></div></div>',
+        iconSize: [40, 40],
+        iconAnchor: [20, 40]
     });
-
-    // 3. Get shipping and tax from DOM
-    let summaryRows = document.querySelectorAll(".checkout-summary-row span:last-child");
-    let shipping = parseFloat(summaryRows[1].innerText.replace("₹", "").trim()) || 50;
-    let tax = parseFloat(summaryRows[2].innerText.replace("₹", "").trim()) || 0;
-
-    // 4. Update totals in DOM
-    let total = subtotal + shipping + tax;
-    summaryRows[0].innerText = "₹" + subtotal.toFixed(2);
-    document.querySelector(".checkout-summary-total span:last-child").innerText = "₹" + total.toFixed(2);
-
-    // 5. Send AJAX request to server
-    let url = btn.getAttribute("href");
-    if (!url) return;
-
-    fetch(url, {
-        method: "GET",
-        headers: {
-            "X-Requested-With": "XMLHttpRequest",
-            "X-CSRFToken": csrftoken
-        },
-        credentials: "same-origin"
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Sync quantity from server
-            qtySpan.innerText = data.quantity;
-
-            // Update totals from server response
-            summaryRows[0].innerText = "₹" + data.subtotal.toFixed(2);
-            summaryRows[1].innerText = "₹" + data.shipping.toFixed(2);
-            summaryRows[2].innerText = "₹" + data.tax.toFixed(2);
-            document.querySelector(".checkout-summary-total span:last-child").innerText = "₹" + data.total.toFixed(2);
+    
+    // Map click event
+    map.on('click', function(e) {
+        selectedLat = e.latlng.lat;
+        selectedLng = e.latlng.lng;
+        
+        // Remove existing marker
+        if (marker) {
+            map.removeLayer(marker);
         }
-    })
-    .catch(err => {
-        console.error("Error updating quantity:", err);
-        // Revert on error
-        location.reload();
+        
+        // Add new marker
+        marker = L.marker([selectedLat, selectedLng], { icon: customIcon }).addTo(map);
+        
+        // Reverse geocode to get address
+        reverseGeocode(selectedLat, selectedLng);
+        
+        // Enable confirm button
+        document.getElementById('confirmLocationBtn').disabled = false;
     });
+    
+    // Try to get user's current location
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const userLat = position.coords.latitude;
+                const userLng = position.coords.longitude;
+                map.setView([userLat, userLng], 15);
+                document.getElementById('mapLoading').classList.remove('active');
+            },
+            function() {
+                document.getElementById('mapLoading').classList.remove('active');
+            }
+        );
+    } else {
+        document.getElementById('mapLoading').classList.remove('active');
+    }
+}
+
+function getCurrentLocation() {
+    if (!navigator.geolocation) {
+        alert('Geolocation is not supported by your browser');
+        return;
+    }
+    
+    document.getElementById('mapLoading').classList.add('active');
+    
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            
+            map.setView([lat, lng], 15);
+            
+            selectedLat = lat;
+            selectedLng = lng;
+            
+            // Remove existing marker
+            if (marker) {
+                map.removeLayer(marker);
+            }
+            
+            // Add marker
+            const customIcon = L.divIcon({
+                className: 'custom-marker',
+                html: '<div style="width: 40px; height: 40px; background: #1a1a1a; border: 3px solid #ffffff; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); display: flex; align-items: center; justify-content: center;"><div style="width: 12px; height: 12px; background: #ffffff; border-radius: 50%; transform: rotate(45deg);"></div></div>',
+                iconSize: [40, 40],
+                iconAnchor: [20, 40]
+            });
+            
+            marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
+            
+            reverseGeocode(lat, lng);
+            document.getElementById('confirmLocationBtn').disabled = false;
+            document.getElementById('mapLoading').classList.remove('active');
+        },
+        function(error) {
+            alert('Unable to get your location: ' + error.message);
+            document.getElementById('mapLoading').classList.remove('active');
+        }
+    );
+}
+
+function reverseGeocode(lat, lng) {
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+        .then(response => response.json())
+        .then(data => {
+            selectedAddressText = data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            document.getElementById('selectedAddress').textContent = selectedAddressText;
+            document.getElementById('selectedCoords').textContent = `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`;
+            
+            // Auto-fill form fields
+            if (data.address) {
+                if (data.address.road || data.address.suburb) {
+                    document.getElementById('address_line').value = 
+                        (data.address.road || '') + (data.address.suburb ? ', ' + data.address.suburb : '');
+                }
+                if (data.address.city || data.address.town || data.address.village) {
+                    document.getElementById('city').value = 
+                        data.address.city || data.address.town || data.address.village || '';
+                }
+                if (data.address.postcode) {
+                    document.getElementById('postal_code').value = data.address.postcode;
+                }
+            }
+        })
+        .catch(error => {
+            selectedAddressText = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            document.getElementById('selectedAddress').textContent = selectedAddressText;
+            document.getElementById('selectedCoords').textContent = `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`;
+        });
+}
+
+function confirmLocation() {
+    if (!selectedLat || !selectedLng) {
+        alert('Please select a location on the map');
+        return;
+    }
+    
+    // Update hidden inputs
+    document.getElementById('delivery_latitude').value = selectedLat;
+    document.getElementById('delivery_longitude').value = selectedLng;
+    
+    // Update display
+    document.getElementById('displayAddress').textContent = selectedAddressText;
+    document.getElementById('displayCoords').textContent = `Lat: ${selectedLat.toFixed(6)}, Lng: ${selectedLng.toFixed(6)}`;
+    document.getElementById('selectedLocationDisplay').classList.add('active');
+    
+    // Close modal
+    closeMapModal();
+}
+
+// Search functionality
+document.getElementById('mapSearchInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        const query = this.value;
+        if (!query) return;
+        
+        document.getElementById('mapLoading').classList.add('active');
+        
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    const result = data[0];
+                    const lat = parseFloat(result.lat);
+                    const lng = parseFloat(result.lon);
+                    
+                    map.setView([lat, lng], 15);
+                    
+                    selectedLat = lat;
+                    selectedLng = lng;
+                    
+                    if (marker) {
+                        map.removeLayer(marker);
+                    }
+                    
+                    const customIcon = L.divIcon({
+                        className: 'custom-marker',
+                        html: '<div style="width: 40px; height: 40px; background: #1a1a1a; border: 3px solid #ffffff; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); display: flex; align-items: center; justify-content: center;"><div style="width: 12px; height: 12px; background: #ffffff; border-radius: 50%; transform: rotate(45deg);"></div></div>',
+                        iconSize: [40, 40],
+                        iconAnchor: [20, 40]
+                    });
+                    
+                    marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
+                    
+                    reverseGeocode(lat, lng);
+                    document.getElementById('confirmLocationBtn').disabled = false;
+                } else {
+                    alert('Location not found');
+                }
+                document.getElementById('mapLoading').classList.remove('active');
+            })
+            .catch(error => {
+                alert('Error searching location');
+                document.getElementById('mapLoading').classList.remove('active');
+            });
+    }
 });
-</script>
-<script>
-// Store form data temporarily
+
+// ============================================
+// OTP FUNCTIONALITY
+// ============================================
 let checkoutFormData = null;
 let otpCountdownTimer = null;
 let otpTimeLeft = 60;
 
 // Intercept form submission
-document.querySelector('form[action="{% url 'checkout_action' %}"]').addEventListener('submit', function(e) {
-    e.preventDefault();
+document.addEventListener('DOMContentLoaded', function() {
+    const checkoutForm = document.getElementById('checkoutForm');
     
-    // Store form data
-    checkoutFormData = new FormData(this);
-    
-    // Send OTP
-    sendOTP();
+    if (checkoutForm) {
+        checkoutForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log('✅ Form submission intercepted');
+            
+            // Store form data
+            checkoutFormData = new FormData(this);
+            
+            // Send OTP
+            sendOTP();
+        });
+    } else {
+        console.error('❌ Checkout form not found!');
+    }
 });
 
 // Send OTP
@@ -1115,29 +1643,14 @@ document.getElementById('otpInput').addEventListener('input', function(e) {
 // Close modal on escape key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
-        closeOTPModal();
+        if (document.getElementById('mapModal').classList.contains('active')) {
+            closeMapModal();
+        }
+        if (document.getElementById('otpVerificationModal').style.display === 'flex') {
+            closeOTPModal();
+        }
     }
 });
 </script>
-<script>
-// CRITICAL FIX: Make sure form selector is correct
-document.addEventListener('DOMContentLoaded', function() {
-    const checkoutForm = document.getElementById('checkoutForm');
-    
-    if (checkoutForm) {
-        checkoutForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            console.log('✅ Form submission intercepted');
-            
-            // Store form data
-            checkoutFormData = new FormData(this);
-            
-            // Send OTP
-            sendOTP();
-        });
-    } else {
-        console.error('❌ Checkout form not found!');
-    }
-});
-</script>
+
 {% endblock %}
