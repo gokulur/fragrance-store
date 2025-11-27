@@ -2512,20 +2512,20 @@ z-index:98">
 
 
             // wishlist button click
-            // document.querySelectorAll(".wishlist-btn").forEach(btn => {
-            //   btn.addEventListener("click", function () {
-            //     const productId = this.dataset.productId;
+            document.querySelectorAll(".wishlist-btn").forEach(btn => {
+              btn.addEventListener("click", function () {
+                const productId = this.dataset.productId;
 
-            //     fetch(`/wishlist/toggle/${productId}/`, {
-            //       method: "POST",
-            //       headers: { "X-CSRFToken": "{{ csrf_token }}" }
-            //     })
-            //       .then(res => res.json())
-            //       .then(data => {
-            //         updateWishlistUI(data.added, this, data.wishlist_count);
-            //       });
-            //   });
-            // });
+                fetch(`/wishlist/toggle/${productId}/`, {
+                  method: "POST",
+                  headers: { "X-CSRFToken": "{{ csrf_token }}" }
+                })
+                  .then(res => res.json())
+                  .then(data => {
+                    updateWishlistUI(data.added, this, data.wishlist_count);
+                  });
+              });
+            });
           </script>
 
 
