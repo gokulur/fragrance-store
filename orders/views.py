@@ -360,6 +360,8 @@ def checkout_action(request):
         postal_code=request.POST.get('postal_code', ''),
         country=request.POST.get('country', ''),
         phone=request.POST.get('phone', ''),
+        delivery_latitude=request.POST.get('delivery_latitude', ''),
+        delivery_longitude=request.POST.get('delivery_longitude', ''),
     )
     
     # Clear OTP session
