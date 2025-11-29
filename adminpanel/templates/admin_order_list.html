@@ -1,71 +1,514 @@
 {% extends 'admin_dashboard.html' %}
 {% block content %}
+ 
+<style>
+   
+   
+
+  /* Small screens */
+  @media (max-width: 900px) {
+    .table thead th:nth-child(5), .table th:nth-child(8) { display:none; } /* hide some columns */
+  }
+  /* pdf */
+  @media print {
+
+    /* Hide  unnecessary elements */
+    .main-navbar,
+    .sidebar,
+    .main-navbar,
+    .navbar,
+    .sidebar-offcanvas,
+    .footer,
+    .page-header,
+    .btn,
+    button,
+    .actions,
+    .action-buttons,
+    .mdi,
+    .nav,
+    .navbar-brand,
+    .profile-dropdown,
+    .topbar,
+    .search-field,
+    .filter-section,
+    .pagination,
+    .export-buttons,
+    .breadcrumb,
+    .logo,
+    .theme-toggle,
+    .mobile-menu,
+    .searchOrder,
+    #toast-container {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    /* Print only the main table */
+    .main-panel, .content-wrapper, .card, .card-body, table {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+        color: #000 !important;
+        box-shadow: none !important;
+    }
+
+    /* Make table borders visible in print */
+    table th, table td {
+        border: 1px solid #444 !important;
+        color: #000 !important;
+        background: #fff !important;
+    }
+
+    /* Remove background and dark UI */
+    body {
+        background: #ffffff !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Remove scrollbar space */
+    ::-webkit-scrollbar { 
+        display: none !important;
+    }
+}
+</style>
 
 <div class="main-panel">
   <div class="content-wrapper">
-    <div class="col-lg-12 grid-margin stretch-card">
-      <div class="card">
-        <div class="card-body">
-          <h4 class="card-title">Orders</h4>
-          <div class="table-responsive">
-            <table class="table table-hover">
-              <thead>
-                <tr>
-                  <th> Order ID </th>
-                  <th> Customer </th>
-                  <th> Total Price </th>
-                  <th> Status </th>
-                  <th> Date </th>
-                  <th> Actions </th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for o in orders %}
-                <tr>
-                  <td>#{{ o.id }}</td>
-                  <td>{{ o.user.username }}</td>
-                  <td><strong>${{ o.total_price }}</strong></td>
-                  <td>
-                    {% if o.status == 'Delivered' %}
-                      <span class="badge badge-success">Delivered</span>
-                    {% elif o.status == 'Pending' %}
-                      <span class="badge badge-warning">Pending</span>
-                    {% elif o.status == 'Cancelled' %}
-                      <span class="badge badge-danger">Cancelled</span>
+
+    <!-- Page header -->
+    <div class="page-header d-flex justify-content-between align-items-start mb-3">
+      <div>
+        <h3 class="page-title mb-1">Orders Management</h3>
+        <p class="text-muted small">Complete order information and details</p>
+      </div>
+
+      <div class="d-flex align-items-center" style="gap:10px;">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb mb-0" style="background:transparent;border:none;padding:0;">
+            <li class="breadcrumb-item active text-muted">Admin → Orders</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="row mb-3">
+      <div class="col-lg-8 col-md-12 d-flex control-row">
+        <div class="filter-group btn-group" role="group" aria-label="Filter orders">
+          <button type="button" class="btn btn-sm btn-outline-light active" data-filter="all">All</button>
+          <button type="button" class="btn btn-sm btn-outline-light" data-filter="Pending">Pending</button>
+          <button type="button" class="btn btn-sm btn-outline-light" data-filter="Processing">Processing</button>
+          <button type="button" class="btn btn-sm btn-outline-light" data-filter="Shipped">Shipped</button>
+          <button type="button" class="btn btn-sm btn-outline-light" data-filter="Delivered">Delivered</button>
+          <button type="button" class="btn btn-sm btn-outline-light" data-filter="Cancelled">Cancelled</button>
+        </div>
+
+        <div class="input-group ml-3 searchOrder" style="max-width:420px;">
+          <input id="searchOrder" type="search" class="form-control form-control-sm bg-transparent text-light" placeholder="Search Order ID, Customer, Email, Phone..." aria-label="Search orders">
+          <div class="input-group-append">
+            <button id="clearSearch" class="btn btn-sm btn-light" title="Clear search">✕</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4 col-md-12 text-right d-flex justify-content-end" style="gap:8px;">
+        <button id="exportExcel" class="btn btn-sm btn-gradient-success">
+          <i class="mdi mdi-file-excel mr-1"></i> Export CSV
+        </button>
+        <button id="printBtn" class="btn btn-sm btn-gradient-info" onclick="window.print()">
+          <i class="mdi mdi-printer mr-1"></i> Print
+        </button>
+      </div>
+    </div>
+
+    <!-- Orders table -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table id="ordersTable" class="table table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th style="width:44px;text-align:center;"><input id="selectAll" type="checkbox" aria-label="Select all"></th>
+                    <th>ORDER ID</th>
+                    <th>CUSTOMER</th>
+                    <th>CONTACT</th>
+                    <th>ADDRESS</th>
+                    <th class="text-center">ITEMS</th>
+                    <th class="text-right">AMOUNT</th>
+            
+           
+                    <th>DATE</th>
+                    <th>STATUS</th>
+                    <th class="text-center">ACTIONS</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {% for o in orders %}
+                  <tr class="order-row" data-status="{{ o.status }}">
+                    <td class="text-center"><input class="order-checkbox" type="checkbox" value="{{ o.id }}"></td>
+
+                    <td>
+                      <span class="badge badge-info" style="background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--accent);padding:6px 8px;border-radius:6px;">
+                        #{{ o.id }}
+                      </span>
+                    </td>
+
+                    <td>
+                      <div class="d-flex align-items-center">
+                       
+                        <div>
+                          <div class="font-weight-bold">{{ o.user.username }}</div>
+                          <small class="text-muted">{{ o.user.email|truncatechars:30 }}</small>
+                        </div>
+                      </div>
+                    </td>
+
+                    <td>
+                      <div class="small">
+                        <div><i class="mdi mdi-phone text-success mr-1"></i> {{ o.phone|default:"N/A" }}</div>
+                        
+                      </div>
+                    </td>
+
+                    <td>
+                      <div class="small text-muted">
+                        <strong>{{ o.shipping_address.full_name|default:o.user.username|truncatechars:20 }}</strong><br>
+                        {{ o.shipping_address.city|default:"N/A" }}, {{ o.shipping_address.state|default:"N/A" }}
+                      </div>
+                    </td>
+
+                    <td>
+                      <div class="small text-muted">
+                        <strong>{{ o.shipping_address.full_name|default:o.user.username|truncatechars:20 }}</strong><br>
+                        {{ o.shipping_address.city|default:"N/A" }}, {{ o.shipping_address.state|default:"N/A" }}
+                      </div>
+                    </td>
+
+                    <td class="text-right">
+                      <div class="font-weight-bold text-success">${{ o.total_price|floatformat:2 }}</div>
+                      {% if o.shipping_cost %}<small class="text-info d-block">Ship: ${{ o.shipping_cost|floatformat:2 }}</small>{% endif %}
+                    </td>
+ 
+
+                    <td>
+                      <div class="small">
+                        <strong>{{ o.created_at|date:"M d, Y" }}</strong><br>
+                        <small class="text-muted">{{ o.created_at|date:"h:i A" }}</small>
+                      </div>
+                    </td>
+
+
+
+                    <td>
+                      {% if o.status == 'Delivered' %}
+                        <span class="badge badge-success">DELIVERED</span>
+                      {% elif o.status == 'Pending' %}
+                        <span class="badge badge-warning">PENDING</span>
+                      {% elif o.status == 'Processing' %}
+                        <span class="badge badge-info">PROCESSING</span>
+                      {% elif o.status == 'Shipped' %}
+                        <span class="badge badge-info">SHIPPED</span>
+                      {% elif o.status == 'Cancelled' %}
+                        <span class="badge badge-danger">CANCELLED</span>
+                      {% else %}
+                        <span class="badge badge-info">{{ o.status }}</span>
+                      {% endif %}
+                    </td>
+
+                    <td class="text-center">
+                      <button class="btn btn-sm btn-outline-primary" data-action="view" data-id="{{ o.id }}" data-toggle="modal" data-target="#orderModal-{{ o.id }}" title="View">
+                        <i class="mdi mdi-eye"></i>
+                      </button>
+
+                      <a href="{% url 'admin_order_update' o.id %}" class="btn btn-sm btn-outline-primary" title="Edit">
+                        <i class="mdi mdi-pencil"></i>
+                      </a>
+
+                      <button class="btn btn-sm btn-gradient-success" onclick="printInvoice({{ o.id }})" title="Print">
+                        <i class="mdi mdi-printer"></i>
+                      </button>
+
+                      <button class="btn btn-sm btn-gradient-danger" onclick="deleteOrder({{ o.id }})" title="Delete">
+                        <i class="mdi mdi-delete"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  {% endfor %}
+
+                  {% if orders|length == 0 %}
+                  <tr>
+                    <td colspan="11" class="text-center py-5 text-muted">
+                      <i class="mdi mdi-cart-off mdi-36px mb-2"></i>
+                      <div>No orders found</div>
+                    </td>
+                  </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+
+            <!-- pagination & summary -->
+            <!-- <div class="table-footer d-flex justify-content-between align-items-center">
+              <div>
+                {% if is_paginated %}
+                <small class="text-muted">
+                  Showing <strong>{{ page_obj.start_index }}</strong> to <strong>{{ page_obj.end_index }}</strong> of <strong>{{ page_obj.paginator.count }}</strong> orders
+                </small>
+                {% endif %}
+              </div>
+
+              <div>
+                {% if is_paginated %}
+                <nav aria-label="Page navigation">
+                  <ul class="pagination pagination-sm mb-0">
+                    {% if page_obj.has_previous %}
+                      <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}"><i class="mdi mdi-chevron-left"></i></a></li>
                     {% else %}
-                      <span class="badge badge-info">{{ o.status }}</span>
+                      <li class="page-item disabled"><span class="page-link"><i class="mdi mdi-chevron-left"></i></span></li>
                     {% endif %}
-                  </td>
-                  <td>{{ o.created_at|date:"M d, Y" }}</td>
+                    <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+                    {% if page_obj.has_next %}
+                      <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}"><i class="mdi mdi-chevron-right"></i></a></li>
+                    {% else %}
+                      <li class="page-item disabled"><span class="page-link"><i class="mdi mdi-chevron-right"></i></span></li>
+                    {% endif %}
+                  </ul>
+                </nav>
+                {% endif %}
+              </div>
+            </div> -->
 
-                  <td>
-                    <a href="{% url 'admin_order_update' o.id %}" 
-                       class="btn btn-sm btn-outline-primary"
-                       data-toggle="tooltip" data-placement="top" 
-                       title="Update Order">
-                      <i class="mdi mdi-pencil"></i>
-                    </a>
-
-                    <a href=" " 
-                       class="btn btn-sm btn-outline-info"
-                       data-toggle="tooltip" data-placement="top" 
-                       title="View Details">
-                      <i class="mdi mdi-eye"></i>
-                    </a>
-                  </td>
-                </tr>
-                {% empty %}
-                <tr>
-                  <td colspan="6" class="text-center text-muted">No orders found</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
 
+    <!-- ---------- ORDER MODALS (moved outside table for valid HTML) ---------- -->
+    {% for o in orders %}
+    <div class="modal fade" id="orderModal-{{ o.id }}" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Order #{{ o.id|stringformat:"05d" }} — Details</h5>
+            <button type="button" class="close text-light" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-md-4">
+                <h6 class="text-muted">Customer</h6>
+                <p class="mb-1"><strong>{{ o.user.username }}</strong></p>
+                <p class="small text-muted">{{ o.user.email }}</p>
+              </div>
+
+              <div class="col-md-4">
+                <h6 class="text-muted">Shipping</h6>
+                <p class="mb-1"><strong>{{ o.shipping_address.full_name|default:o.user.username }}</strong></p>
+                <p class="small text-muted">{{ o.shipping_address.address_line1|default:"N/A" }}</p>
+                <p class="small text-muted">{{ o.shipping_address.city|default:"" }} {{ o.shipping_address.state|default:"" }}</p>
+              </div>
+
+              <div class="col-md-4">
+                <h6 class="text-muted">Summary</h6>
+                <p class="mb-1"><strong>Total:</strong> ${{ o.total_price|floatformat:2 }}</p>
+                <p class="small text-muted"><strong>Items:</strong> {{ o.orderitem_set.count }}</p>
+              </div>
+            </div>
+
+            <hr>
+
+            <div class="table-responsive">
+              <table class="table table-sm table-borderless mb-0">
+                <thead>
+                  <tr class="text-muted">
+                    <th>#</th><th>Product</th><th class="text-center">Unit</th><th class="text-center">Qty</th><th class="text-right">Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in o.orderitem_set.all %}
+                  <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        {% if item.product.image %}
+                          <img src="{{ item.product.image.url }}" alt="" style="width:56px;height:56px;object-fit:cover;border-radius:6px;margin-right:12px;">
+                        {% endif %}
+                        <div>
+                          <strong>{{ item.product.name }}</strong>
+                          {% if item.product.sku %}<div class="small text-muted">SKU: {{ item.product.sku }}</div>{% endif %}
+                        </div>
+                      </div>
+                    </td>
+                    <td class="text-center">${{ item.price|floatformat:2 }}</td>
+                    <td class="text-center">{{ item.quantity }}</td>
+                    <td class="text-right">${{ item.get_total|floatformat:2 }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="4" class="text-right font-weight-bold">Subtotal</td>
+                    <td class="text-right font-weight-bold">${{ o.total_price|floatformat:2 }}</td>
+                  </tr>
+                  <tr>
+                    <td colspan="4" class="text-right">Shipping</td>
+                    <td class="text-right text-info">${{ o.shipping_cost|default:"0.00"|floatformat:2 }}</td>
+                  </tr>
+                  <tr>
+                    <td colspan="4" class="text-right font-weight-bold">Grand Total</td>
+                    <td class="text-right font-weight-bold">${{ o.total_price|floatformat:2 }}</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-light" data-dismiss="modal">Close</button>
+            <a href="{% url 'admin_order_update' o.id %}" class="btn btn-gradient-primary">Edit</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    <!-- end modals -->
+
+  </div> <!-- content-wrapper -->
+</div> <!-- main-panel -->
+
+<!-- ==========================
+     SCRIPT - behaviors (single block)
+     ========================== -->
+<script>
+/*
+  Orders page client JS:
+  - search, filter by status, select all, export CSV, print, tooltips init
+  - uses vanilla JS; lightweight and well-documented.
+*/
+
+/* helpers */
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+const safeText = el => (el && el.innerText) ? el.innerText.trim() : '';
+
+/* search rows */
+function searchTable(){
+  const q = ($('#searchOrder')?.value || '').trim().toUpperCase();
+  const rows = $$('#ordersTable tbody tr');
+  rows.forEach(r => {
+    // skip placeholder empty row
+    if (!r.closest('tbody')) return;
+    const text = (r.textContent || '').toUpperCase();
+    r.style.display = text.indexOf(q) > -1 ? '' : 'none';
+  });
+}
+
+/* filter by status */
+function filterOrders(status) {
+  const rows = $$('#ordersTable tbody tr');
+  rows.forEach(r => {
+    if (!status || status === 'all') { r.style.display = ''; return; }
+    const rowStatus = (r.dataset.status || '').trim();
+    r.style.display = rowStatus === status ? '' : 'none';
+  });
+}
+
+/* toggle select all */
+function toggleSelectAll(checked){
+  $$('.order-checkbox').forEach(cb => cb.checked = checked);
+}
+
+/* export visible rows to CSV */
+function exportTableToCSV(){
+  const rows = $$('#ordersTable tbody tr');
+  const csv = [];
+  rows.forEach(r => {
+    if (r.style.display === 'none') return;
+    const cols = Array.from(r.querySelectorAll('td'));
+    const values = cols.map((c, idx) => {
+      // skip actions column (last)
+      if (idx === cols.length -1) return '';
+      let txt = (c.innerText || '').replace(/"/g,'""').trim();
+      return `"${txt}"`;
+    });
+    csv.push(values.join(','));
+  });
+  const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `orders_${(new Date()).toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+/* print invoice (open window) */
+function printInvoice(orderId){
+  window.open(`/admin/orders/${orderId}/invoice/`, '_blank');
+}
+
+/* delete order */
+function deleteOrder(orderId){
+  if (!confirm('Delete order #' + orderId + '? This cannot be undone.')) return;
+  window.location.href = `/admin/orders/${orderId}/delete/`;
+}
+
+/* init tooltips if bootstrap available */
+function initTooltips(){
+  try {
+    if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+      const t = document.querySelectorAll('[data-toggle="tooltip"]');
+      t.forEach(el => new bootstrap.Tooltip(el));
+    } else if (window.jQuery && typeof jQuery.fn.tooltip === 'function') {
+      $('[data-toggle="tooltip"]').tooltip();
+    }
+  } catch(e){
+    console.warn('Tooltips init skipped', e);
+  }
+}
+
+/* DOM ready wiring */
+document.addEventListener('DOMContentLoaded', () => {
+  // search input
+  const search = $('#searchOrder');
+  if (search) {
+    search.addEventListener('input', searchTable);
+    const clear = $('#clearSearch');
+    if (clear) clear.addEventListener('click', () => { search.value=''; searchTable(); });
+  }
+
+  // filter buttons
+  const fb = document.querySelectorAll('[data-filter]');
+  fb.forEach(b => {
+    b.addEventListener('click', function(){
+      fb.forEach(x => x.classList.remove('active'));
+      this.classList.add('active');
+      filterOrders(this.getAttribute('data-filter'));
+    });
+  });
+
+  // select all
+  const selectAll = $('#selectAll');
+  if (selectAll) selectAll.addEventListener('change', (e) => toggleSelectAll(e.target.checked));
+
+  // export
+  const exportBtn = $('#exportExcel');
+  if (exportBtn) exportBtn.addEventListener('click', exportTableToCSV);
+
+  // init tooltips
+  initTooltips();
+
+  // auto-hide alerts if any
+  setTimeout(() => {
+    $$(' .alert').forEach(a => { a.style.transition='opacity .4s'; a.style.opacity='0'; setTimeout(()=>a.remove(),450); });
+  }, 4500);
+});
+</script>
 {% endblock %}
