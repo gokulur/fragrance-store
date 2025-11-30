@@ -1,0 +1,552 @@
+{% extends 'admin_dashboard.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+    /* Print styles */
+    @media print {
+        body * {
+            visibility: hidden;
+        }
+
+        .invoice-wrapper,
+        .invoice-wrapper * {
+            visibility: visible;
+        }
+
+        .invoice-wrapper {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+        }
+
+        .no-print {
+            display: none !important;
+        }
+
+        .page-header,
+        .navbar,
+        .sidebar,
+        .footer,
+        .main-navbar {
+            display: none !important;
+        }
+    }
+
+    .invoice-wrapper {
+        max-width: 900px;
+        margin: 30px auto;
+        background: #fff;
+        padding: 0;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .invoice-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 40px;
+        color: white;
+    }
+
+    .invoice-header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .company-info h1 {
+        margin: 0;
+        font-size: 36px;
+        font-weight: 700;
+        letter-spacing: -1px;
+    }
+
+    .company-tagline {
+        font-size: 14px;
+        opacity: 0.9;
+        margin-top: 5px;
+    }
+
+    .invoice-badge {
+        text-align: right;
+    }
+
+    .invoice-badge h2 {
+        margin: 0;
+        font-size: 48px;
+        font-weight: 700;
+        opacity: 0.95;
+    }
+
+    .invoice-badge p {
+        margin: 5px 0 0;
+        font-size: 14px;
+        opacity: 0.9;
+    }
+
+    .invoice-body {
+        padding: 40px;
+        color: #333;
+    }
+
+    .invoice-meta {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+
+    .meta-card {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+    }
+
+    .meta-card h4 {
+        margin: 0 0 15px;
+        font-size: 14px;
+        text-transform: uppercase;
+        color: #667eea;
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+
+    .meta-card p {
+        margin: 5px 0;
+        font-size: 14px;
+        line-height: 1.6;
+        color: #666;
+    }
+
+    .meta-card strong {
+        color: #333;
+        font-weight: 600;
+    }
+
+    .invoice-table-wrapper {
+        margin: 40px 0;
+    }
+
+    .section-title {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: #333;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #667eea;
+    }
+
+    .invoice-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .invoice-table thead {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .invoice-table th {
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .invoice-table th:last-child,
+    .invoice-table td:last-child {
+        text-align: right;
+    }
+
+    .invoice-table tbody tr {
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .invoice-table tbody tr:hover {
+        background: #f8f9fa;
+    }
+
+    .invoice-table td {
+        padding: 15px;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .product-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .product-image {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 2px solid #e9ecef;
+    }
+
+    .product-details h6 {
+        margin: 0;
+        font-size: 15px;
+        color: #333;
+        font-weight: 600;
+    }
+
+    .product-details p {
+        margin: 3px 0 0;
+        font-size: 12px;
+        color: #999;
+    }
+
+    .invoice-summary {
+        margin-top: 30px;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .summary-box {
+        width: 400px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 25px;
+    }
+
+    .summary-line {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        font-size: 15px;
+        color: #666;
+    }
+
+    .summary-line.subtotal {
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .summary-line.total {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 2px solid #667eea;
+        font-size: 20px;
+        font-weight: 700;
+        color: #333;
+    }
+
+    .summary-line.total span:last-child {
+        color: #667eea;
+    }
+
+    .invoice-footer {
+        background: #f8f9fa;
+        padding: 30px 40px;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .footer-note {
+        background: #fff;
+        border-left: 4px solid #667eea;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 4px;
+    }
+
+    .footer-note h5 {
+        margin: 0 0 10px;
+        font-size: 16px;
+        color: #667eea;
+        font-weight: 700;
+    }
+
+    .footer-note p {
+        margin: 0;
+        font-size: 14px;
+        color: #666;
+        line-height: 1.6;
+    }
+
+    .footer-contact {
+        text-align: center;
+        padding-top: 20px;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .footer-contact p {
+        margin: 5px 0;
+        font-size: 13px;
+        color: #999;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-paid {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-unpaid {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-delivered {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-cancelled {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .print-button {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 1000;
+    }
+
+    @media print {
+        .print-button {
+            display: none;
+        }
+    }
+</style>
+
+<div class="main-panel">
+    <div class="content-wrapper">
+
+        <!-- Action Buttons -->
+        <div class="row mb-4 no-print">
+            <div class="col-12">
+                <a href="{% url 'admin_order_list' %}" class="btn btn-light">
+                    <i class="mdi mdi-arrow-left mr-2"></i> Back to Orders
+                </a>
+                <button onclick="window.print()" class="btn btn-gradient-primary">
+                    <i class="mdi mdi-printer mr-2"></i> Print Invoice
+                </button>
+                <button onclick="downloadPDF()" class="btn btn-gradient-success">
+                    <i class="mdi mdi-download mr-2"></i> Download PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- Invoice Container -->
+        <div class="invoice-wrapper">
+
+            <!-- Header -->
+            <div class="invoice-header">
+                <div class="invoice-header-content">
+                    <div class="company-info">
+
+                        <!-- <img src="{% static 'cdn/shop/files/rihazain.logo.png' %}" alt="logo" class="white-logo" /> -->
+                        <h1>Rihazain</h1>
+
+
+                        <p class="company-tagline">Premium E-Commerce Solutions</p>
+                        <p style="margin-top: 15px; font-size: 13px;">
+                            123 Business Street, City<br>
+                            Phone: +1 (555) 123-4567<br>
+                            Email: info@company.com
+                        </p>
+                    </div>
+                    <div class="invoice-badge">
+                        <h2>INVOICE</h2>
+                        <p>#{{ order.id|stringformat:"05d" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="invoice-body">
+
+                <!-- Meta Information -->
+                <div class="invoice-meta">
+                    <!-- Bill To -->
+                    <div class="meta-card">
+                        <h4><i class="mdi mdi-account mr-2"></i>Bill To</h4>
+                        <p><strong>{{ order.user.username }}</strong></p>
+                        <p>{{ order.user.email }}</p>
+                        {% if order.shippingaddress.phone %}
+                        <p>{{ order.shippingaddress.phone }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Ship To -->
+                    <div class="meta-card">
+                        <h4><i class="mdi mdi-map-marker mr-2"></i>Ship To</h4>
+                        <p><strong>{{ order.shippingaddress.full_name|default:order.user.username }}</strong></p>
+                        <p>{{ order.shippingaddress.address_line }}</p>
+                        <p>{{ order.shippingaddress.city }}, {{ order.shippingaddress.postal_code }}</p>
+                        <p>{{ order.shippingaddress.country }}</p>
+                    </div>
+
+                    <!-- Invoice Details -->
+                    <div class="meta-card">
+                        <h4><i class="mdi mdi-file-document mr-2"></i>Invoice Details</h4>
+                        <p><strong>Date:</strong> {{ order.created_at|date:"M d, Y" }}</p>
+                        <p><strong>Time:</strong> {{ order.created_at|date:"h:i A" }}</p>
+                        <p>
+                            <strong>Payment:</strong>
+                            {% if order.is_paid %}
+                            <span class="status-badge status-paid">Paid</span>
+                            {% else %}
+                            <span class="status-badge status-unpaid">Unpaid</span>
+                            {% endif %}
+                        </p>
+                        <p>
+                            <strong>Status:</strong>
+                            {% if order.status == 'Delivered' %}
+                            <span class="status-badge status-delivered">Delivered</span>
+                            {% elif order.status == 'Pending' %}
+                            <span class="status-badge status-pending">Pending</span>
+                            {% elif order.status == 'Cancelled' %}
+                            <span class="status-badge status-cancelled">Cancelled</span>
+                            {% else %}
+                            <span class="status-badge status-pending">{{ order.status }}</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Items Table -->
+                <div class="invoice-table-wrapper">
+                    <h3 class="section-title">
+                        <i class="mdi mdi-cart-outline mr-2"></i>Order Items
+                    </h3>
+
+                    <table class="invoice-table">
+                        <thead>
+                            <tr>
+                                <th width="5%">#</th>
+                                <th width="45%">Product</th>
+                                <th width="15%" class="text-center">Unit Price</th>
+                                <th width="15%" class="text-center">Quantity</th>
+                                <th width="20%">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>
+                                    <div class="product-info">
+                                        {% if item.product.images.first %}
+                                        <!-- First gallery image -->
+                                        <img src="{{ item.product.images.first.image.url }}"
+                                            alt="{{ item.product.name }}" class="img-thumbnail"
+                                            style="width: 60px; height: 60px; object-fit: cover;">
+
+                                        {% elif item.product.image %}
+                                        <!-- Primary product image -->
+                                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}"
+                                            class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
+
+                                        {% else %}
+                                        <!-- No image -->
+                                        <div class="bg-dark text-secondary d-flex align-items-center justify-content-center"
+                                            style="width: 60px; height: 60px; border-radius: 6px;">
+                                            <i class="mdi mdi-image-off mdi-24px"></i>
+                                        </div>
+                                        {% endif %}
+                                        <div class="product-details">
+                                            <h6>{{ item.product.name }}</h6>
+                                            {% if item.product.category %}
+                                            <p>{{ item.product.category.name }}</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center">${{ item.price|floatformat:2 }}</td>
+                                <td class="text-center">
+                                    <span
+                                        style="background: #e9ecef; padding: 5px 15px; border-radius: 20px; font-weight: 600;">
+                                        {{ item.quantity }}
+                                    </span>
+                                </td>
+                                <td><strong>${{ item.get_total|floatformat:2 }}</strong></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">No items found</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Summary -->
+                <div class="invoice-summary">
+                    <div class="summary-box">
+                        <div class="summary-line subtotal">
+                            <span>Subtotal</span>
+                            <span>${{ order.get_total|floatformat:2 }}</span>
+                        </div>
+                        <div class="summary-line">
+                            <span>Shipping</span>
+                            <span>$0.00</span>
+                        </div>
+                        <div class="summary-line">
+                            <span>Tax (0%)</span>
+                            <span>$0.00</span>
+                        </div>
+                        <div class="summary-line total">
+                            <span>Grand Total</span>
+                            <span>${{ order.total_price|floatformat:2 }}</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="invoice-footer">
+                <div class="footer-note">
+                    <h5><i class="mdi mdi-information mr-2"></i>Important Notes</h5>
+                    <p>
+                        Thank you for your purchase! This invoice was generated on {{ order.created_at|date:"M d, Y" }}.
+                        If you have any questions about this invoice, please contact our customer support team.
+                        All payments are processed securely and your information is protected.
+                    </p>
+                </div>
+
+                <div class="footer-contact">
+                    <p><strong>Company Name</strong> | www.yourcompany.com</p>
+                    <p>123 Business Street, City, State 12345 | Phone: +1 (555) 123-4567</p>
+                    <p style="margin-top: 15px; font-size: 12px;">© 2024 Your Company. All rights reserved.</p>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- Floating Print Button -->
+<button onclick="window.print()" class="btn btn-gradient-primary btn-lg print-button no-print">
+    <i class="mdi mdi-printer mr-2"></i> Print Invoice
+</button>
+
+<script>
+    function downloadPDF() {
+        window.print();
+    }
+</script>
+
+{% endblock %}

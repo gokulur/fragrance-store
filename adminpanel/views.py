@@ -287,3 +287,30 @@ def category_delete(request, pk):
 def admin_customers(request):
     customers = User.objects.filter(is_superuser=False).order_by('-date_joined')
     return render(request, 'admin_customers.html', {'customers': customers})
+
+@login_required
+@user_passes_test(admin_only)
+def invoice(request, pk):
+    # Get order
+    order = get_object_or_404(Order, pk=pk)
+
+    # Fetch all items (if model uses related_name="items")
+    items = order.items.all()
+
+    # Calculate totals
+    subtotal = sum(item.price * item.quantity for item in items)
+    discount = order.discount if hasattr(order, "discount") else 0
+    shipping = order.shipping_charge if hasattr(order, "shipping_charge") else 0
+
+    total = subtotal - discount + shipping
+
+    context = {
+        "order": order,
+        "items": items,
+        "subtotal": subtotal,
+        "discount": discount,
+        "shipping": shipping,
+        "total": total,
+    }
+
+    return render(request, "invoice.html", context)

@@ -231,9 +231,10 @@
                         <i class="mdi mdi-pencil"></i>
                       </a>
 
-                      <button class="btn btn-sm btn-gradient-success" onclick="printInvoice({{ o.id }})" title="Print">
-                        <i class="mdi mdi-printer"></i>
-                      </button>
+                      <a href="{% url 'invoice' o.id %}" class="btn btn-sm btn-gradient-success" title="Invoice">
+                        <i class="mdi mdi-receipt"></i>
+
+                      </a>
 
                       <button class="btn btn-sm btn-gradient-danger" onclick="deleteOrder({{ o.id }})" title="Delete">
                         <i class="mdi mdi-delete"></i>
@@ -472,9 +473,10 @@
             <a href="{% url 'admin_order_update' o.id %}" class="btn btn-gradient-primary">
               <i class="mdi mdi-pencil mr-1"></i> Edit Order
             </a>
-            <button type="button" class="btn btn-gradient-success" onclick="printInvoice({{ o.id }})">
-              <i class="mdi mdi-printer mr-1"></i> Print Invoice
-            </button>
+            <a href="{% url 'invoice' o.id %}" class="btn btn-sm btn-gradient-success" title="Invoice">
+              <i class="mdi mdi-receipt"></i>
+              Invoice
+            </a>
           </div>
         </div>
       </div>
@@ -534,9 +536,7 @@
     a.remove();
   }
 
-  function printInvoice(orderId) {
-    window.open(`/admin/orders/${orderId}/invoice/`, '_blank');
-  }
+
 
   function deleteOrder(orderId) {
     if (!confirm('Delete order #' + orderId + '? This cannot be undone.')) return;
