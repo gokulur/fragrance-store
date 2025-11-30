@@ -314,3 +314,22 @@ def invoice(request, pk):
     }
 
     return render(request, "invoice.html", context)
+
+@login_required
+@user_passes_test(admin_only)
+def receipt(request, pk):
+    order = get_object_or_404(Order, pk=pk)
+
+    # Order items (if model: OrderItem has FK: order)
+    items = order.items.all() if hasattr(order, "items") else []
+
+    context = {
+        "order": order,
+        "items": items,
+        "customer": order.user,
+        "total_amount": order.total_price,
+        "order_date": order.created_at,
+      
+    }
+
+    return render(request, "receipt.html", context)

@@ -30,6 +30,8 @@ urlpatterns = [
     # Customers
     path('customers/', views.admin_customers, name='admin_customers'),
 
-    # invoices
+    # invoices and receipts
     path('invoices/<int:pk>/', views.invoice, name='invoice'),
+    path('receipts/<int:pk>/', views.receipt, name='receipt'),
+
 ]

@@ -1,0 +1,503 @@
+{% extends 'admin_dashboard.html' %}
+{% load static %}
+{% block content %}
+
+<style>
+  /* Print Styles */
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+    .receipt-wrapper, .receipt-wrapper * {
+      visibility: visible;
+    }
+    .receipt-wrapper {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+    }
+    .no-print {
+      display: none !important;
+    }
+    .page-header, .navbar, .sidebar, .footer, .main-navbar {
+      display: none !important;
+    }
+  }
+
+  body {
+    background: #f5f5f5;
+  }
+
+  .receipt-wrapper {
+    max-width: 650px;
+    margin: 40px auto;
+    background: white;
+    box-shadow: 0 0 50px rgba(0,0,0,0.15);
+    padding: 0;
+  }
+
+  .receipt-page {
+    padding: 40px 50px;
+    min-height: 900px;
+    position: relative;
+  }
+
+  /* Header */
+  .receipt-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid #2c3e50;
+  }
+
+  .company-info h1 {
+    font-size: 48px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0;
+    font-family: 'Oswald', sans-serif;
+    letter-spacing: 2px;
+  }
+
+  .company-address {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.8;
+    margin-top: 10px;
+  }
+
+  .company-address strong {
+    color: #2c3e50;
+    font-weight: 600;
+  }
+
+  .receipt-stamp {
+    text-align: center;
+  }
+
+  .stamp-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 3px solid #e74c3c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: #e74c3c;
+    transform: rotate(-15deg);
+    margin-bottom: 10px;
+  }
+
+  .receipt-label {
+    font-size: 16px;
+    color: #e74c3c;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  /* Billing Info Grid */
+  .billing-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin: 30px 0;
+  }
+
+  .billing-item h6 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0 0 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Teko', sans-serif;
+  }
+
+  .billing-item p {
+    font-size: 14px;
+    color: #666;
+    margin: 5px 0;
+    line-height: 1.6;
+    font-family: 'Teko', sans-serif;
+  }
+
+  /* Items Table */
+  .items-section {
+    margin: 40px 0;
+  }
+
+  .items-header {
+    display: grid;
+    grid-template-columns: 80px 1fr 120px 120px;
+    gap: 15px;
+    padding: 15px 0;
+    border-top: 2px solid #e74c3c;
+    border-bottom: 2px solid #e74c3c;
+  }
+
+  .items-header h6 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Teko', sans-serif;
+  }
+
+  .item-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 120px 120px;
+    gap: 15px;
+    padding: 15px 0;
+    border-bottom: 1px solid #e9ecef;
+    align-items: center;
+  }
+
+  .item-row p {
+    font-size: 15px;
+    color: #555;
+    margin: 0;
+    font-family: 'Teko', sans-serif;
+  }
+
+  .item-description {
+    font-weight: 500;
+    color: #333;
+  }
+
+  /* Totals Section */
+  .totals-section {
+    margin-top: 40px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .totals-box {
+    width: 350px;
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 8px;
+  }
+
+  .total-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    font-size: 15px;
+    font-family: 'Teko', sans-serif;
+  }
+
+  .total-row.subtotal {
+    color: #666;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .total-row.final {
+    margin-top: 10px;
+    padding-top: 15px;
+    border-top: 2px solid #2c3e50;
+    font-size: 22px;
+    font-weight: 700;
+    color: #2c3e50;
+  }
+
+  /* Thank You Section */
+  .thank-you-section {
+    margin-top: 60px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .thank-you-left {
+    flex: 1;
+  }
+
+  .thank-you-left h2 {
+    font-size: 56px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0;
+    font-family: 'Dancing Script', cursive;
+    animation: slideInLeft 0.8s ease-out;
+  }
+
+  .separator-line {
+    width: 4px;
+    height: 80px;
+    background: #2c3e50;
+    animation: growHeight 0.6s ease-out 0.3s both;
+  }
+
+  .thank-you-right {
+    flex: 1;
+  }
+
+  .thank-you-right p {
+    font-size: 18px;
+    color: #e74c3c;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0;
+    font-family: 'Teko', sans-serif;
+    animation: slideInRight 0.8s ease-out 0.5s both;
+  }
+
+  /* Footer Note */
+  .footer-note {
+    position: absolute;
+    bottom: 40px;
+    left: 50px;
+    right: 50px;
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 15px 20px;
+    border-radius: 4px;
+  }
+
+  .footer-note p {
+    margin: 0;
+    font-size: 13px;
+    color: #856404;
+    line-height: 1.6;
+  }
+
+  /* Animations */
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(50px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes growHeight {
+    from {
+      height: 0;
+    }
+    to {
+      height: 80px;
+    }
+  }
+
+  /* Print Button */
+  .print-actions {
+    max-width: 650px;
+    margin: 0 auto 20px;
+    display: flex;
+    gap: 10px;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .receipt-page {
+      padding: 30px 25px;
+    }
+
+    .billing-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .items-header,
+    .item-row {
+      grid-template-columns: 60px 1fr 100px;
+    }
+
+    .items-header h6:last-child,
+    .item-row p:last-child {
+      display: none;
+    }
+
+    .totals-box {
+      width: 100%;
+    }
+
+    .thank-you-section {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .separator-line {
+      width: 80px;
+      height: 4px;
+    }
+
+    .company-info h1 {
+      font-size: 36px;
+    }
+  }
+</style>
+
+<div class="main-panel">
+  <div class="content-wrapper">
+    
+    <!-- Action Buttons -->
+    <div class="print-actions no-print">
+      <a href="{% url 'admin_order_list' %}" class="btn btn-light">
+        <i class="mdi mdi-arrow-left mr-2"></i> Back to Orders
+      </a>
+      <button onclick="window.print()" class="btn btn-gradient-primary">
+        <i class="mdi mdi-printer mr-2"></i> Print Receipt
+      </button>
+      <button onclick="downloadReceipt()" class="btn btn-gradient-success">
+        <i class="mdi mdi-download mr-2"></i> Download PDF
+      </button>
+    </div>
+
+    <!-- Receipt Container -->
+    <div class="receipt-wrapper">
+      <div class="receipt-page">
+        
+        <!-- Header -->
+        <div class="receipt-header">
+          <div class="company-info">
+            <h1>RECEIPT</h1>
+            <div class="company-address">
+              <strong>Your Company Inc.</strong><br>
+              1912 Business Lane<br>
+              New York, NY 10001<br>
+              Phone: (555) 123-4567<br>
+              Email: info@company.com
+            </div>
+          </div>
+          <div class="receipt-stamp">
+            <div class="stamp-image">
+              PAID
+            </div>
+            <p class="receipt-label">Official Receipt</p>
+          </div>
+        </div>
+
+        <!-- Billing Information Grid -->
+        <div class="billing-grid">
+          <!-- Bill To -->
+          <div class="billing-item">
+            <h6>Bill To</h6>
+            <p><strong>{{ order.user.username }}</strong></p>
+            <p>{{ order.user.email }}</p>
+            {% if order.shippingaddress.phone %}
+              <p>{{ order.shippingaddress.phone }}</p>
+            {% endif %}
+          </div>
+
+          <!-- Ship To -->
+          <div class="billing-item">
+            <h6>Ship To</h6>
+            <p><strong>{{ order.shippingaddress.full_name|default:order.user.username }}</strong></p>
+            <p>{{ order.shippingaddress.address_line|truncatechars:25 }}</p>
+            <p>{{ order.shippingaddress.city }}, {{ order.shippingaddress.postal_code }}</p>
+          </div>
+
+          <!-- Receipt Number -->
+          <div class="billing-item">
+            <h6>Receipt #</h6>
+            <p>{{ order.id|stringformat:"05d" }}</p>
+            <h6 style="margin-top: 15px;">Receipt Date</h6>
+            <p>{{ order.created_at|date:"m/d/Y" }}</p>
+          </div>
+
+          <!-- Payment Info -->
+          <div class="billing-item">
+            <h6>Payment Method</h6>
+            <p>Credit Card</p>
+            <h6 style="margin-top: 15px;">Status</h6>
+            <p>
+              {% if order.is_paid %}
+                <strong style="color: #28a745;">PAID</strong>
+              {% else %}
+                <strong style="color: #ffc107;">PENDING</strong>
+              {% endif %}
+            </p>
+          </div>
+        </div>
+
+        <!-- Items Section -->
+        <div class="items-section">
+          <!-- Items Header -->
+          <div class="items-header">
+            <h6>Qty</h6>
+            <h6>Description</h6>
+            <h6>Unit Price</h6>
+            <h6>Amount</h6>
+          </div>
+
+          <!-- Item Rows -->
+          {% for item in order.items.all %}
+          <div class="item-row">
+            <p>{{ item.quantity }}</p>
+            <p class="item-description">{{ item.product.name }}</p>
+            <p>${{ item.price|floatformat:2 }}</p>
+            <p><strong>${{ item.get_total|floatformat:2 }}</strong></p>
+          </div>
+          {% empty %}
+          <div class="item-row">
+            <p colspan="4" style="text-align: center; color: #999;">No items found</p>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Totals Section -->
+        <div class="totals-section">
+          <div class="totals-box">
+            <div class="total-row subtotal">
+              <span>Subtotal</span>
+              <span>${{ order.get_total|floatformat:2 }}</span>
+            </div>
+            <div class="total-row subtotal">
+              <span>Sales Tax (6.25%)</span>
+              <span>${{ order.get_total|floatformat:2|add:"0" }}</span>
+            </div>
+            <div class="total-row final">
+              <span>TOTAL</span>
+              <span>${{ order.total_price|floatformat:2 }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thank You Section -->
+        <div class="thank-you-section">
+          <div class="thank-you-left">
+            <h2>Thank You!</h2>
+          </div>
+          <div class="separator-line"></div>
+          <div class="thank-you-right">
+            <p>We appreciate your business</p>
+          </div>
+        </div>
+ 
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function downloadReceipt() {
+    window.print();
+  }
+</script>
+
+{% endblock %}
