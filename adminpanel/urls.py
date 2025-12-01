@@ -33,5 +33,6 @@ urlpatterns = [
     # invoices and receipts
     path('invoices/<int:pk>/', views.invoice, name='invoice'),
     path('receipts/<int:pk>/', views.receipt, name='receipt'),
+    path("order/<str:order_id>/update-status/", views.update_status_inline, name="update_status_inline"),
 
 ]

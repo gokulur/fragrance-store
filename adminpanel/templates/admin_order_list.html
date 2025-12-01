@@ -493,22 +493,16 @@
                     </td>
 
                     <td class="screen-only">
-                      <!-- Status Update Form -->
-                      <form method="POST" action=" " class="status-update-form">
+                      <form method="POST" action="{% url 'update_status_inline' o.order_id %}" class="status-update-form">
                         {% csrf_token %}
                         <select name="status" class="status-select" onchange="this.form.submit()">
-                          <option value="processing" {% if o.status == 'processing' %}selected{% endif %}>
-                            🔄 Processing
-                          </option>
-                          <option value="shipped" {% if o.status == 'shipped' %}selected{% endif %}>
-                            🚚 Shipped
-                          </option>
-                          <option value="delivered" {% if o.status == 'delivered' %}selected{% endif %}>
-                            ✅ Delivered
-                          </option>
+                          <option value="processing" {% if o.status == 'processing' %}selected{% endif %}>🔄 Processing</option>
+                          <option value="shipped" {% if o.status == 'shipped' %}selected{% endif %}>🚚 Shipped</option>
+                          <option value="delivered" {% if o.status == 'delivered' %}selected{% endif %}>✅ Delivered</option>
                         </select>
                       </form>
                     </td>
+
 
                     <td class="text-center no-print">
                       <!-- Actions Dropdown -->

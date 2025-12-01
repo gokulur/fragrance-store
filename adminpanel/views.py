@@ -333,3 +333,22 @@ def receipt(request, pk):
     }
 
     return render(request, "receipt.html", context)
+
+
+
+@login_required
+@user_passes_test(admin_only)
+def update_status_inline(request, order_id):
+    order = get_object_or_404(Order, order_id=order_id)
+
+    if request.method == "POST":
+        new_status = request.POST.get("status")
+
+        if new_status not in ['processing', 'shipped', 'delivered']:
+            messages.error(request, "Invalid status!")
+            return redirect("orders_list")   
+
+        order.status = new_status
+        order.save()
+        messages.success(request, "Order status updated!")
+        return redirect(request.META.get("HTTP_REFERER", "/"))

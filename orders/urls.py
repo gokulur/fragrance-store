@@ -18,4 +18,6 @@ urlpatterns = [
     
     path('send-checkout-otp/', views.send_checkout_otp, name='send_checkout_otp'),
     path('verify-checkout-otp/', views.verify_checkout_otp, name='verify_checkout_otp'),
+ 
+
 ]
