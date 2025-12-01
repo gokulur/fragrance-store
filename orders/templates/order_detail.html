@@ -5,6 +5,20 @@
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 {% block content %}
 <style>
+    /* Mobile view: vertical line */
+    @media (max-width: 768px) {
+        .orderdetail-progress-line {
+            width: 3px;
+            height: calc(100% - 120px);
+            margin: 0 auto;
+            position: absolute;
+            left: 50%;
+            top: 120px;
+            background: #ddd;
+        }
+    }
+
+
     /* Wrapper to isolate all styles */
     .orderdetail-wrapper {
         background: #ffffff;
@@ -500,7 +514,7 @@
         .orderdetail-meta-item {
             text-align: left;
         }
-        
+
     }
 </style>
 
@@ -566,94 +580,174 @@
 
                     <div class="orderdetail-progress-section">
                         <div class="orderdetail-progress-track">
+
+                            <!-- PROGRESS LINE -->
                             <div class="orderdetail-progress-line">
-                                <div class="orderdetail-progress-fill" style="width: 50%"></div>
+                                {% if order.status == "processing" %}
+                                <div class="orderdetail-progress-fill" style="width: 33%"></div>
+                                {% elif order.status == "shipped" %}
+                                <div class="orderdetail-progress-fill" style="width: 66%"></div>
+                                {% elif order.status == "delivered" %}
+                                <div class="orderdetail-progress-fill" style="width: 100%"></div>
+                                {% else %}
+                                <div class="orderdetail-progress-fill" style="width: 10%"></div>
+                                {% endif %}
                             </div>
+
+                            <!-- STAGES -->
                             <div class="orderdetail-progress-stages">
+
+                                <!-- 1. ORDER PLACED -->
                                 <div class="orderdetail-stage completed">
                                     <div class="orderdetail-stage-icon">✓</div>
                                     <div class="orderdetail-stage-name">Order Placed</div>
                                     <div class="orderdetail-stage-date">{{ order.created_at|date:"M d, Y" }}</div>
                                 </div>
-                                <div class="orderdetail-stage active">
-                                    <div class="orderdetail-stage-icon">●</div>
+
+                                <!-- 2. PROCESSING -->
+                                <div class="orderdetail-stage
+        {% if order.status == 'processing' %}
+            active
+        {% elif order.status == 'shipped' or order.status == 'delivered' %}
+            completed
+        {% endif %}
+    ">
+                                    <div class="orderdetail-stage-icon">
+                                        {% if order.status == 'shipped' or order.status == 'delivered' %}
+                                        ✓
+                                        {% else %}
+                                        ●
+                                        {% endif %}
+                                    </div>
                                     <div class="orderdetail-stage-name">Processing</div>
-                                    <div class="orderdetail-stage-date">In Progress</div>
+                                    <div class="orderdetail-stage-date">
+                                        {% if order.status == 'processing' %}
+                                        In Progress
+                                        {% elif order.status == 'shipped' or order.status == 'delivered' %}
+                                        Completed
+                                        {% else %}
+                                        Pending
+                                        {% endif %}
+                                    </div>
                                 </div>
-                                <div class="orderdetail-stage">
-                                    <div class="orderdetail-stage-icon">2</div>
+
+                                <!-- 3. SHIPPED -->
+                                <div class="orderdetail-stage
+        {% if order.status == 'shipped' %}
+            active
+        {% elif order.status == 'delivered' %}
+            completed
+        {% endif %}
+    ">
+                                    <div class="orderdetail-stage-icon">
+                                        {% if order.status == 'delivered' %}
+                                        ✓
+                                        {% elif order.status == 'shipped' %}
+                                        ●
+                                        {% else %}
+                                        2
+                                        {% endif %}
+                                    </div>
                                     <div class="orderdetail-stage-name">Shipped</div>
-                                    <div class="orderdetail-stage-date">Pending</div>
+                                    <div class="orderdetail-stage-date">
+                                        {% if order.status == 'shipped' %}
+                                        In Transit
+                                        {% elif order.status == 'delivered' %}
+                                        Completed
+                                        {% else %}
+                                        Pending
+                                        {% endif %}
+                                    </div>
                                 </div>
-                                <div class="orderdetail-stage">
-                                    <div class="orderdetail-stage-icon">3</div>
+
+                                <!-- 4. DELIVERED -->
+                                <div class="orderdetail-stage
+        {% if order.status == 'delivered' %}
+            active completed
+        {% endif %}
+    ">
+                                    <div class="orderdetail-stage-icon">
+                                        {% if order.status == 'delivered' %}
+                                        ✓
+                                        {% else %}
+                                        3
+                                        {% endif %}
+                                    </div>
                                     <div class="orderdetail-stage-name">Delivered</div>
-                                    <div class="orderdetail-stage-date">Pending</div>
+                                    <div class="orderdetail-stage-date">
+                                        {% if order.status == 'delivered' %}
+                                        Completed
+                                        {% else %}
+                                        Pending
+                                        {% endif %}
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Shipping Address -->
-                    <div class="orderdetail-shipping-details">
-                        <div class="orderdetail-shipping-title">Shipping Address</div>
-                        <div class="orderdetail-shipping-grid">
-                            <div class="orderdetail-shipping-item">
-                                <div class="orderdetail-shipping-label">Full Name</div>
-                                <div class="orderdetail-shipping-value">{{ shipping.full_name }}</div>
                             </div>
-                            <div class="orderdetail-shipping-item">
-                                <div class="orderdetail-shipping-label">Phone Number</div>
-                                <div class="orderdetail-shipping-value">{{ shipping.phone }}</div>
-                            </div>
-                            <div class="orderdetail-shipping-item">
-                                <div class="orderdetail-shipping-label">Address</div>
-                                <div class="orderdetail-shipping-value">{{ shipping.address_line }}</div>
-                            </div>
-                            <div class="orderdetail-shipping-item">
-                                <div class="orderdetail-shipping-label">City & Postal Code</div>
-                                <div class="orderdetail-shipping-value">{{ shipping.city }} - {{ shipping.postal_code }}
-                                </div>
-                            </div>
-                            <div class="orderdetail-shipping-item">
-                                <div class="orderdetail-shipping-label">Country</div>
-                                <div class="orderdetail-shipping-value">{{ shipping.country }}</div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- Order Summary -->
-                    <div class="orderdetail-summary">
-                        <div class="orderdetail-summary-row">
-                            <span>Subtotal</span>
-                            <span>₹{{ order.subtotal }}</span>
-                        </div>
-                        <div class="orderdetail-summary-row">
-                            <span>Shipping</span>
-                            <span>₹{{ order.shipping_cost }}</span>
-                        </div>
-                        <div class="orderdetail-summary-row">
-                            <span>Tax</span>
-                            <span>₹{{ order.tax }}</span>
-                        </div>
-                        <div class="orderdetail-summary-row total">
-                            <span>Total Amount</span>
-                            <span>₹{{ order.total_price }}</span>
-                        </div>
-                    </div>
 
-                    <!-- Action Buttons -->
-                    <div class="orderdetail-actions">
-                        <a href="{% url 'track_order_page' order.id %}"
-                            class="orderdetail-btn orderdetail-btn-primary">Track Order</a>
-                        <a href="#" class="orderdetail-btn orderdetail-btn-secondary">Update Order</a>
-                        <a href="#" class="orderdetail-btn orderdetail-btn-danger">Cancel Order</a>
+                        </div>
                     </div>
+                </div>
+
+                <!-- Shipping Address -->
+                <div class="orderdetail-shipping-details">
+                    <div class="orderdetail-shipping-title">Shipping Address</div>
+                    <div class="orderdetail-shipping-grid">
+                        <div class="orderdetail-shipping-item">
+                            <div class="orderdetail-shipping-label">Full Name</div>
+                            <div class="orderdetail-shipping-value">{{ shipping.full_name }}</div>
+                        </div>
+                        <div class="orderdetail-shipping-item">
+                            <div class="orderdetail-shipping-label">Phone Number</div>
+                            <div class="orderdetail-shipping-value">{{ shipping.phone }}</div>
+                        </div>
+                        <div class="orderdetail-shipping-item">
+                            <div class="orderdetail-shipping-label">Address</div>
+                            <div class="orderdetail-shipping-value">{{ shipping.address_line }}</div>
+                        </div>
+                        <div class="orderdetail-shipping-item">
+                            <div class="orderdetail-shipping-label">City & Postal Code</div>
+                            <div class="orderdetail-shipping-value">{{ shipping.city }} - {{ shipping.postal_code }}
+                            </div>
+                        </div>
+                        <div class="orderdetail-shipping-item">
+                            <div class="orderdetail-shipping-label">Country</div>
+                            <div class="orderdetail-shipping-value">{{ shipping.country }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="orderdetail-summary">
+                    <div class="orderdetail-summary-row">
+                        <span>Subtotal</span>
+                        <span>₹{{ order.subtotal }}</span>
+                    </div>
+                    <div class="orderdetail-summary-row">
+                        <span>Shipping</span>
+                        <span>₹{{ order.shipping_cost }}</span>
+                    </div>
+                    <div class="orderdetail-summary-row">
+                        <span>Tax</span>
+                        <span>₹{{ order.tax }}</span>
+                    </div>
+                    <div class="orderdetail-summary-row total">
+                        <span>Total Amount</span>
+                        <span>₹{{ order.total_price }}</span>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="orderdetail-actions">
+                    <a href="{% url 'track_order_page' order.id %}"
+                        class="orderdetail-btn orderdetail-btn-primary">Track Order</a>
+                    <a href="#" class="orderdetail-btn orderdetail-btn-secondary">Update Order</a>
+                    <a href="#" class="orderdetail-btn orderdetail-btn-danger">Cancel Order</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
+</div>
 {% endblock %}
-
-
