@@ -7,12 +7,12 @@
   table {
     width: 100% !important;
     border-collapse: collapse !important;
-    table-layout: fixed; /* Keeps columns aligned */
+    table-layout: fixed;
   }
 
   table th, table td {
     border: 1px solid #000 !important;
-    padding: 6px 8px !important; /* Same for th & td */
+    padding: 6px 8px !important;
     font-size: 9px !important;
     vertical-align: top;
     text-align: left;
@@ -20,10 +20,8 @@
   }
 }
 
-
   /* PDF/PRINT STYLES - ENHANCED */
   @media print {
-    /* Hide unnecessary elements */
     .main-navbar,
     .sidebar,
     .navbar,
@@ -55,7 +53,6 @@
       visibility: hidden !important;
     }
 
-    /* Reset layout for print */
     body {
       background: #ffffff !important;
       -webkit-print-color-adjust: exact !important;
@@ -82,7 +79,6 @@
       padding: 0 !important;
     }
 
-    /* Table print styles */
     .table-responsive {
       overflow: visible !important;
     }
@@ -124,25 +120,16 @@
       vertical-align: top !important;
     }
 
-    /* Hide Status column in print */
-    table thead th:nth-child(9),
-    table tbody td:nth-child(9) {
+    table thead th:nth-child(8),
+    table tbody td:nth-child(8) {
       display: none !important;
     }
 
-    /* Hide action buttons column in print */
     table thead th:last-child,
     table tbody td:last-child {
       display: none !important;
     }
 
-    /* Hide checkbox column in print */
-    table thead th:first-child,
-    table tbody td:first-child {
-      display: none !important;
-    }
-
-    /* Show items detail in print */
     .print-items-detail {
       display: block !important;
       margin-top: 4px;
@@ -185,7 +172,6 @@
       font-size: 7px !important;
     }
 
-    /* Address column enhanced */
     .print-address-full {
       display: block !important;
       font-size: 8px !important;
@@ -198,7 +184,6 @@
       font-size: 9px !important;
     }
 
-    /* Amount column - show breakdown */
     .print-amount-breakdown {
       display: block !important;
     }
@@ -215,7 +200,6 @@
       margin-top: 2px;
     }
 
-    /* Badge styles for print */
     .badge {
       border: 1px solid #000 !important;
       padding: 3px 6px !important;
@@ -224,7 +208,6 @@
       background: #fff !important;
     }
 
-    /* Print header */
     .print-header {
       display: block !important;
       text-align: center;
@@ -246,12 +229,10 @@
       color: #333;
     }
 
-    /* Remove scrollbars */
     ::-webkit-scrollbar {
       display: none !important;
     }
 
-    /* Customer info enhanced */
     .print-customer-info {
       display: block !important;
     }
@@ -267,7 +248,6 @@
       color: #666 !important;
     }
 
-    /* Items hidden by default, shown in print */
     .screen-only {
       display: block;
     }
@@ -286,7 +266,6 @@
     }
   }
 
-  /* Print header - hidden by default */
   .print-header {
     display: none;
   }
@@ -296,16 +275,52 @@
   .print-amount-breakdown {
     display: none;
   }
+
+  /* Status update form styles */
+  .status-update-form {
+    display: inline-block;
+  }
+
+  .status-select {
+    padding: 4px 8px;
+    font-size: 12px;
+    border-radius: 4px;
+    border: 1px solid #dee2e6;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  .status-select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+  }
+
+  /* Dropdown menu styling */
+  .dropdown-menu {
+    min-width: 200px;
+  }
+
+  .dropdown-item {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+
+  .dropdown-item i {
+    width: 20px;
+    margin-right: 8px;
+  }
 </style>
 
 <div class="main-panel">
   <div class="content-wrapper">
 
-    <!-- Print Header (only visible when printing) -->
+    <!-- Print Header -->
     <div class="print-header">
       <h1>ORDERS REPORT</h1>
       <p><strong>Rihazain</strong></p>
-      <p>kozhikode, KERALA , INDIA -680516</p>
+      <p>Kozhikode, KERALA, INDIA - 680516</p>
       <p>Phone: +91 9512345678 | Email: info@company.com</p>
       <p style="margin-top: 10px;">Generated on: {{ current_date|default:"now"|date:"M d, Y h:i A" }}</p>
     </div>
@@ -331,11 +346,9 @@
       <div class="col-lg-8 col-md-12 d-flex control-row">
         <div class="filter-group btn-group" role="group" aria-label="Filter orders">
           <button type="button" class="btn btn-sm btn-outline-light active" data-filter="all">All</button>
-          <button type="button" class="btn btn-sm btn-outline-light" data-filter="Pending">Pending</button>
-          <button type="button" class="btn btn-sm btn-outline-light" data-filter="Processing">Processing</button>
-          <button type="button" class="btn btn-sm btn-outline-light" data-filter="Shipped">Shipped</button>
-          <button type="button" class="btn btn-sm btn-outline-light" data-filter="Delivered">Delivered</button>
-          <button type="button" class="btn btn-sm btn-outline-light" data-filter="Cancelled">Cancelled</button>
+          <button type="button" class="btn btn-sm btn-outline-light" data-filter="processing">Processing</button>
+          <button type="button" class="btn btn-sm btn-outline-light" data-filter="shipped">Shipped</button>
+          <button type="button" class="btn btn-sm btn-outline-light" data-filter="delivered">Delivered</button>
         </div>
 
         <div class="input-group ml-3 searchOrder" style="max-width:420px;">
@@ -366,9 +379,6 @@
               <table id="ordersTable" class="table table-hover mb-0">
                 <thead>
                   <tr>
-                    <!-- <th style="width:44px;text-align:center;" class="no-print">
-                      <input id="selectAll" type="checkbox" aria-label="Select all">
-                    </th> -->
                     <th>ORDER ID</th>
                     <th>CUSTOMER</th>
                     <th>CONTACT</th>
@@ -384,29 +394,23 @@
                 <tbody>
                   {% for o in orders %}
                   <tr class="order-row" data-status="{{ o.status }}">
-                    <!-- <td class="text-center no-print">
-                      <input class="order-checkbox" type="checkbox" value="{{ o.id }}">
-                    </td> -->
-
                     <td>
                       <span class="badge badge-info"
                         style="background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--accent);padding:6px 8px;border-radius:6px;">
-                        #{{ o.id }}
+                        #{{ o.order_id }}
                       </span>
                     </td>
 
                     <td>
-                      <!-- Screen view -->
-                      <!-- <div class="screen-only">
+                      <div class="screen-only">
                         <div class="d-flex align-items-center">
                           <div>
                             <div class="font-weight-bold">{{ o.user.username }}</div>
                             <small class="text-muted">{{ o.user.email|truncatechars:30 }}</small>
                           </div>
                         </div>
-                      </div> -->
+                      </div>
                       
-                      <!-- Print view -->
                       <div class="print-only print-customer-info">
                         <div class="print-customer-name">{{ o.user.username }}</div>
                         <div class="print-customer-email">{{ o.user.email }}</div>
@@ -428,13 +432,11 @@
                     </td>
 
                     <td>
-                      <!-- Screen view -->
                       <div class="small text-muted screen-only">
                         <strong>{{ o.shippingaddress.full_name|default:o.user.username|truncatechars:20 }}</strong><br>
                         {{ o.shippingaddress.city|default:"N/A" }}, {{ o.shippingaddress.country|default:"N/A" }}
                       </div>
                       
-                      <!-- Print view - Full address -->
                       <div class="print-only print-address-full">
                         <strong>{{ o.shippingaddress.full_name|default:o.user.username }}</strong>
                         <div>{{ o.shippingaddress.address_line|default:"Address not available" }}</div>
@@ -444,12 +446,10 @@
                     </td>
 
                     <td>
-                      <!-- Screen view -->
                       <div class="screen-only text-center">
                         <span class="badge badge-info">{{ o.items.count }}</span>
                       </div>
                       
-                      <!-- Print view - Detailed items -->
                       <div class="print-only print-items-detail">
                         <div style="font-weight: 700; margin-bottom: 4px; font-size: 9px;">{{ o.items.count }} Item(s):</div>
                         {% for item in o.items.all %}
@@ -475,12 +475,10 @@
                     </td>
 
                     <td class="text-right">
-                      <!-- Screen view -->
                       <div class="screen-only font-weight-bold text-success">
                         ₹ {{ o.total_price|floatformat:2 }}
                       </div>
                       
-                      <!-- Print view - Amount breakdown -->
                       <div class="print-only print-amount-breakdown">
                         <div class="print-amount-total">₹{{ o.total_price|floatformat:2 }}</div>
                         <div class="print-amount-items">Subtotal: ₹{{ o.get_total|floatformat:2 }}</div>
@@ -495,49 +493,53 @@
                     </td>
 
                     <td class="screen-only">
-                      {% if o.status == 'Delivered' %}
-                      <span class="badge badge-success">DELIVERED</span>
-                      {% elif o.status == 'Pending' %}
-                      <span class="badge badge-warning">PENDING</span>
-                      {% elif o.status == 'Processing' %}
-                      <span class="badge badge-info">PROCESSING</span>
-                      {% elif o.status == 'Shipped' %}
-                      <span class="badge badge-info">SHIPPED</span>
-                      {% elif o.status == 'Cancelled' %}
-                      <span class="badge badge-danger">CANCELLED</span>
-                      {% else %}
-                      <span class="badge badge-info">{{ o.status }}</span>
-                      {% endif %}
+                      <!-- Status Update Form -->
+                      <form method="POST" action=" " class="status-update-form">
+                        {% csrf_token %}
+                        <select name="status" class="status-select" onchange="this.form.submit()">
+                          <option value="processing" {% if o.status == 'processing' %}selected{% endif %}>
+                            🔄 Processing
+                          </option>
+                          <option value="shipped" {% if o.status == 'shipped' %}selected{% endif %}>
+                            🚚 Shipped
+                          </option>
+                          <option value="delivered" {% if o.status == 'delivered' %}selected{% endif %}>
+                            ✅ Delivered
+                          </option>
+                        </select>
+                      </form>
                     </td>
 
                     <td class="text-center no-print">
-                      <button class="btn btn-sm btn-outline-primary" data-action="view" data-id="{{ o.id }}"
-                        data-toggle="modal" data-target="#orderModal-{{ o.id }}" title="View">
-                        <i class="mdi mdi-eye"></i>
-                      </button>
-
-                      <a href="{% url 'admin_order_update' o.id %}" class="btn btn-sm btn-outline-primary" title="Edit">
-                        <i class="mdi mdi-pencil"></i>
-                      </a>
-
-                      <a href="{% url 'invoice' o.id %}" class="btn btn-sm btn-gradient-success" title="Invoice">
-                        <i class="mdi mdi-file-document-outline"></i>
-                      </a>
-                      
-                      <a href="{% url 'receipt' o.id %}" class="btn btn-sm btn-gradient-success" title="Receipt">
-                        <i class="mdi mdi-receipt"></i>
-                      </a>
-                      
-                      <button class="btn btn-sm btn-gradient-danger" onclick="deleteOrder({{ o.id }})" title="Delete">
-                        <i class="mdi mdi-delete"></i>
-                      </button>
+                      <!-- Actions Dropdown -->
+                      <div class="dropdown">
+                        <button class="btn btn-sm btn-gradient-primary dropdown-toggle" type="button" 
+                                id="dropdownMenuButton{{ o.id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          Actions
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ o.id }}">
+                          <button class="dropdown-item" data-toggle="modal" data-target="#orderModal-{{ o.id }}">
+                            <i class="mdi mdi-eye text-info"></i> View Details
+                          </button>
+                          <a class="dropdown-item" href="{% url 'admin_order_update' o.id %}">
+                            <i class="mdi mdi-pencil text-primary"></i> Edit Order
+                          </a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item" href="{% url 'invoice' o.id %}">
+                            <i class="mdi mdi-file-document-outline text-success"></i> View Invoice
+                          </a>
+                          <a class="dropdown-item" href="{% url 'receipt' o.id %}">
+                            <i class="mdi mdi-receipt text-success"></i> View Receipt
+                          </a>
+                        </div>
+                      </div>
                     </td>
                   </tr>
                   {% endfor %}
 
                   {% if orders|length == 0 %}
                   <tr>
-                    <td colspan="10" class="text-center py-5 text-muted">
+                    <td colspan="9" class="text-center py-5 text-muted">
                       <i class="mdi mdi-cart-off mdi-36px mb-2"></i>
                       <div>No orders found</div>
                     </td>
@@ -551,14 +553,13 @@
       </div>
     </div>
 
-    <!-- ORDER MODALS (keeping the same as before) -->
-    <!-- ---------- ORDER MODALS ---------- -->
+    <!-- ORDER MODALS -->
     {% for o in orders %}
     <div class="modal fade" id="orderModal-{{ o.id }}" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Order #{{ o.id|stringformat:"05d" }} — Complete Details</h5>
+            <h5 class="modal-title">Order #{{ o.order_id }} — Complete Details</h5>
             <button type="button" class="close text-light" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
@@ -628,26 +629,14 @@
                       <tr>
                         <td class="text-muted">Order Status:</td>
                         <td>
-                          {% if o.status == 'Delivered' %}
+                          {% if o.status == 'delivered' %}
                           <span class="badge badge-success">Delivered</span>
-                          {% elif o.status == 'Pending' %}
-                          <span class="badge badge-warning">Pending</span>
-                          {% elif o.status == 'Processing' %}
-                          <span class="badge badge-info">Processing</span>
-                          {% elif o.status == 'Shipped' %}
+                          {% elif o.status == 'processing' %}
+                          <span class="badge badge-warning">Processing</span>
+                          {% elif o.status == 'shipped' %}
                           <span class="badge badge-primary">Shipped</span>
                           {% else %}
-                          <span class="badge badge-danger">{{ o.status }}</span>
-                          {% endif %}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td class="text-muted">Payment Status:</td>
-                        <td>
-                          {% if o.is_paid %}
-                          <span class="badge badge-success"><i class="mdi mdi-check"></i> Paid</span>
-                          {% else %}
-                          <span class="badge badge-warning"><i class="mdi mdi-alert"></i> Unpaid</span>
+                          <span class="badge badge-secondary">{{ o.status }}</span>
                           {% endif %}
                         </td>
                       </tr>
@@ -668,8 +657,7 @@
             <!-- Order Items -->
             <div class="card">
               <div class="card-body">
-                <h6 class="text-dark mb-3"><i class="mdi mdi-cart mr-2"></i>Order Items ({{ o.items.count }} Products)
-                </h6>
+                <h6 class="text-dark mb-3"><i class="mdi mdi-cart mr-2"></i>Order Items ({{ o.items.count }} Products)</h6>
                 <div class="table-responsive">
                   <table class="table table-bordered table-striped mb-0">
                     <thead class="thead-dark">
@@ -687,27 +675,19 @@
                       <tr>
                         <td class="text-center align-middle">{{ forloop.counter }}</td>
                         <td class="text-center align-middle">
-
                           {% if item.product.images.first %}
-                          <!-- First gallery image -->
                           <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}"
                             class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
-
                           {% elif item.product.image %}
-                          <!-- Primary product image -->
                           <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="img-thumbnail"
                             style="width: 60px; height: 60px; object-fit: cover;">
-
                           {% else %}
-                          <!-- No image -->
                           <div class="bg-dark text-secondary d-flex align-items-center justify-content-center"
                             style="width: 60px; height: 60px; border-radius: 6px;">
                             <i class="mdi mdi-image-off mdi-24px"></i>
                           </div>
                           {% endif %}
-
                         </td>
-
                         <td class="align-middle">
                           <h6 class="mb-1 font-weight-bold">{{ item.product.name }}</h6>
                           {% if item.product.category %}
@@ -720,7 +700,7 @@
                           {% endif %}
                         </td>
                         <td class="text-center align-middle">
-                          <h6 class="mb-0 text-success">${{ item.price|floatformat:2 }}</h6>
+                          <h6 class="mb-0 text-success">₹{{ item.price|floatformat:2 }}</h6>
                         </td>
                         <td class="text-center align-middle">
                           <span class="badge badge-secondary badge-pill px-3 py-2">
@@ -728,7 +708,7 @@
                           </span>
                         </td>
                         <td class="text-right align-middle">
-                          <h5 class="mb-0 font-weight-bold text-dark">${{ item.get_total|floatformat:2 }}</h5>
+                          <h5 class="mb-0 font-weight-bold text-dark">₹{{ item.get_total|floatformat:2 }}</h5>
                         </td>
                       </tr>
                       {% empty %}
@@ -743,7 +723,7 @@
                           <h6 class="mb-0">Subtotal:</h6>
                         </td>
                         <td class="text-right">
-                          <h6 class="mb-0 font-weight-bold">${{ o.get_total|floatformat:2 }}</h6>
+                          <h6 class="mb-0 font-weight-bold">₹{{ o.get_total|floatformat:2 }}</h6>
                         </td>
                       </tr>
                       <tr class="bg-primary text-white">
@@ -751,7 +731,7 @@
                           <h5 class="mb-0 font-weight-bold">Grand Total:</h5>
                         </td>
                         <td class="text-right">
-                          <h4 class="mb-0 font-weight-bold">${{ o.total_price|floatformat:2 }}</h4>
+                          <h4 class="mb-0 font-weight-bold">₹{{ o.total_price|floatformat:2 }}</h4>
                         </td>
                       </tr>
                     </tfoot>
@@ -767,22 +747,20 @@
               <i class="mdi mdi-pencil mr-1"></i> Edit Order
             </a>
             <a href="{% url 'invoice' o.id %}" class="btn btn-sm btn-gradient-success" title="Invoice">
-              <i class="mdi mdi-file-document-outline"></i>
-              Invoice
+              <i class="mdi mdi-file-document-outline mr-1"></i> Invoice
             </a>
             <a href="{% url 'receipt' o.id %}" class="btn btn-sm btn-gradient-success" title="Receipt">
-              <i class="mdi mdi-receipt"></i> Receipt
+              <i class="mdi mdi-receipt mr-1"></i> Receipt
             </a>
-
           </div>
         </div>
       </div>
     </div>
     {% endfor %}
-    <!-- end modals -->
 
   </div>
 </div>
+
 
 <script>
   const $ = sel => document.querySelector(sel);
