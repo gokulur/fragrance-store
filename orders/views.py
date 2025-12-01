@@ -270,7 +270,7 @@ def checkout_action(request):
     if request.method != 'POST':
         return redirect('checkout_page')
     
-    # ⚠️ CRITICAL: Check if OTP was verified
+   
     if not request.session.get('otp_verified', False):
         messages.error(request, "⚠️ Please verify OTP before placing order!")
         return redirect('checkout_page')
@@ -360,8 +360,9 @@ def checkout_action(request):
         postal_code=request.POST.get('postal_code', ''),
         country=request.POST.get('country', ''),
         phone=request.POST.get('phone', ''),
-        delivery_latitude=request.POST.get('delivery_latitude', ''),
-        delivery_longitude=request.POST.get('delivery_longitude', ''),
+        delivery_latitude=request.POST.get('delivery_latitude') or None,
+        delivery_longitude=request.POST.get('delivery_longitude') or None,
+
     )
     
     # Clear OTP session
@@ -370,7 +371,8 @@ def checkout_action(request):
     request.session.modified = True
     
     messages.success(request, "🎉 Order placed successfully!")
-    return redirect("order_detail_page", order_id=order.id)
+    return redirect("order_detail_page", order_id=order.order_id)
+
 
 
 # -----------------------------
@@ -378,7 +380,7 @@ def checkout_action(request):
 # -----------------------------
 @login_required
 def order_detail_page(request, order_id):
-    order = get_object_or_404(Order, id=order_id, user=request.user)
+    order = get_object_or_404(Order, order_id=order_id, user=request.user)
     
     return render(request, "order_detail.html", {
         "order": order,
