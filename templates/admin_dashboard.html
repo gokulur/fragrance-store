@@ -565,21 +565,7 @@
   <!-- Custom js for this page -->
   <script src="{% static 'assets/js/dashboard.js' %}"></script>
   <!-- End custom js for this page -->
-<script>
-function reloadStats() {
-    fetch("/admin/stats/")
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById("monthly_income").innerText = "₹ " + data.monthly_income;
-            document.getElementById("daily_income").innerText = "₹ " + data.daily_income;
-            document.getElementById("revenue").innerText = "₹ " + data.revenue;
-            document.getElementById("sales").innerText = "₹ " + data.sales;
-        });
-}
-
-// Refresh every 5 seconds
-setInterval(reloadStats, 5000);
-</script>
+ 
 
 </body>
 

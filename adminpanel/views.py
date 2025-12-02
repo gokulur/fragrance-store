@@ -50,31 +50,7 @@ def admin_dashboard(request):
     }
     return render(request, 'admin_dashboard.html', context)
 
-
-@login_required
-@user_passes_test(admin_only)
-def get_dashboard_stats(request):
-
-    today = now().date()
-    month_start = today.replace(day=1)
-
-    daily_income = Order.objects.filter(created_at__date=today).aggregate(
-        total=Sum('total_price')
-    )['total'] or 0
-
-    monthly_income = Order.objects.filter(created_at__date__gte=month_start).aggregate(
-        total=Sum('total_price')
-    )['total'] or 0
-
-    revenue = Order.objects.aggregate(total=Sum('total_price'))['total'] or 0
-    sales = Order.objects.count()
-
-    return JsonResponse({
-        "daily_income": float(daily_income),
-        "monthly_income": float(monthly_income),
-        "revenue": float(revenue),
-        "sales": sales
-    })
+ 
 
 
 # -------------------------------

@@ -4,7 +4,7 @@ from . import views
 urlpatterns = [
     # Dashboard
     path('dashboard/', views.admin_dashboard, name='admin_dashboard'),
-    path("admin/stats/", views.get_dashboard_stats, name="admin_stats"),
+    
 
 
     # Products
