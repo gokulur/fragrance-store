@@ -418,3 +418,58 @@ def track_order_page(request, order_id):
 def order_list_page(request):
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
     return render(request, "order_list.html", {"orders": orders})
+
+
+def send_admin_order_email(order):
+    """Send entire order details to admin email automatically"""
+
+    admin_email = "shyamchandgemini@gmail.com"   
+
+    order_items = order.items.all()
+    shipping = order.shippingaddress
+
+  
+    items_text = ""
+    for item in order_items:
+        items_text += (
+            f"- {item.product.name} | Qty: {item.quantity} | "
+            f"Price: ₹{item.price} | Total: ₹{item.total_price}\n"
+        )
+
+ 
+    message = f"""
+A new order has been placed!
+
+===============================
+🧾 ORDER SUMMARY
+===============================
+Order ID: {order.order_id}
+User: {order.user.username}
+Date: {order.created_at.strftime('%d-%m-%Y %H:%M')}
+Total Amount: ₹{order.total_price}
+
+===============================
+📦 ITEMS
+===============================
+{items_text}
+
+===============================
+📍 SHIPPING INFO
+===============================
+Name: {shipping.full_name}
+Address: {shipping.address_line}
+City: {shipping.city}
+Postal Code: {shipping.postal_code}
+Country: {shipping.country}
+Phone: {shipping.phone}
+
+Please process this order.
+"""
+
+    send_mail(
+        subject=f"📦 New Order Received – #{order.order_id}",
+        message=message,
+        from_email=settings.EMAIL_HOST_USER, 
+        recipient_list=[admin_email],           
+        fail_silently=False,
+    )
