@@ -5,6 +5,9 @@ from django.utils.text import slugify
 from django.contrib.auth.models import User
 from products.models import Product, Collection, Category,ProductImage
 from orders.models import Order
+from django.db.models import Sum
+from django.utils.timezone import now, timedelta
+from django.http import JsonResponse
 
 # -------------------------------
 # Access Control
@@ -19,20 +22,59 @@ def admin_only(user):
 @login_required
 @user_passes_test(admin_only)
 def admin_dashboard(request):
-    total_products = Product.objects.count()
-    total_orders = Order.objects.count()
-    total_users = User.objects.count()
-    total_collections = Collection.objects.count()
-    total_categories = Category.objects.count()
+
+    today = now().date()
+    month_start = today.replace(day=1)
+
+    # Daily Income
+    daily_income = Order.objects.filter(created_at__date=today).aggregate(
+        total=Sum('total_price')
+    )['total'] or 0
+
+    # Monthly Income
+    monthly_income = Order.objects.filter(created_at__date__gte=month_start).aggregate(
+        total=Sum('total_price')
+    )['total'] or 0
+
+    # Revenue (All order amount)
+    revenue = Order.objects.aggregate(total=Sum('total_price'))['total'] or 0
+
+    # Sales (Number of orders)
+    sales = Order.objects.count()
 
     context = {
-        'total_products': total_products,
-        'total_orders': total_orders,
-        'total_users': total_users,
-        'total_collections': total_collections,
-        'total_categories': total_categories,
+        'daily_income': daily_income,
+        'monthly_income': monthly_income,
+        'revenue': revenue,
+        'sales': sales,
     }
     return render(request, 'admin_dashboard.html', context)
+
+
+@login_required
+@user_passes_test(admin_only)
+def get_dashboard_stats(request):
+
+    today = now().date()
+    month_start = today.replace(day=1)
+
+    daily_income = Order.objects.filter(created_at__date=today).aggregate(
+        total=Sum('total_price')
+    )['total'] or 0
+
+    monthly_income = Order.objects.filter(created_at__date__gte=month_start).aggregate(
+        total=Sum('total_price')
+    )['total'] or 0
+
+    revenue = Order.objects.aggregate(total=Sum('total_price'))['total'] or 0
+    sales = Order.objects.count()
+
+    return JsonResponse({
+        "daily_income": float(daily_income),
+        "monthly_income": float(monthly_income),
+        "revenue": float(revenue),
+        "sales": sales
+    })
 
 
 # -------------------------------
