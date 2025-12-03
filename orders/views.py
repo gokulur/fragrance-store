@@ -387,10 +387,23 @@ def checkout_action(request):
 def order_detail_page(request, order_id):
     order = get_object_or_404(Order, order_id=order_id, user=request.user)
     
+    # ✅ FIX: Use item instead of order to avoid variable shadowing
+    subtotal = sum(item.total_price for item in order.items.all())
+    # OR use the order's total_price directly if it's the subtotal:
+    # subtotal = order.total_price
+    
+    shipping = Decimal('50.00')
+    tax = round(subtotal * Decimal('0.18'), 2)
+    total = subtotal + shipping + tax
+    
     return render(request, "order_detail.html", {
         "order": order,
         "items": order.items.all(),
-        "shipping": order.shippingaddress
+    
+        "subtotal": subtotal,
+        "shipping_cost": shipping,
+        "tax": tax,
+        "total": total,
     })
 
 
