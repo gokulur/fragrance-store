@@ -399,7 +399,7 @@ def order_detail_page(request, order_id):
     return render(request, "order_detail.html", {
         "order": order,
         "items": order.items.all(),
-    
+        "shipping": order.shippingaddress,
         "subtotal": subtotal,
         "shipping_cost": shipping,
         "tax": tax,
