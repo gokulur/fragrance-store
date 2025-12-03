@@ -437,7 +437,7 @@
 
                 <div class="orderlist-footer">
                     <div class="orderlist-grand-total">
-                        Total Amount: <span>₹{{ order.get_total }}</span>
+                        Total Amount: <span>₹{{ order.total_price }}</span>
                     </div>
                     <a href="{% url 'order_detail_page' order.id %}" class="orderlist-btn">
                         View Order Details
