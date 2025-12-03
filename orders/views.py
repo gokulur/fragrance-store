@@ -362,8 +362,13 @@ def checkout_action(request):
         phone=request.POST.get('phone', ''),
         delivery_latitude=request.POST.get('delivery_latitude') or None,
         delivery_longitude=request.POST.get('delivery_longitude') or None,
-
     )
+    
+    # ✅ SEND ADMIN EMAIL - ADD THIS LINE
+    try:
+        send_admin_order_email(order)
+    except Exception as e:
+        print(f"❌ Failed to send admin email: {e}")
     
     # Clear OTP session
     request.session['otp_verified'] = False
