@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .cancel-wrapper {
+        background: #ffffff;
+        min-height: 100vh;
+        padding: 60px 20px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .cancel-container {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .cancel-card {
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e8e8e8;
+        overflow: hidden;
+    }
+
+    .cancel-header {
+        background: #1a1a1a;
+        color: #ffffff;
+        padding: 40px;
+        text-align: center;
+    }
+
+    .cancel-icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+        display: block;
+    }
+
+    .cancel-title {
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .cancel-subtitle {
+        font-size: 14px;
+        opacity: 0.8;
+    }
+
+    .cancel-content {
+        padding: 40px;
+    }
+
+    .cancel-order-info {
+        background: #fafafa;
+        border-radius: 8px;
+        padding: 24px;
+        margin-bottom: 30px;
+        border: 1px solid #e8e8e8;
+    }
+
+    .cancel-info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #e8e8e8;
+    }
+
+    .cancel-info-row:last-child {
+        border-bottom: none;
+    }
+
+    .cancel-info-label {
+        font-size: 13px;
+        color: #6a6a6a;
+        font-weight: 600;
+    }
+
+    .cancel-info-value {
+        font-size: 15px;
+        color: #1a1a1a;
+        font-weight: 600;
+    }
+
+    .cancel-form-group {
+        margin-bottom: 24px;
+    }
+
+    .cancel-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .cancel-textarea {
+        width: 100%;
+        padding: 14px;
+        border: 2px solid #e8e8e8;
+        border-radius: 6px;
+        font-size: 15px;
+        font-family: inherit;
+        resize: vertical;
+        min-height: 120px;
+        transition: all 0.3s ease;
+    }
+
+    .cancel-textarea:focus {
+        outline: none;
+        border-color: #1a1a1a;
+    }
+
+    .cancel-warning {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 6px;
+        padding: 16px;
+        margin-bottom: 30px;
+    }
+
+    .cancel-warning-title {
+        font-weight: 600;
+        color: #856404;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .cancel-warning-text {
+        font-size: 13px;
+        color: #856404;
+        line-height: 1.6;
+    }
+
+    .cancel-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .cancel-btn {
+        padding: 16px 24px;
+        font-size: 15px;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 6px;
+        border: none;
+        display: inline-block;
+    }
+
+    .cancel-btn-back {
+        background: #ffffff;
+        color: #1a1a1a;
+        border: 2px solid #1a1a1a;
+    }
+
+    .cancel-btn-back:hover {
+        background: #f5f5f5;
+        text-decoration: none;
+        transform: translateY(-2px);
+    }
+
+    .cancel-btn-confirm {
+        background: #d32f2f;
+        color: #ffffff;
+        border: 2px solid #d32f2f;
+    }
+
+    .cancel-btn-confirm:hover {
+        background: #b71c1c;
+        border-color: #b71c1c;
+        text-decoration: none;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
+    }
+
+    @media (max-width: 768px) {
+        .cancel-wrapper {
+            padding: 30px 15px;
+        }
+
+        .cancel-header {
+            padding: 30px 20px;
+        }
+
+        .cancel-title {
+            font-size: 22px;
+        }
+
+        .cancel-content {
+            padding: 24px;
+        }
+
+        .cancel-actions {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="cancel-wrapper">
+    <div class="cancel-container">
+        <div class="cancel-card">
+            <div class="cancel-header">
+                <span class="cancel-icon">⚠️</span>
+                <h1 class="cancel-title">Cancel Order</h1>
+                <p class="cancel-subtitle">Are you sure you want to cancel this order?</p>
+            </div>
+
+            <div class="cancel-content">
+                <div class="cancel-order-info">
+                    <div class="cancel-info-row">
+                        <span class="cancel-info-label">Order ID</span>
+                        <span class="cancel-info-value">#{{ order.order_id }}</span>
+                    </div>
+                    <div class="cancel-info-row">
+                        <span class="cancel-info-label">Order Date</span>
+                        <span class="cancel-info-value">{{ order.created_at|date:"F d, Y" }}</span>
+                    </div>
+                    <div class="cancel-info-row">
+                        <span class="cancel-info-label">Total Amount</span>
+                        <span class="cancel-info-value">₹{{ order.total_price }}</span>
+                    </div>
+                    <div class="cancel-info-row">
+                        <span class="cancel-info-label">Status</span>
+                        <span class="cancel-info-value">{{ order.status|title }}</span>
+                    </div>
+                </div>
+
+                <div class="cancel-warning">
+                    <div class="cancel-warning-title">⚠️ Important Information</div>
+                    <ul class="cancel-warning-text">
+                        <li>Your order will be cancelled immediately</li>
+                        <li>Products will be returned to stock</li>
+                        <li>Refund will be processed within 5-7 business days</li>
+                        <li>You cannot undo this action</li>
+                    </ul>
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="cancel-form-group">
+                        <label class="cancel-label">Reason for Cancellation *</label>
+                        <textarea 
+                            name="reason" 
+                            class="cancel-textarea" 
+                            placeholder="Please tell us why you're cancelling this order..."
+                            required></textarea>
+                    </div>
+
+                    <div class="cancel-actions">
+                        <a href="{% url 'order_detail_page' order.order_id %}" 
+                           class="cancel-btn cancel-btn-back">
+                            ← Go Back
+                        </a>
+                        <button type="submit" class="cancel-btn cancel-btn-confirm">
+                            Confirm Cancellation
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
