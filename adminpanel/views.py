@@ -370,3 +370,33 @@ def update_status_inline(request, order_id):
         order.save()
         messages.success(request, "Order status updated!")
         return redirect(request.META.get("HTTP_REFERER", "/"))
+    
+
+
+@login_required
+@user_passes_test(admin_only)
+def admin_delete_customer(request, customer_id):
+    """
+    Delete a customer and all their related data
+    """
+    customer = get_object_or_404(User, id=customer_id)
+    
+    # Prevent deleting yourself
+    if customer.id == request.user.id:
+        messages.error(request, "❌ You cannot delete your own account!")
+        return redirect('admin_customers')
+    
+    # Get customer info for confirmation message
+    customer_username = customer.username
+    customer_email = customer.email
+    
+    # Delete customer (this also deletes related data via CASCADE)
+    customer.delete()
+    
+    # Show success message
+    messages.success(
+        request, 
+        f"✅ Customer '{customer_username}' ({customer_email}) has been deleted successfully!"
+    )
+    
+    return redirect('admin_customers')

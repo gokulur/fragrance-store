@@ -31,7 +31,7 @@ urlpatterns = [
 
     # Customers
     path('customers/', views.admin_customers, name='admin_customers'),
-
+    path('admin/customer/<int:customer_id>/delete/', views.admin_delete_customer, name='admin_delete_customer'),
     # invoices and receipts
     path('invoices/<int:pk>/', views.invoice, name='invoice'),
     path('receipts/<int:pk>/', views.receipt, name='receipt'),
