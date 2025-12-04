@@ -535,7 +535,191 @@
 
 <!-- JAVASCRIPT -->
 <script>
+// Add this to your existing JavaScript section in the template
+
 document.addEventListener('DOMContentLoaded', function() {
+    // ============================================
+    // COLLECTION FILTER HANDLER
+    // ============================================
+    const collectionCheckboxes = document.querySelectorAll('.collection-filter-checkbox');
+    
+    collectionCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            applyCollectionFilter();
+        });
+    });
+    
+    function applyCollectionFilter() {
+        const checkedCollections = Array.from(
+            document.querySelectorAll('.collection-filter-checkbox:checked')
+        ).map(cb => cb.value);
+        
+        const params = new URLSearchParams(window.location.search);
+        
+        // Remove existing collection params
+        params.delete('collection');
+        
+        // Add selected collections
+        checkedCollections.forEach(collId => {
+            params.append('collection', collId);
+        });
+        
+        // Keep other filters (price, sort)
+        const priceMin = document.querySelector('.price-slider--min');
+        const priceMax = document.querySelector('.price-slider--max');
+        
+        if (priceMin && priceMax) {
+            params.set('price_min', priceMin.value);
+            params.set('price_max', priceMax.value);
+        }
+        
+        // Reset to page 1 when filtering
+        params.delete('page');
+        
+        // Add AJAX flag
+        params.set('ajax', '1');
+        
+        // Show loading
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const productsContainer = document.getElementById('products-container');
+        
+        if (loadingIndicator) loadingIndicator.style.display = 'block';
+        if (productsContainer) productsContainer.style.opacity = '0.5';
+        
+        // Fetch filtered products
+        fetch(`${window.location.pathname}?${params.toString()}`, {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => response.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newProductsContainer = doc.querySelector('#products-container');
+            
+            if (newProductsContainer && productsContainer) {
+                productsContainer.innerHTML = newProductsContainer.innerHTML;
+            }
+            
+            // Update URL without ajax param
+            params.delete('ajax');
+            const newUrl = `${window.location.pathname}?${params.toString()}`;
+            window.history.pushState({}, '', newUrl);
+            
+            if (loadingIndicator) loadingIndicator.style.display = 'none';
+            if (productsContainer) productsContainer.style.opacity = '1';
+            
+            // Scroll to products
+            const productsSection = document.querySelector('.section-collection-products');
+            if (productsSection) {
+                productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            if (loadingIndicator) loadingIndicator.style.display = 'none';
+            if (productsContainer) productsContainer.style.opacity = '1';
+        });
+    }
+    
+    // ============================================
+    // CLEAR ALL FILTERS
+    // ============================================
+    const clearAllBtn = document.getElementById('clear-all-btn');
+    if (clearAllBtn) {
+        clearAllBtn.addEventListener('click', function() {
+            // Uncheck all collection filters
+            collectionCheckboxes.forEach(cb => cb.checked = false);
+            
+            // Reset price sliders to default
+            const minSlider = document.querySelector('.price-slider--min');
+            const maxSlider = document.querySelector('.price-slider--max');
+            
+            if (minSlider) minSlider.value = minSlider.min;
+            if (maxSlider) maxSlider.value = maxSlider.max;
+            
+            // Redirect to clean URL
+            window.location.href = window.location.pathname;
+        });
+    }
+    
+    // ============================================
+    // SORT & PAGINATION HANDLERS
+    // ============================================
+    
+    // Sort radio buttons
+    const sortRadios = document.querySelectorAll('.sort-radio');
+    sortRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            const params = new URLSearchParams(window.location.search);
+            params.set('sort_by', this.value);
+            params.delete('page'); // Reset to page 1
+            window.location.href = `${window.location.pathname}?${params.toString()}`;
+        });
+    });
+    
+    // Pagination links
+    document.addEventListener('click', function(e) {
+        if (e.target.matches('.pagination-link') || e.target.closest('.pagination-link')) {
+            e.preventDefault();
+            
+            const link = e.target.matches('.pagination-link') ? e.target : e.target.closest('.pagination-link');
+            const page = link.dataset.page;
+            
+            if (page) {
+                const params = new URLSearchParams(window.location.search);
+                params.set('page', page);
+                params.set('ajax', '1');
+                
+                const loadingIndicator = document.getElementById('loading-indicator');
+                const productsContainer = document.getElementById('products-container');
+                
+                if (loadingIndicator) loadingIndicator.style.display = 'block';
+                if (productsContainer) productsContainer.style.opacity = '0.5';
+                
+                fetch(`${window.location.pathname}?${params.toString()}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newProductsContainer = doc.querySelector('#products-container');
+                    
+                    if (newProductsContainer && productsContainer) {
+                        productsContainer.innerHTML = newProductsContainer.innerHTML;
+                    }
+                    
+                    params.delete('ajax');
+                    const newUrl = `${window.location.pathname}?${params.toString()}`;
+                    window.history.pushState({}, '', newUrl);
+                    
+                    if (loadingIndicator) loadingIndicator.style.display = 'none';
+                    if (productsContainer) productsContainer.style.opacity = '1';
+                    
+                    // Scroll to top of products
+                    const productsSection = document.querySelector('.section-collection-products');
+                    if (productsSection) {
+                        productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    if (loadingIndicator) loadingIndicator.style.display = 'none';
+                    if (productsContainer) productsContainer.style.opacity = '1';
+                });
+            }
+        }
+    });
+    
+    // ============================================
+    // PRICE SLIDER CODE (Keep your existing code)
+    // ============================================
     const minSlider = document.querySelector('.price-slider--min');
     const maxSlider = document.querySelector('.price-slider--max');
     const minDisplay = document.getElementById('price-min-display');
@@ -544,39 +728,35 @@ document.addEventListener('DOMContentLoaded', function() {
     
     let debounceTimer;
     
-    // ✅ UPDATE SLIDER FILL AND DISPLAY
     function updateSliders() {
         let minValue = parseInt(minSlider.value);
         let maxValue = parseInt(maxSlider.value);
         
-        // Update fill position and width
         const minPercent = ((minValue - minSlider.min) / (minSlider.max - minSlider.min)) * 100;
         const maxPercent = ((maxValue - maxSlider.min) / (maxSlider.max - maxSlider.min)) * 100;
         
         fill.style.left = minPercent + '%';
         fill.style.right = (100 - maxPercent) + '%';
         
-        // Update display
         minDisplay.textContent = formatPrice(minValue);
         maxDisplay.textContent = formatPrice(maxValue);
     }
     
-    // ✅ FORMAT PRICE
     function formatPrice(price) {
         return new Intl.NumberFormat('en-IN').format(Math.round(price));
     }
     
-    // ✅ APPLY FILTERS (DEBOUNCED)
-    function applyFilters() {
+    function applyPriceFilter() {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => {
             const minValue = parseInt(minSlider.value);
             const maxValue = parseInt(maxSlider.value);
             
-            const params = new URLSearchParams();
-            params.append('price_min', minValue);
-            params.append('price_max', maxValue);
-            params.append('ajax', '1');
+            const params = new URLSearchParams(window.location.search);
+            params.set('price_min', minValue);
+            params.set('price_max', maxValue);
+            params.delete('page'); // Reset to page 1
+            params.set('ajax', '1');
             
             const loadingIndicator = document.getElementById('loading-indicator');
             const productsContainer = document.getElementById('products-container');
@@ -600,7 +780,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     productsContainer.innerHTML = newProductsContainer.innerHTML;
                 }
                 
-                const newUrl = `${window.location.pathname}?price_min=${minValue}&price_max=${maxValue}`;
+                params.delete('ajax');
+                const newUrl = `${window.location.pathname}?${params.toString()}`;
                 window.history.pushState({}, '', newUrl);
                 
                 if (loadingIndicator) loadingIndicator.style.display = 'none';
@@ -619,15 +800,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 500);
     }
     
-    // Event Listeners
-    minSlider.addEventListener('input', updateSliders);
-    maxSlider.addEventListener('input', updateSliders);
-    
-    minSlider.addEventListener('change', applyFilters);
-    maxSlider.addEventListener('change', applyFilters);
-    
-    // Initial update
-    updateSliders();
+    if (minSlider && maxSlider) {
+        minSlider.addEventListener('input', updateSliders);
+        maxSlider.addEventListener('input', updateSliders);
+        minSlider.addEventListener('change', applyPriceFilter);
+        maxSlider.addEventListener('change', applyPriceFilter);
+        updateSliders();
+    }
 });
+
 </script>
 {% endblock %}

@@ -201,3 +201,7 @@ def products_by_collection(request, slug):
         return render(request, 'products_by_category.html', context)
     
     return render(request, 'products_by_category.html', context)
+
+
+
+
