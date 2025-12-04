@@ -1188,7 +1188,131 @@ function getCookie(name) {
 }
 const csrftoken = getCookie('csrftoken');
 
-
+document.addEventListener('DOMContentLoaded', function() {
+    // ============================================
+    // QUANTITY CONTROL WITH STOCK LIMIT
+    // ============================================
+    
+    const quantityInput = document.querySelector('.xo-quantity-style2__number');
+    const plusBtn = document.querySelector('xo-cart-quantity-plus');
+    const minusBtn = document.querySelector('xo-cart-quantity-minus');
+    
+    if (!quantityInput || !plusBtn || !minusBtn) return;
+    
+    const maxStock = parseInt(quantityInput.getAttribute('max')) || 999;
+    const minQuantity = parseInt(quantityInput.getAttribute('min')) || 1;
+    
+    // Function to update button states
+    function updateButtonStates() {
+        const currentValue = parseInt(quantityInput.value) || minQuantity;
+        
+        // Disable/Enable Plus Button based on stock
+        if (currentValue >= maxStock) {
+            plusBtn.setAttribute('disabled', 'true');
+            plusBtn.style.opacity = '0.5';
+            plusBtn.style.cursor = 'not-allowed';
+            plusBtn.style.pointerEvents = 'none';
+        } else {
+            plusBtn.removeAttribute('disabled');
+            plusBtn.style.opacity = '1';
+            plusBtn.style.cursor = 'pointer';
+            plusBtn.style.pointerEvents = 'auto';
+        }
+        
+        // Disable/Enable Minus Button based on min quantity
+        if (currentValue <= minQuantity) {
+            minusBtn.setAttribute('disabled', 'true');
+            minusBtn.style.opacity = '0.5';
+            minusBtn.style.cursor = 'not-allowed';
+            minusBtn.style.pointerEvents = 'none';
+        } else {
+            minusBtn.removeAttribute('disabled');
+            minusBtn.style.opacity = '1';
+            minusBtn.style.cursor = 'pointer';
+            minusBtn.style.pointerEvents = 'auto';
+        }
+    }
+    
+    // Plus Button Click Handler
+    plusBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        let currentValue = parseInt(quantityInput.value) || minQuantity;
+        
+        if (currentValue < maxStock) {
+            quantityInput.value = currentValue + 1;
+            updateButtonStates();
+        } else {
+            // Show notification when stock limit reached
+            showStockNotification(`Maximum available stock: ${maxStock}`);
+        }
+    });
+    
+    // Minus Button Click Handler
+    minusBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        let currentValue = parseInt(quantityInput.value) || minQuantity;
+        
+        if (currentValue > minQuantity) {
+            quantityInput.value = currentValue - 1;
+            updateButtonStates();
+        }
+    });
+    
+    // Input Change Handler (for manual input)
+    quantityInput.addEventListener('input', function() {
+        let value = parseInt(this.value);
+        
+        // Validate input
+        if (isNaN(value) || value < minQuantity) {
+            this.value = minQuantity;
+        } else if (value > maxStock) {
+            this.value = maxStock;
+            showStockNotification(`Maximum available stock: ${maxStock}`);
+        }
+        
+        updateButtonStates();
+    });
+    
+    // Prevent non-numeric input
+    quantityInput.addEventListener('keypress', function(e) {
+        if (e.key && !/[0-9]/.test(e.key)) {
+            e.preventDefault();
+        }
+    });
+    
+    // Initial state
+    updateButtonStates();
+    
+    // ============================================
+    // STOCK NOTIFICATION FUNCTION
+    // ============================================
+    function showStockNotification(message) {
+        // Remove existing stock notification
+        const existing = document.querySelector('.stock-notification');
+        if (existing) existing.remove();
+        
+        // Create notification
+        const notification = document.createElement('div');
+        notification.className = 'stock-notification';
+        notification.innerHTML = `
+            <div class="stock-notification__content">
+                <span class="stock-notification__icon">⚠</span>
+                <span class="stock-notification__message">${message}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Show notification
+        setTimeout(() => notification.classList.add('show'), 10);
+        
+        // Hide after 2.5 seconds
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 2500);
+    }
+});
 // Add to Cart Button
 document.addEventListener("click", function (e) {
     if (e.target.closest(".add-to-cart-btn")) {
