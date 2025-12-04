@@ -50,7 +50,10 @@
                                 <select class="form-control" name="category">
                                     <option value="">-- Select Category --</option>
                                     {% for cat in categories %}
-                                    <option value="{{ cat.id }}">
+                                    <option value="{{ cat.id }}" 
+                                        {% if product and product.category and product.category.id == cat.id %}
+                                            selected
+                                        {% endif %}>
                                         {{ cat.name }}
                                     </option>
                                     {% endfor %}
@@ -63,7 +66,10 @@
                                 <select class="form-control" name="collection">
                                     <option value="">-- Select Collection --</option>
                                     {% for collection in collections %}
-                                    <option value="{{ collection.id }}">
+                                    <option value="{{ collection.id }}"
+                                        {% if product and product.collection and product.collection.id == collection.id %}
+                                            selected
+                                        {% endif %}>
                                         {{ collection.name }}
                                     </option>
                                     {% endfor %}
