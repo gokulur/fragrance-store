@@ -390,7 +390,7 @@
             {% for order in orders %}
             <div class="orderlist-card">
                 <div class="orderlist-header">
-                    <h3 class="orderlist-order-id">Order #{{ order.id }}</h3>
+                    <h3 class="orderlist-order-id">Order ID #{{ order.order_id }}</h3>
                     <span class="orderlist-status orderlist-status-{{ order.status|lower }}">
                         {{ order.status }}
                     </span>

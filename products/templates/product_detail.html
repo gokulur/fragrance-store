@@ -1188,6 +1188,7 @@ function getCookie(name) {
 }
 const csrftoken = getCookie('csrftoken');
 
+
 // Add to Cart Button
 document.addEventListener("click", function (e) {
     if (e.target.closest(".add-to-cart-btn")) {
@@ -1301,6 +1302,8 @@ function showNotification(message, type = 'success') {
         setTimeout(() => notification.remove(), 300);
     }, 3000);
 }
+ 
+
 </script>
 
 <style>
