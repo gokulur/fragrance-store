@@ -19,5 +19,10 @@ urlpatterns = [
     path('send-checkout-otp/', views.send_checkout_otp, name='send_checkout_otp'),
     path('verify-checkout-otp/', views.verify_checkout_otp, name='verify_checkout_otp'),
  
+    # Cancel Order
+    path('cancel/<str:order_id>/', views.cancel_order, name='cancel_order'),
+    
+    # Update Order
+    path('update/<str:order_id>/', views.update_order, name='update_order'),
 
 ]

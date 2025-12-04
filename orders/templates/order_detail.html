@@ -740,10 +740,15 @@
 
                 <!-- Action Buttons -->
                 <div class="orderdetail-actions">
-                    <!-- <a href="{% url 'track_order_page' order.id %}"
-                        class="orderdetail-btn orderdetail-btn-primary">Track Order</a> -->
-                    <a href="#" class="orderdetail-btn orderdetail-btn-secondary">Update Order</a>
-                    <a href="#" class="orderdetail-btn orderdetail-btn-danger">Cancel Order</a>
+                    <a href="{% url 'update_order' order.order_id %}" class="orderdetail-btn orderdetail-btn-secondary">
+                          Update Order
+                    </a>
+                    <a href="{% url 'order_list_page' %}" class="orderdetail-btn orderdetail-btn-primary">
+                        View All Orders
+                    </a>
+                    <a href="{% url 'cancel_order' order.order_id %}" class="orderdetail-btn orderdetail-btn-danger">
+                        Cancel Order
+                    </a>
                 </div>
             </div>
         </div>

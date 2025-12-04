@@ -1,0 +1,384 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .update-wrapper {
+        background: #ffffff;
+        min-height: 100vh;
+        padding: 60px 20px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .update-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .update-card {
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e8e8e8;
+        overflow: hidden;
+    }
+
+    .update-header {
+        background: #1a1a1a;
+        color: #ffffff;
+        padding: 40px;
+        text-align: center;
+    }
+
+    .update-icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+        display: block;
+    }
+
+    .update-title {
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .update-subtitle {
+        font-size: 14px;
+        opacity: 0.8;
+    }
+
+    .update-content {
+        padding: 40px;
+    }
+
+    .update-order-info {
+        background: #fafafa;
+        border-radius: 8px;
+        padding: 24px;
+        margin-bottom: 30px;
+        border: 1px solid #e8e8e8;
+    }
+
+    .update-info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #e8e8e8;
+    }
+
+    .update-info-row:last-child {
+        border-bottom: none;
+    }
+
+    .update-info-label {
+        font-size: 13px;
+        color: #6a6a6a;
+        font-weight: 600;
+    }
+
+    .update-info-value {
+        font-size: 15px;
+        color: #1a1a1a;
+        font-weight: 600;
+    }
+
+    .update-form-section {
+        margin-bottom: 30px;
+    }
+
+    .update-section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #1a1a1a;
+    }
+
+    .update-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .update-form-group {
+        margin-bottom: 20px;
+    }
+
+    .update-form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .update-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .update-input {
+        width: 100%;
+        padding: 14px;
+        border: 2px solid #e8e8e8;
+        border-radius: 6px;
+        font-size: 15px;
+        font-family: inherit;
+        transition: all 0.3s ease;
+    }
+
+    .update-input:focus {
+        outline: none;
+        border-color: #1a1a1a;
+    }
+
+    .update-textarea {
+        width: 100%;
+        padding: 14px;
+        border: 2px solid #e8e8e8;
+        border-radius: 6px;
+        font-size: 15px;
+        font-family: inherit;
+        resize: vertical;
+        min-height: 100px;
+        transition: all 0.3s ease;
+    }
+
+    .update-textarea:focus {
+        outline: none;
+        border-color: #1a1a1a;
+    }
+
+    .update-info-box {
+        background: #e3f2fd;
+        border: 1px solid #2196f3;
+        border-radius: 6px;
+        padding: 16px;
+        margin-bottom: 30px;
+    }
+
+    .update-info-title {
+        font-weight: 600;
+        color: #1565c0;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .update-info-text {
+        font-size: 13px;
+        color: #1565c0;
+        line-height: 1.6;
+    }
+
+    .update-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .update-btn {
+        padding: 16px 24px;
+        font-size: 15px;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 6px;
+        border: none;
+        display: inline-block;
+    }
+
+    .update-btn-back {
+        background: #ffffff;
+        color: #1a1a1a;
+        border: 2px solid #1a1a1a;
+    }
+
+    .update-btn-back:hover {
+        background: #f5f5f5;
+        text-decoration: none;
+        transform: translateY(-2px);
+    }
+
+    .update-btn-save {
+        background: #1a1a1a;
+        color: #ffffff;
+        border: 2px solid #1a1a1a;
+    }
+
+    .update-btn-save:hover {
+        background: #000000;
+        text-decoration: none;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    @media (max-width: 768px) {
+        .update-wrapper {
+            padding: 30px 15px;
+        }
+
+        .update-header {
+            padding: 30px 20px;
+        }
+
+        .update-title {
+            font-size: 22px;
+        }
+
+        .update-content {
+            padding: 24px;
+        }
+
+        .update-form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .update-actions {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="update-wrapper">
+    <div class="update-container">
+        <div class="update-card">
+            <div class="update-header">
+                <span class="update-icon">📝</span>
+                <h1 class="update-title">Update Order</h1>
+                <p class="update-subtitle">Modify your shipping address</p>
+            </div>
+
+            <div class="update-content">
+                <div class="update-order-info">
+                    <div class="update-info-row">
+                        <span class="update-info-label">Order ID</span>
+                        <span class="update-info-value">#{{ order.order_id }}</span>
+                    </div>
+                    <div class="update-info-row">
+                        <span class="update-info-label">Order Date</span>
+                        <span class="update-info-value">{{ order.created_at|date:"F d, Y" }}</span>
+                    </div>
+                    <div class="update-info-row">
+                        <span class="update-info-label">Total Amount</span>
+                        <span class="update-info-value">₹{{ order.total_price }}</span>
+                    </div>
+                    <div class="update-info-row">
+                        <span class="update-info-label">Status</span>
+                        <span class="update-info-value">{{ order.status|title }}</span>
+                    </div>
+                </div>
+
+                <div class="update-info-box">
+                    <div class="update-info-title">ℹ️ Update Information</div>
+                    <p class="update-info-text">
+                        You can only update the shipping address while your order is pending or processing.
+                        Once shipped, changes cannot be made.
+                    </p>
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="update-form-section">
+                        <h2 class="update-section-title">Shipping Address</h2>
+                        
+                        <div class="update-form-grid">
+                            <div class="update-form-group full-width">
+                                <label class="update-label">Full Name *</label>
+                                <input 
+                                    type="text" 
+                                    name="name" 
+                                    class="update-input" 
+                                    value="{{ shipping.full_name }}"
+                                    required>
+                            </div>
+
+                            <div class="update-form-group full-width">
+                                <label class="update-label">Address *</label>
+                                <textarea 
+                                    name="address_line" 
+                                    class="update-textarea"
+                                    required>{{ shipping.address_line }}</textarea>
+                            </div>
+
+                            <div class="update-form-group">
+                                <label class="update-label">City *</label>
+                                <input 
+                                    type="text" 
+                                    name="city" 
+                                    class="update-input" 
+                                    value="{{ shipping.city }}"
+                                    required>
+                            </div>
+
+                            <div class="update-form-group">
+                                <label class="update-label">Postal Code *</label>
+                                <input 
+                                    type="text" 
+                                    name="postal_code" 
+                                    class="update-input" 
+                                    value="{{ shipping.postal_code }}"
+                                    required>
+                            </div>
+
+                            <div class="update-form-group">
+                                <label class="update-label">Country *</label>
+                                <input 
+                                    type="text" 
+                                    name="country" 
+                                    class="update-input" 
+                                    value="{{ shipping.country }}"
+                                    required>
+                            </div>
+
+                            <div class="update-form-group">
+                                <label class="update-label">Phone Number *</label>
+                                <input 
+                                    type="tel" 
+                                    name="phone" 
+                                    class="update-input" 
+                                    value="{{ shipping.phone }}"
+                                    required>
+                            </div>
+
+                            <div class="update-form-group">
+                                <label class="update-label">Latitude (Optional)</label>
+                                <input 
+                                    type="text" 
+                                    name="delivery_latitude" 
+                                    class="update-input" 
+                                    value="{{ shipping.delivery_latitude|default:'' }}"
+                                    placeholder="e.g., 9.9312">
+                            </div>
+
+                            <div class="update-form-group">
+                                <label class="update-label">Longitude (Optional)</label>
+                                <input 
+                                    type="text" 
+                                    name="delivery_longitude" 
+                                    class="update-input" 
+                                    value="{{ shipping.delivery_longitude|default:'' }}"
+                                    placeholder="e.g., 76.2673">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="update-actions">
+                        <a href="{% url 'order_detail_page' order.order_id %}" 
+                           class="update-btn update-btn-back">
+                            ← Go Back
+                        </a>
+                        <button type="submit" class="update-btn update-btn-save">
+                            💾 Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

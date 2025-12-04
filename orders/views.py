@@ -492,3 +492,158 @@ Please process this order.
         recipient_list=[admin_email],           
         fail_silently=False,
     )
+
+
+
+
+
+
+@login_required
+def cancel_order(request, order_id):
+    """Cancel an order and restore product stock"""
+    order = get_object_or_404(Order, order_id=order_id, user=request.user)
+    
+    # Only allow cancellation if order is not delivered or cancelled
+    if order.status in ['delivered', 'cancelled']:
+        messages.error(request, f"Cannot cancel order with status: {order.status}")
+        return redirect('order_detail_page', order_id=order.order_id)
+    
+    if request.method == 'POST':
+        reason = request.POST.get('reason', 'No reason provided')
+        
+        # Restore stock for all items
+        for item in order.items.all():
+            item.product.stock += item.quantity
+            item.product.save()
+        
+        # Update order status
+        order.status = 'cancelled'
+        order.save()
+        
+        # Send cancellation email to admin
+        try:
+            send_cancellation_email(order, reason)
+        except Exception as e:
+            print(f"❌ Failed to send cancellation email: {e}")
+        
+        messages.success(request, "✅ Order cancelled successfully!")
+        return redirect('order_list_page')
+    
+    return render(request, 'cancel_order.html', {'order': order})
+
+
+# -----------------------------
+# UPDATE ORDER (SHIPPING ADDRESS)
+# -----------------------------
+@login_required
+def update_order(request, order_id):
+    """Update order shipping address"""
+    order = get_object_or_404(Order, order_id=order_id, user=request.user)
+    
+    # Only allow updates if order is pending or processing
+    if order.status not in ['pending', 'processing']:
+        messages.error(request, f"Cannot update order with status: {order.status}")
+        return redirect('order_detail_page', order_id=order.order_id)
+    
+    shipping = order.shippingaddress
+    
+    if request.method == 'POST':
+        # Update shipping address
+        shipping.full_name = request.POST.get('name', shipping.full_name)
+        shipping.address_line = request.POST.get('address_line', shipping.address_line)
+        shipping.city = request.POST.get('city', shipping.city)
+        shipping.postal_code = request.POST.get('postal_code', shipping.postal_code)
+        shipping.country = request.POST.get('country', shipping.country)
+        shipping.phone = request.POST.get('phone', shipping.phone)
+        shipping.delivery_latitude = request.POST.get('delivery_latitude') or shipping.delivery_latitude
+        shipping.delivery_longitude = request.POST.get('delivery_longitude') or shipping.delivery_longitude
+        shipping.save()
+        
+        # Send update notification to admin
+        try:
+            send_update_email(order)
+        except Exception as e:
+            print(f"❌ Failed to send update email: {e}")
+        
+        messages.success(request, "✅ Order updated successfully!")
+        return redirect('order_detail_page', order_id=order.order_id)
+    
+    return render(request, 'update_order.html', {
+        'order': order,
+        'shipping': shipping
+    })
+
+
+# -----------------------------
+# EMAIL NOTIFICATIONS
+# -----------------------------
+def send_cancellation_email(order, reason):
+    """Send order cancellation email to admin"""
+    admin_email = "shyamchandgemini@gmail.com"
+    
+    items_text = ""
+    for item in order.items.all():
+        items_text += f"- {item.product.name} | Qty: {item.quantity} | ₹{item.total_price}\n"
+    
+    message = f"""
+An order has been CANCELLED by the customer.
+
+===============================
+🚫 CANCELLATION DETAILS
+===============================
+Order ID: {order.order_id}
+User: {order.user.username}
+Cancellation Reason: {reason}
+Original Amount: ₹{order.total_price}
+
+===============================
+📦 CANCELLED ITEMS
+===============================
+{items_text}
+
+Stock has been restored automatically.
+"""
+    
+    send_mail(
+        subject=f"🚫 Order Cancelled – #{order.order_id}",
+        message=message,
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[admin_email],
+        fail_silently=False,
+    )
+
+
+def send_update_email(order):
+    """Send order update email to admin"""
+    admin_email = "shyamchandgemini@gmail.com"
+    shipping = order.shippingaddress
+    
+    message = f"""
+An order has been UPDATED by the customer.
+
+===============================
+🔄 UPDATE DETAILS
+===============================
+Order ID: {order.order_id}
+User: {order.user.username}
+
+===============================
+📍 NEW SHIPPING ADDRESS
+===============================
+Name: {shipping.full_name}
+Address: {shipping.address_line}
+City: {shipping.city}
+Postal Code: {shipping.postal_code}
+Country: {shipping.country}
+Phone: {shipping.phone}
+
+Please process with updated information.
+"""
+    
+    send_mail(
+        subject=f"🔄 Order Updated – #{order.order_id}",
+        message=message,
+        from_email=settings.EMAIL_HOST_USER,
+        recipient_list=[admin_email],
+        fail_silently=False,
+    )
