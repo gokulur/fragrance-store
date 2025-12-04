@@ -145,21 +145,43 @@
                                 {% endfor %}
                             </div>
                             <div class="fieldset-block__header">
-                                <h2 class="fieldset-block__title" id="verticalTitle">PRICE</h2>
-                            </div>
-                            <div class="fieldset-block__content">
-                                <xo-filters-field style="width:100%; padding: 0 0.1rem">
-                                    <div class="xo-field-price">
-                                        <xo-range class="xo-field-price__range" xo-component-name="range-price" xo-max="{{ max_price_range }}" xo-min="{{ min_price_range }}" xo-name="['filter.v.price.gte', 'filter.v.price.lte']" xo-step="1" xo-value="[{{ price_min }}, {{ price_max }}]"></xo-range>
-                                        <div class="xo-field-price__input-group">
-                                            <div class="xo-field-price__label">Price:</div>
-                                            <xo-range-price class="xo-field-price__text" xo-component-name="range-price" xo-money-format="₹{ money }" xo-type="min">₹{{ price_min }}</xo-range-price>
-                                            <span>-</span>
-                                            <xo-range-price class="xo-field-price__text" xo-component-name="range-price" xo-money-format="₹{ money }" xo-type="max">₹{{ price_max }}</xo-range-price>
-                                        </div>
-                                    </div>
-                                </xo-filters-field>
-                            </div>
+    <h2 class="fieldset-block__title" id="verticalTitle">PRICE</h2>
+</div>
+<div class="fieldset-block__content">
+    <xo-filters-field style="width:100%; padding: 0 0.1rem">
+        <div class="xo-field-price">
+            <!-- Price Range Slider -->
+            <div class="price-range-wrapper">
+                <div class="price-slider-container">
+                    <input 
+                        type="range" 
+                        class="price-slider price-slider--min" 
+                        min="{{ min_price_range }}" 
+                        max="{{ max_price_range }}" 
+                        value="{{ price_min }}"
+                        step="1">
+                    <input 
+                        type="range" 
+                        class="price-slider price-slider--max" 
+                        min="{{ min_price_range }}" 
+                        max="{{ max_price_range }}" 
+                        value="{{ price_max }}"
+                        step="1">
+                    <div class="price-slider-track"></div>
+                    <div class="price-slider-fill"></div>
+                </div>
+            </div>
+
+            <!-- Price Display -->
+            <div class="xo-field-price__input-group">
+                <div class="xo-field-price__label">Price:</div>
+                <span class="price-display price-display--min">₹<span id="price-min-display">{{ price_min }}</span></span>
+                <span>-</span>
+                <span class="price-display price-display--max">₹<span id="price-max-display">{{ price_max }}</span></span>
+            </div>
+        </div>
+    </xo-filters-field>
+</div>
                             <div class="fieldset-block__header">
                                 <h2 class="fieldset-block__title" id="verticalTitle">CATEGORY</h2>
                             </div>
@@ -366,288 +388,246 @@
 </main>
 
 <style>
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+/* Price Range Wrapper */
+.price-range-wrapper {
+    width: 100%;
+    padding: 20px 0;
 }
 
-.price-range-slider {
+.price-slider-container {
     position: relative;
-    height: 40px;
-    margin: 20px 0;
+    width: 100%;
+    height: 6px;
+    margin-bottom: 20px;
 }
-.price-range-slider input[type="range"] {
+
+/* Base track (background) */
+.price-slider-track {
     position: absolute;
     width: 100%;
-    height: 5px;
-    background: transparent;
+    height: 6px;
+    background: #e0e0e0;
+    border-radius: 3px;
+    top: 0;
+    left: 0;
+}
+
+/* Filled track (colored part between min and max) */
+.price-slider-fill {
+    position: absolute;
+    height: 6px;
+    background: linear-gradient(90deg, #2563eb, #1d4ed8);
+    border-radius: 3px;
+    top: 0;
+}
+
+/* Range inputs */
+.price-slider {
+    position: absolute;
+    width: 100%;
+    height: 6px;
+    top: 0;
+    left: 0;
+    margin: 0;
+    padding: 0;
     pointer-events: none;
     -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    z-index: 5;
 }
-.price-range-slider input[type="range"]::-webkit-slider-thumb {
+
+.price-slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 15px;
-    height: 15px;
-    background: #000;
-    cursor: pointer;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
-    pointer-events: auto;
-    position: relative;
-    z-index: 2;
-}
-.price-range-slider input[type="range"]::-moz-range-thumb {
-    width: 15px;
-    height: 15px;
-    background: #000;
+    background: #2563eb;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
     cursor: pointer;
+    pointer-events: all;
+    transition: all 0.2s ease;
+}
+
+.price-slider::-webkit-slider-thumb:hover {
+    width: 24px;
+    height: 24px;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.5);
+    background: #1d4ed8;
+}
+
+.price-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
-    pointer-events: auto;
-    position: relative;
-    z-index: 2;
-    border: none;
+    background: #2563eb;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+    cursor: pointer;
+    pointer-events: all;
+    transition: all 0.2s ease;
 }
-.price-range-slider input[type="range"]::-webkit-slider-runnable-track {
-    width: 100%;
-    height: 5px;
-    background: #ddd;
-    border-radius: 5px;
+
+.price-slider::-moz-range-thumb:hover {
+    width: 24px;
+    height: 24px;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.5);
+    background: #1d4ed8;
 }
-.price-range-slider input[type="range"]::-moz-range-track {
-    width: 100%;
-    height: 5px;
-    background: #ddd;
-    border-radius: 5px;
+
+/* Price Display */
+.xo-field-price__input-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 10px 0;
 }
-.xo-field-select-custom-filter__popover.xo-active {
-    display: block !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-.collection-filter-checkbox {
-    margin-right: 10px;
-}
-.field-checkbox-text__input:checked ~ .field-checkbox-text__item {
+
+.xo-field-price__label {
     font-weight: 600;
+    color: #333;
+    min-width: 50px;
+}
+
+.price-display {
+    font-weight: 600;
+    color: #2563eb;
+    font-size: 16px;
+    min-width: 80px;
+    text-align: center;
+    padding: 4px 8px;
+    background: #f0f6ff;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.price-display:hover {
+    background: #e0efff;
+    color: #1d4ed8;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .price-slider-container {
+        height: 5px;
+    }
+
+    .price-slider::-webkit-slider-thumb {
+        width: 18px;
+        height: 18px;
+    }
+
+    .price-slider::-webkit-slider-thumb:hover {
+        width: 20px;
+        height: 20px;
+    }
+
+    .price-display {
+        font-size: 14px;
+        min-width: 70px;
+    }
 }
 </style>
 
+<!-- JAVASCRIPT -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const minSlider = document.querySelector('.price-slider--min');
+    const maxSlider = document.querySelector('.price-slider--max');
+    const minDisplay = document.getElementById('price-min-display');
+    const maxDisplay = document.getElementById('price-max-display');
+    const fill = document.querySelector('.price-slider-fill');
+    
     let debounceTimer;
-    const loadingIndicator = document.getElementById('loading-indicator');
-    const productsContainer = document.getElementById('products-container');
     
-    // Get CSRF token
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
+    // ✅ UPDATE SLIDER FILL AND DISPLAY
+    function updateSliders() {
+        let minValue = parseInt(minSlider.value);
+        let maxValue = parseInt(maxSlider.value);
+        
+        // Update fill position and width
+        const minPercent = ((minValue - minSlider.min) / (minSlider.max - minSlider.min)) * 100;
+        const maxPercent = ((maxValue - maxSlider.min) / (maxSlider.max - maxSlider.min)) * 100;
+        
+        fill.style.left = minPercent + '%';
+        fill.style.right = (100 - maxPercent) + '%';
+        
+        // Update display
+        minDisplay.textContent = formatPrice(minValue);
+        maxDisplay.textContent = formatPrice(maxValue);
+    }
+    
+    // ✅ FORMAT PRICE
+    function formatPrice(price) {
+        return new Intl.NumberFormat('en-IN').format(Math.round(price));
+    }
+    
+    // ✅ APPLY FILTERS (DEBOUNCED)
+    function applyFilters() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            const minValue = parseInt(minSlider.value);
+            const maxValue = parseInt(maxSlider.value);
+            
+            const params = new URLSearchParams();
+            params.append('price_min', minValue);
+            params.append('price_max', maxValue);
+            params.append('ajax', '1');
+            
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const productsContainer = document.getElementById('products-container');
+            
+            if (loadingIndicator) loadingIndicator.style.display = 'block';
+            if (productsContainer) productsContainer.style.opacity = '0.5';
+            
+            fetch(`${window.location.pathname}?${params.toString()}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
                 }
-            }
-        }
-        return cookieValue;
-    }
-    const csrftoken = getCookie('csrftoken');
-    
-    // Initialize price range slider
-    const priceRangeEl = document.querySelector('xo-range[xo-component-name="range-price"]');
-    
-    if (priceRangeEl) {
-        const min = parseFloat(priceRangeEl.getAttribute('xo-min') || 0);
-        const max = parseFloat(priceRangeEl.getAttribute('xo-max') || 1000);
-        let currentMin = parseFloat('{{ price_min }}') || min;
-        let currentMax = parseFloat('{{ price_max }}') || max;
-        
-        priceRangeEl.innerHTML = `
-            <div class="price-range-slider">
-                <input type="range" class="price-min" min="${min}" max="${max}" value="${currentMin}" step="1">
-                <input type="range" class="price-max" min="${min}" max="${max}" value="${currentMax}" step="1">
-            </div>
-        `;
-        
-        const minSlider = priceRangeEl.querySelector('.price-min');
-        const maxSlider = priceRangeEl.querySelector('.price-max');
-        const minText = document.querySelector('xo-range-price[xo-type="min"]');
-        const maxText = document.querySelector('xo-range-price[xo-type="max"]');
-        
-        function updatePriceDisplay() {
-            if (minText) minText.textContent = `₹${Math.round(currentMin)}`;
-            if (maxText) maxText.textContent = `₹${Math.round(currentMax)}`;
-        }
-        
-        minSlider.addEventListener('input', function() {
-            currentMin = parseFloat(this.value);
-            if (currentMin > currentMax) {
-                currentMin = currentMax;
-                this.value = currentMin;
-            }
-            updatePriceDisplay();
-        });
-        
-        maxSlider.addEventListener('input', function() {
-            currentMax = parseFloat(this.value);
-            if (currentMax < currentMin) {
-                currentMax = currentMin;
-                this.value = currentMax;
-            }
-            updatePriceDisplay();
-        });
-        
-        minSlider.addEventListener('change', function() {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(applyFilters, 500);
-        });
-        
-        maxSlider.addEventListener('change', function() {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(applyFilters, 500);
-        });
-        
-        updatePriceDisplay();
+            })
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newProductsContainer = doc.querySelector('#products-container');
+                
+                if (newProductsContainer && productsContainer) {
+                    productsContainer.innerHTML = newProductsContainer.innerHTML;
+                }
+                
+                const newUrl = `${window.location.pathname}?price_min=${minValue}&price_max=${maxValue}`;
+                window.history.pushState({}, '', newUrl);
+                
+                if (loadingIndicator) loadingIndicator.style.display = 'none';
+                if (productsContainer) productsContainer.style.opacity = '1';
+                
+                const productsSection = document.querySelector('.section-collection-products');
+                if (productsSection) {
+                    productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                if (loadingIndicator) loadingIndicator.style.display = 'none';
+                if (productsContainer) productsContainer.style.opacity = '1';
+            });
+        }, 500);
     }
     
-    // Collection checkboxes
-    const collectionCheckboxes = document.querySelectorAll('.collection-filter-checkbox');
-    collectionCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(applyFilters, 300);
-        });
-    });
+    // Event Listeners
+    minSlider.addEventListener('input', updateSliders);
+    maxSlider.addEventListener('input', updateSliders);
     
-    // Sort dropdown
-    const sortRadios = document.querySelectorAll('.sort-radio');
-    const sortTrigger = document.querySelector('.xo-field-select-custom-filter__trigger');
-    const sortPopover = document.querySelector('.xo-field-select-custom-filter__popover');
+    minSlider.addEventListener('change', applyFilters);
+    maxSlider.addEventListener('change', applyFilters);
     
-    if (sortTrigger && sortPopover) {
-        sortTrigger.addEventListener('click', function(e) {
-            e.stopPropagation();
-            sortPopover.classList.toggle('xo-active');
-        });
-        
-        document.addEventListener('click', function(e) {
-            if (!sortTrigger.contains(e.target) && !sortPopover.contains(e.target)) {
-                sortPopover.classList.remove('xo-active');
-            }
-        });
-    }
-    
-    sortRadios.forEach(radio => {
-        radio.addEventListener('change', function() {
-            const selectedText = this.parentElement.querySelector('.xo-field-select-custom-filter__label').textContent;
-            const sortDisplay = document.querySelector('xo-filters-sort-by-selected');
-            if (sortDisplay) {
-                sortDisplay.textContent = selectedText;
-            }
-            if (sortPopover) {
-                sortPopover.classList.remove('xo-active');
-            }
-            applyFilters();
-        });
-    });
-    
-    // Clear all button
-    const clearAllBtn = document.getElementById('clear-all-btn');
-    if (clearAllBtn) {
-        clearAllBtn.addEventListener('click', function() {
-            const url = new URL(window.location.href);
-            window.location.href = url.pathname;
-        });
-    }
-    
-    // Pagination links
-    document.addEventListener('click', function(e) {
-        if (e.target.closest('.pagination-link')) {
-            e.preventDefault();
-            const page = e.target.closest('.pagination-link').getAttribute('data-page');
-            applyFilters(page);
-        }
-    });
-    
-    // AJAX Filter Function
-    function applyFilters(page = 1) {
-        const params = new URLSearchParams();
-        
-        // Get price values
-        const minSlider = document.querySelector('.price-min');
-        const maxSlider = document.querySelector('.price-max');
-        
-        if (minSlider && maxSlider) {
-            params.append('price_min', Math.round(minSlider.value));
-            params.append('price_max', Math.round(maxSlider.value));
-        }
-        
-        // Get selected collections
-        const selectedCollections = Array.from(collectionCheckboxes)
-            .filter(cb => cb.checked)
-            .map(cb => cb.value);
-        
-        selectedCollections.forEach(id => {
-            params.append('collection', id);
-        });
-        
-        // Get selected sort
-        const selectedSort = document.querySelector('.sort-radio:checked');
-        if (selectedSort) {
-            params.append('sort_by', selectedSort.value);
-        }
-        
-        // Add page number
-        params.append('page', page);
-        params.append('ajax', '1');
-        
-        // Show loading
-        if (loadingIndicator) loadingIndicator.style.display = 'block';
-        if (productsContainer) productsContainer.style.opacity = '0.5';
-        
-        // Make AJAX request
-        fetch(`${window.location.pathname}?${params.toString()}`, {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRFToken': csrftoken
-            }
-        })
-        .then(response => response.text())
-        .then(html => {
-            // Parse the HTML response
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            
-            // Get the new products container
-            const newProductsContainer = doc.querySelector('#products-container');
-            
-            if (newProductsContainer && productsContainer) {
-                productsContainer.innerHTML = newProductsContainer.innerHTML;
-            }
-            
-            // Update URL without reload
-            const newUrl = `${window.location.pathname}?${params.toString().replace('&ajax=1', '')}`;
-            window.history.pushState({}, '', newUrl);
-            
-            // Hide loading
-            if (loadingIndicator) loadingIndicator.style.display = 'none';
-            if (productsContainer) productsContainer.style.opacity = '1';
-            
-            // Scroll to products
-            const productsSection = document.querySelector('.section-collection-products');
-            if (productsSection) {
-                productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            if (loadingIndicator) loadingIndicator.style.display = 'none';
-            if (productsContainer) productsContainer.style.opacity = '1';
-        });
-    }
+    // Initial update
+    updateSliders();
 });
 </script>
 {% endblock %}
