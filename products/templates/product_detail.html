@@ -539,7 +539,7 @@ z-index:99; position: relative">
                                     <xo-animate style="padding-top:0px; padding-bottom:30px" xo-cascade="">
                                         <form method="POST" id="product_form_id_{{ product.id }}">
                                             {% csrf_token %}
-                                            
+                                            <input type="hidden" name="product_id" value="{{ product.id }}">
 
                                             <!-- SAME XO QUANTITY DESIGN -->
                                             <xo-cart-quantity class="xo-quantity-style2"
@@ -1170,7 +1170,7 @@ z-index:99; position: relative">
 </main>
 
 
-<script>
+<!-- <script>
 // Get CSRF Token
 // function getCookie(name) {
 //     let cookieValue = null;
@@ -1476,8 +1476,196 @@ function showNotification(message, type = 'success') {
         setTimeout(() => notification.remove(), 300);
     }, 3000);
 }
+</script> -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ============================================
+    // QUANTITY CONTROL WITH STOCK LIMIT
+    // (Product Detail Page Only)
+    // ============================================
+    
+    const quantityContainers = document.querySelectorAll('.xo-cart-quantity, xo-quantity-style2');
+    
+    quantityContainers.forEach(function(container) {
+        const quantityInput = container.querySelector('input[type="number"]');
+        const plusBtn = container.querySelector('xo-cart-quantity-plus');
+        const minusBtn = container.querySelector('xo-cart-quantity-minus');
+        
+        if (!quantityInput || !plusBtn || !minusBtn) return;
+        
+        const maxStock = parseInt(quantityInput.getAttribute('max')) || 999;
+        const minQuantity = parseInt(quantityInput.getAttribute('min')) || 1;
+        
+        function updateButtonStates() {
+            const currentValue = parseInt(quantityInput.value) || minQuantity;
+            
+            if (currentValue >= maxStock) {
+                plusBtn.setAttribute('disabled', 'true');
+                plusBtn.style.opacity = '0.5';
+                plusBtn.style.cursor = 'not-allowed';
+                plusBtn.style.pointerEvents = 'none';
+            } else {
+                plusBtn.removeAttribute('disabled');
+                plusBtn.style.opacity = '1';
+                plusBtn.style.cursor = 'pointer';
+                plusBtn.style.pointerEvents = 'auto';
+            }
+            
+            if (currentValue <= minQuantity) {
+                minusBtn.setAttribute('disabled', 'true');
+                minusBtn.style.opacity = '0.5';
+                minusBtn.style.cursor = 'not-allowed';
+                minusBtn.style.pointerEvents = 'none';
+            } else {
+                minusBtn.removeAttribute('disabled');
+                minusBtn.style.opacity = '1';
+                minusBtn.style.cursor = 'pointer';
+                minusBtn.style.pointerEvents = 'auto';
+            }
+        }
+        
+        plusBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            
+            let currentValue = parseInt(quantityInput.value) || minQuantity;
+            
+            if (currentValue < maxStock) {
+                quantityInput.value = currentValue + 1;
+                quantityInput.dispatchEvent(new Event('input', { bubbles: true }));
+                updateButtonStates();
+            } else {
+                showStockNotification(`Maximum available stock: ${maxStock}`);
+            }
+            
+            return false;
+        }, true);
+        
+        minusBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            
+            let currentValue = parseInt(quantityInput.value) || minQuantity;
+            
+            if (currentValue > minQuantity) {
+                quantityInput.value = currentValue - 1;
+                quantityInput.dispatchEvent(new Event('input', { bubbles: true }));
+                updateButtonStates();
+            }
+            
+            return false;
+        }, true);
+        
+        quantityInput.addEventListener('input', function() {
+            let value = parseInt(this.value);
+            
+            if (isNaN(value) || value < minQuantity) {
+                this.value = minQuantity;
+            } else if (value > maxStock) {
+                this.value = maxStock;
+                showStockNotification(`Maximum available stock: ${maxStock}`);
+            }
+            
+            updateButtonStates();
+        });
+        
+        quantityInput.addEventListener('keypress', function(e) {
+            if (e.key && !/[0-9]/.test(e.key)) {
+                e.preventDefault();
+            }
+        });
+        
+        quantityInput.addEventListener('keydown', function(e) {
+            const currentValue = parseInt(this.value) || minQuantity;
+            
+            if (e.key === 'ArrowUp' && currentValue >= maxStock) {
+                e.preventDefault();
+                showStockNotification(`Maximum available stock: ${maxStock}`);
+            } else if (e.key === 'ArrowDown' && currentValue <= minQuantity) {
+                e.preventDefault();
+            }
+        });
+        
+        updateButtonStates();
+    });
+    
+    // ============================================
+    // STOCK NOTIFICATION (if not in base.html)
+    // ============================================
+    function showStockNotification(message) {
+        const existing = document.querySelector('.stock-notification');
+        if (existing) existing.remove();
+        
+        const notification = document.createElement('div');
+        notification.className = 'stock-notification';
+        notification.innerHTML = `
+            <div class="stock-notification__content">
+                <span class="stock-notification__icon">⚠</span>
+                <span class="stock-notification__message">${message}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => notification.classList.add('show'), 10);
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 2500);
+    }
+});
 </script>
 
+<style>
+/* Stock Notification Styles */
+.stock-notification {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    background: #fef3c7;
+    border-left: 4px solid #f59e0b;
+    padding: 16px 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 99999;
+    transform: translateX(400px);
+    transition: transform 0.3s ease;
+    max-width: 400px;
+}
+
+.stock-notification.show {
+    transform: translateX(0);
+}
+
+.stock-notification__content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.stock-notification__icon {
+    color: #f59e0b;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.stock-notification__message {
+    color: #92400e;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .stock-notification {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+}
+</style>
 <style>
 /* Notification Styles */
 .custom-notification {
