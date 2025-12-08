@@ -539,7 +539,7 @@ z-index:99; position: relative">
                                     <xo-animate style="padding-top:0px; padding-bottom:30px" xo-cascade="">
                                         <form method="POST" id="product_form_id_{{ product.id }}">
                                             {% csrf_token %}
-                                            <input type="hidden" name="product_id" value="{{ product.id }}">
+                                            
 
                                             <!-- SAME XO QUANTITY DESIGN -->
                                             <xo-cart-quantity class="xo-quantity-style2"
@@ -1194,10 +1194,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================
     
     // Get all quantity containers
-    const quantityContainers = document.querySelectorAll('.xo-quantity-style2');
+    const quantityContainers = document.querySelectorAll('xo-quantity-style2');
     
     quantityContainers.forEach(function(container) {
-        const quantityInput = container.querySelector('.xo-quantity-style2__number');
+        const quantityInput = container.querySelector('xo-quantity-style2__number');
         const plusBtn = container.querySelector('xo-cart-quantity-plus');
         const minusBtn = container.querySelector('xo-cart-quantity-minus');
         
