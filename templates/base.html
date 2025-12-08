@@ -1663,7 +1663,7 @@ Scheme 2: Scheme 4`,
                   {% for c in collections %}
                   <xo-carousel-slide class="collection-v1">
                     <xo-animate class="collection-v6__item" xo-cascade="">
-                      <a class="hover-style--scale-up" href=" ">
+                      <a class="hover-style--scale-up" href="{% url 'product_by_collection' c.slug %}">
                         <div class="xo-image" style="--xo-ratio-percent: 4/4;">
                           <img src="{{ c.image.url }}" alt="{{ c.name }}" width="400" height="400" loading="lazy" />
                         </div>
