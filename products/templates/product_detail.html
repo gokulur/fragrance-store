@@ -1193,95 +1193,144 @@ document.addEventListener('DOMContentLoaded', function() {
     // QUANTITY CONTROL WITH STOCK LIMIT
     // ============================================
     
-    const quantityInput = document.querySelector('.xo-quantity-style2__number');
-    const plusBtn = document.querySelector('xo-cart-quantity-plus');
-    const minusBtn = document.querySelector('xo-cart-quantity-minus');
+    // Get all quantity containers
+    const quantityContainers = document.querySelectorAll('.xo-quantity-style2');
     
-    if (!quantityInput || !plusBtn || !minusBtn) return;
-    
-    const maxStock = parseInt(quantityInput.getAttribute('max')) || 999;
-    const minQuantity = parseInt(quantityInput.getAttribute('min')) || 1;
-    
-    // Function to update button states
-    function updateButtonStates() {
-        const currentValue = parseInt(quantityInput.value) || minQuantity;
+    quantityContainers.forEach(function(container) {
+        const quantityInput = container.querySelector('.xo-quantity-style2__number');
+        const plusBtn = container.querySelector('xo-cart-quantity-plus');
+        const minusBtn = container.querySelector('xo-cart-quantity-minus');
         
-        // Disable/Enable Plus Button based on stock
-        if (currentValue >= maxStock) {
-            plusBtn.setAttribute('disabled', 'true');
-            plusBtn.style.opacity = '0.5';
-            plusBtn.style.cursor = 'not-allowed';
-            plusBtn.style.pointerEvents = 'none';
-        } else {
-            plusBtn.removeAttribute('disabled');
-            plusBtn.style.opacity = '1';
-            plusBtn.style.cursor = 'pointer';
-            plusBtn.style.pointerEvents = 'auto';
+        if (!quantityInput || !plusBtn || !minusBtn) return;
+        
+        const maxStock = parseInt(quantityInput.getAttribute('max')) || 999;
+        const minQuantity = parseInt(quantityInput.getAttribute('min')) || 1;
+        
+        // Function to update button states
+        function updateButtonStates() {
+            const currentValue = parseInt(quantityInput.value) || minQuantity;
+            
+            // Disable/Enable Plus Button based on stock
+            if (currentValue >= maxStock) {
+                plusBtn.setAttribute('disabled', 'true');
+                plusBtn.style.opacity = '0.5';
+                plusBtn.style.cursor = 'not-allowed';
+                plusBtn.style.pointerEvents = 'none';
+            } else {
+                plusBtn.removeAttribute('disabled');
+                plusBtn.style.opacity = '1';
+                plusBtn.style.cursor = 'pointer';
+                plusBtn.style.pointerEvents = 'auto';
+            }
+            
+            // Disable/Enable Minus Button based on min quantity
+            if (currentValue <= minQuantity) {
+                minusBtn.setAttribute('disabled', 'true');
+                minusBtn.style.opacity = '0.5';
+                minusBtn.style.cursor = 'not-allowed';
+                minusBtn.style.pointerEvents = 'none';
+            } else {
+                minusBtn.removeAttribute('disabled');
+                minusBtn.style.opacity = '1';
+                minusBtn.style.cursor = 'pointer';
+                minusBtn.style.pointerEvents = 'auto';
+            }
         }
         
-        // Disable/Enable Minus Button based on min quantity
-        if (currentValue <= minQuantity) {
-            minusBtn.setAttribute('disabled', 'true');
-            minusBtn.style.opacity = '0.5';
-            minusBtn.style.cursor = 'not-allowed';
-            minusBtn.style.pointerEvents = 'none';
-        } else {
-            minusBtn.removeAttribute('disabled');
-            minusBtn.style.opacity = '1';
-            minusBtn.style.cursor = 'pointer';
-            minusBtn.style.pointerEvents = 'auto';
-        }
-    }
-    
-    // Plus Button Click Handler
-    plusBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        let currentValue = parseInt(quantityInput.value) || minQuantity;
+        // Plus Button Click Handler - USE CAPTURE PHASE to intercept early
+        plusBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            
+            let currentValue = parseInt(quantityInput.value) || minQuantity;
+            
+            if (currentValue < maxStock) {
+                quantityInput.value = currentValue + 1;
+                // Trigger change event so other listeners know about the change
+                quantityInput.dispatchEvent(new Event('input', { bubbles: true }));
+                updateButtonStates();
+            } else {
+                // Show notification when stock limit reached
+                showStockNotification(`Maximum available stock: ${maxStock}`);
+            }
+            
+            return false;
+        }, true); // CAPTURE PHASE - this runs BEFORE the custom element's handler
         
-        if (currentValue < maxStock) {
-            quantityInput.value = currentValue + 1;
+        // Minus Button Click Handler - USE CAPTURE PHASE
+        minusBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            
+            let currentValue = parseInt(quantityInput.value) || minQuantity;
+            
+            if (currentValue > minQuantity) {
+                quantityInput.value = currentValue - 1;
+                // Trigger change event
+                quantityInput.dispatchEvent(new Event('input', { bubbles: true }));
+                updateButtonStates();
+            }
+            
+            return false;
+        }, true); // CAPTURE PHASE
+        
+        // Input Change Handler (for manual input and to catch any other changes)
+        quantityInput.addEventListener('input', function() {
+            let value = parseInt(this.value);
+            
+            // Validate input
+            if (isNaN(value) || value < minQuantity) {
+                this.value = minQuantity;
+            } else if (value > maxStock) {
+                this.value = maxStock;
+                showStockNotification(`Maximum available stock: ${maxStock}`);
+            }
+            
             updateButtonStates();
-        } else {
-            // Show notification when stock limit reached
-            showStockNotification(`Maximum available stock: ${maxStock}`);
-        }
-    });
-    
-    // Minus Button Click Handler
-    minusBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        let currentValue = parseInt(quantityInput.value) || minQuantity;
+        });
         
-        if (currentValue > minQuantity) {
-            quantityInput.value = currentValue - 1;
-            updateButtonStates();
-        }
-    });
-    
-    // Input Change Handler (for manual input)
-    quantityInput.addEventListener('input', function() {
-        let value = parseInt(this.value);
+        // Watch for direct value changes (in case custom element changes it directly)
+        const observer = new MutationObserver(function() {
+            let value = parseInt(quantityInput.value);
+            if (value > maxStock) {
+                quantityInput.value = maxStock;
+                showStockNotification(`Maximum available stock: ${maxStock}`);
+                updateButtonStates();
+            } else if (value < minQuantity) {
+                quantityInput.value = minQuantity;
+                updateButtonStates();
+            }
+        });
         
-        // Validate input
-        if (isNaN(value) || value < minQuantity) {
-            this.value = minQuantity;
-        } else if (value > maxStock) {
-            this.value = maxStock;
-            showStockNotification(`Maximum available stock: ${maxStock}`);
-        }
+        observer.observe(quantityInput, {
+            attributes: true,
+            attributeFilter: ['value']
+        });
         
+        // Prevent non-numeric input
+        quantityInput.addEventListener('keypress', function(e) {
+            if (e.key && !/[0-9]/.test(e.key)) {
+                e.preventDefault();
+            }
+        });
+        
+        // Prevent arrow keys from bypassing limit
+        quantityInput.addEventListener('keydown', function(e) {
+            const currentValue = parseInt(this.value) || minQuantity;
+            
+            if (e.key === 'ArrowUp' && currentValue >= maxStock) {
+                e.preventDefault();
+                showStockNotification(`Maximum available stock: ${maxStock}`);
+            } else if (e.key === 'ArrowDown' && currentValue <= minQuantity) {
+                e.preventDefault();
+            }
+        });
+        
+        // Initial state
         updateButtonStates();
     });
-    
-    // Prevent non-numeric input
-    quantityInput.addEventListener('keypress', function(e) {
-        if (e.key && !/[0-9]/.test(e.key)) {
-            e.preventDefault();
-        }
-    });
-    
-    // Initial state
-    updateButtonStates();
     
     // ============================================
     // STOCK NOTIFICATION FUNCTION
@@ -1313,6 +1362,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 2500);
     }
 });
+
 // Add to Cart Button
 document.addEventListener("click", function (e) {
     if (e.target.closest(".add-to-cart-btn")) {
@@ -1426,8 +1476,6 @@ function showNotification(message, type = 'success') {
         setTimeout(() => notification.remove(), 300);
     }, 3000);
 }
- 
-
 </script>
 
 <style>
