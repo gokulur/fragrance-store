@@ -7,17 +7,11 @@ from django.views.decorators.http import require_POST
 
  
 def wishlist_page(request):
-
-    if request.user.is_authenticated:
-        wishlist, created = Wishlist.objects.get_or_create(user=request.user)
-        products = wishlist.products.all()
-    else:
-        products = []  
-
+    wishlist, created = Wishlist.objects.get_or_create(user=request.user)
+    products = wishlist.products.all()
     return render(request, 'wishlist.html', {
         'products': products
     })
-
 
 # @login_required
 # def toggle_wishlist(request, product_id):
