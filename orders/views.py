@@ -18,7 +18,7 @@ from cart.views import get_cart
 # -----------------------------
 # BUY NOW - Store in Session
 # -----------------------------
-@login_required
+ 
 def buy_now(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     qty = int(request.POST.get("quantity", 1))
@@ -85,7 +85,7 @@ def cancel_buy_now(request):
 # -----------------------------
 # CHECKOUT PAGE (GET)
 # -----------------------------
-@login_required
+ 
 def checkout_page(request):
     cart = get_cart(request)
     
