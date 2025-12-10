@@ -2,15 +2,22 @@ from django.shortcuts import redirect, get_object_or_404,render
 from django.contrib.auth.decorators import login_required
 from products.models import Product
 from .models import Wishlist
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 
-
-@login_required
+ 
 def wishlist_page(request):
-    wishlist, created = Wishlist.objects.get_or_create(user=request.user)
-    products = wishlist.products.all()
+
+    if request.user.is_authenticated:
+        wishlist, created = Wishlist.objects.get_or_create(user=request.user)
+        products = wishlist.products.all()
+    else:
+        products = []  
+
     return render(request, 'wishlist.html', {
         'products': products
     })
+
 
 # @login_required
 # def toggle_wishlist(request, product_id):
@@ -23,8 +30,7 @@ def wishlist_page(request):
 #         wishlist.products.add(product)
 #     return redirect(request.META.get('HTTP_REFERER', '/'))
 
-from django.http import JsonResponse
-from django.views.decorators.http import require_POST
+
 
 @login_required
 @require_POST
