@@ -103,25 +103,32 @@ def login_page(request):
 
 def login_action(request):
     if request.method == 'POST':
-        email = request.POST.get('username')  # the input field still named 'username'
+        email = request.POST.get('username')
         password = request.POST.get('password')
-
-        # Try to find the user by email
+        
+        # Try to find user by email
         try:
             user_obj = User.objects.get(email=email)
-            username = user_obj.username  # Django authenticate needs username
+            username = user_obj.username
         except User.DoesNotExist:
             messages.error(request, "No account found with this email!")
             return redirect('login_page')
-
-        # Authenticate using the username found from email
+        
+        # Authenticate
         user = authenticate(request, username=username, password=password)
-
+        
         if user is not None:
             login(request, user)
             messages.success(request, f"Welcome {user.first_name or user.username}!")
-
-            # Redirect based on role
+            
+            # Check for 'next' parameter (for redirects after login)
+            next_url = request.GET.get('next') or request.POST.get('next')
+            
+            if next_url:
+                # User came from a protected page
+                return redirect(next_url)
+            
+            # Default redirects based on role
             if user.is_superuser or user.is_staff:
                 return redirect(reverse('admin_dashboard'))
             else:
@@ -129,7 +136,7 @@ def login_action(request):
         else:
             messages.error(request, "Invalid email or password!")
             return redirect('login_page')
-
+    
     return redirect('login_page')
 
 # -----------------------------

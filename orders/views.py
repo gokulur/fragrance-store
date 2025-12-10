@@ -18,18 +18,31 @@ from cart.views import get_cart
 # -----------------------------
 # BUY NOW - Store in Session
 # -----------------------------
+from django.urls import reverse
  
+
 def buy_now(request, product_id):
+    """Handle Buy Now - store in session before login check"""
     product = get_object_or_404(Product, id=product_id)
     qty = int(request.POST.get("quantity", 1))
     
+    # Store buy_now_item BEFORE checking authentication
     request.session['buy_now_item'] = {
         'product_id': product.id,
         'quantity': qty
     }
     request.session.modified = True
     
+    # If NOT logged in → redirect to login with checkout as next
+    if not request.user.is_authenticated:
+        login_url = reverse('login_page')
+        checkout_url = reverse('checkout_page')
+        return redirect(f"{login_url}?next={checkout_url}")
+    
+    # If logged in, go directly to checkout
     return redirect("checkout_page")
+
+
 
 
 # -----------------------------
@@ -85,13 +98,14 @@ def cancel_buy_now(request):
 # -----------------------------
 # CHECKOUT PAGE (GET)
 # -----------------------------
- 
+@login_required(login_url='/accounts/login/')  # Update this to your actual login URL
 def checkout_page(request):
     cart = get_cart(request)
     
     from_cart = request.GET.get('from') == 'cart'
     has_cart_items = cart.items.exists()
     
+    # Clear buy_now if coming from cart with items
     if from_cart and has_cart_items:
         if 'buy_now_item' in request.session:
             del request.session['buy_now_item']
@@ -100,6 +114,7 @@ def checkout_page(request):
     buy_now_item = request.session.get('buy_now_item')
     
     if buy_now_item:
+        # Show buy_now product
         product = get_object_or_404(Product, id=buy_now_item['product_id'])
         
         class TempItem:
@@ -113,6 +128,7 @@ def checkout_page(request):
         is_buy_now = True
         
     else:
+        # Show cart items
         items = cart.items.all()
         is_buy_now = False
         

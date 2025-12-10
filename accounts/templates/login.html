@@ -161,24 +161,20 @@
       <p class="tagLine">Explore Fragrances That Define You</p>
     </div>
   </div>
-  
-  <div class="contactForm">
-    <h1>Login</h1>
-    <form method="POST" action="{% url 'login_action' %}">
-      {% csrf_token %}
-      <label for="username">Email:</label>
-      <input type="email" name="username" id="username" placeholder="example@email.com" required />
 
-      <label for="password">Password:</label>
-      <input type="password" name="password" id="password" required />
-
-      <a href="{% url 'register_page' %}">Don't have an account? Register here</a> <br>
-      <a href="{% url 'password_reset_page' %}">Forgot Password?</a> <br><br>
-
-      <input type="submit" value="Login">
-    </form>
-
-  </div>
+<div class="contactForm">
+  <h1>Login</h1>
+  <form method="POST" action="{% url 'login_action' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}">
+    {% csrf_token %}
+    <label for="username">Email:</label>
+    <input type="email" name="username" id="username" placeholder="example@email.com" required />
+    <label for="password">Password:</label>
+    <input type="password" name="password" id="password" required />
+    <a href="{% url 'register_page' %}">Don't have an account? Register here</a> <br>
+    <a href="{% url 'password_reset_page' %}">Forgot Password?</a> <br><br>
+    <input type="submit" value="Login">
+  </form>
+</div>
 </div>
 
 {% endblock %}
