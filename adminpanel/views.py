@@ -306,32 +306,40 @@ def admin_customers(request):
     customers = User.objects.filter(is_superuser=False).order_by('-date_joined')
     return render(request, 'admin_customers.html', {'customers': customers})
 
+from decimal import Decimal
+
 @login_required
 @user_passes_test(admin_only)
 def invoice(request, pk):
-    # Get order
     order = get_object_or_404(Order, pk=pk)
 
-    # Fetch all items (if model uses related_name="items")
+    # Order items
     items = order.items.all()
 
-    # Calculate totals
+    # Subtotal (same as checkout)
     subtotal = sum(item.price * item.quantity for item in items)
-    discount = order.discount if hasattr(order, "discount") else 0
-    shipping = order.shipping_charge if hasattr(order, "shipping_charge") else 0
 
-    total = subtotal - discount + shipping
+    # Shipping (fixed like checkout page)
+    shipping = Decimal('50.00')
+
+    # Tax (18% same as checkout page)
+    tax = round(subtotal * Decimal('0.18'), 2)
+
+    # Total final
+    total = subtotal + shipping + tax
 
     context = {
         "order": order,
         "items": items,
         "subtotal": subtotal,
-        "discount": discount,
         "shipping": shipping,
+        "tax": tax,
         "total": total,
     }
 
     return render(request, "invoice.html", context)
+
+
 
 @login_required
 @user_passes_test(admin_only)
