@@ -346,16 +346,29 @@ def invoice(request, pk):
 def receipt(request, pk):
     order = get_object_or_404(Order, pk=pk)
 
-    # Order items (if model: OrderItem has FK: order)
     items = order.items.all() if hasattr(order, "items") else []
+
+    # Subtotal
+    subtotal = sum(item.price * item.quantity for item in items)
+
+    # Shipping fixed (same as checkout)
+    shipping = Decimal('50.00')
+
+    # Tax 18% (same as checkout)
+    tax = round(subtotal * Decimal('0.18'), 2)
+
+    # Total
+    total = subtotal + shipping + tax
 
     context = {
         "order": order,
         "items": items,
         "customer": order.user,
-        "total_amount": order.total_price,
+        "subtotal": subtotal,
+        "shipping": shipping,
+        "tax": tax,
+        "total": total,
         "order_date": order.created_at,
-      
     }
 
     return render(request, "receipt.html", context)

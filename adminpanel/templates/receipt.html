@@ -4,23 +4,38 @@
 
 <style>
   /* Print Styles */
+
   @media print {
-    body * {
-      visibility: hidden;
+    body {
+      margin: 0;
+      padding: 0;
     }
-    .receipt-wrapper, .receipt-wrapper * {
-      visibility: visible;
+
+    .print-container {
+      width: 210mm;
+      /* A4 width */
+      margin: 0 auto;
+      /* Center */
+      padding: 20mm;
+      /* Safe margin */
+      box-sizing: border-box;
     }
-    .receipt-wrapper {
-      position: absolute;
-      left: 0;
-      top: 0;
-      width: 100%;
+
+    /* Optional: remove browser header/footer */
+    @page {
+      margin: 0;
     }
+
+
     .no-print {
       display: none !important;
     }
-    .page-header, .navbar, .sidebar, .footer, .main-navbar {
+
+    .page-header,
+    .navbar,
+    .sidebar,
+    .footer,
+    .main-navbar {
       display: none !important;
     }
   }
@@ -33,7 +48,7 @@
     max-width: 650px;
     margin: 40px auto;
     background: white;
-    box-shadow: 0 0 50px rgba(0,0,0,0.15);
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.15);
     padding: 0;
   }
 
@@ -276,6 +291,7 @@
       opacity: 0;
       transform: translateX(-50px);
     }
+
     to {
       opacity: 1;
       transform: translateX(0);
@@ -287,6 +303,7 @@
       opacity: 0;
       transform: translateX(50px);
     }
+
     to {
       opacity: 1;
       transform: translateX(0);
@@ -297,6 +314,7 @@
     from {
       height: 0;
     }
+
     to {
       height: 80px;
     }
@@ -352,7 +370,7 @@
 
 <div class="main-panel">
   <div class="content-wrapper">
-    
+
     <!-- Action Buttons -->
     <div class="print-actions no-print">
       <a href="{% url 'admin_order_list' %}" class="btn btn-light">
@@ -369,7 +387,7 @@
     <!-- Receipt Container -->
     <div class="receipt-wrapper">
       <div class="receipt-page">
-        
+
         <!-- Header -->
         <div class="receipt-header">
           <div class="company-info">
@@ -398,7 +416,7 @@
             <p><strong>{{ order.user.username }}</strong></p>
             <p>{{ order.user.email }}</p>
             {% if order.shippingaddress.phone %}
-              <p>{{ order.shippingaddress.phone }}</p>
+            <p>{{ order.shippingaddress.phone }}</p>
             {% endif %}
           </div>
 
@@ -412,25 +430,17 @@
 
           <!-- Receipt Number -->
           <div class="billing-item">
-            <h6>Receipt #</h6>
-            <p>{{ order.id|stringformat:"05d" }}</p>
-            <h6 style="margin-top: 15px;">Receipt Date</h6>
+            <h6>Receipt</h6>
+            <p>{{ order.order_id }}</p>
+           
+          </div>
+
+          <div class="billing-item">
+    
+            <h6  >Receipt Date</h6>
             <p>{{ order.created_at|date:"m/d/Y" }}</p>
           </div>
 
-          <!-- Payment Info -->
-          <div class="billing-item">
-            <h6>Payment Method</h6>
-            <p>Credit Card</p>
-            <h6 style="margin-top: 15px;">Status</h6>
-            <p>
-              {% if order.is_paid %}
-                <strong style="color: #28a745;">PAID</strong>
-              {% else %}
-                <strong style="color: #ffc107;">PENDING</strong>
-              {% endif %}
-            </p>
-          </div>
         </div>
 
         <!-- Items Section -->
@@ -448,7 +458,7 @@
           <div class="item-row">
             <p>{{ item.quantity }}</p>
             <p class="item-description">{{ item.product.name }}</p>
-            <p>${{ item.price|floatformat:2 }}</p>
+            <p>₹{{ item.price|floatformat:2 }}</p>
             <p><strong>${{ item.get_total|floatformat:2 }}</strong></p>
           </div>
           {% empty %}
@@ -461,20 +471,30 @@
         <!-- Totals Section -->
         <div class="totals-section">
           <div class="totals-box">
+
             <div class="total-row subtotal">
               <span>Subtotal</span>
-              <span>${{ order.get_total|floatformat:2 }}</span>
+              <span>₹{{ subtotal|floatformat:2 }}</span>
             </div>
+
             <div class="total-row subtotal">
-              <span>Sales Tax (6.25%)</span>
-              <span>${{ order.get_total|floatformat:2|add:"0" }}</span>
+              <span>Shipping</span>
+              <span>₹{{ shipping|floatformat:2 }}</span>
             </div>
+
+            <div class="total-row subtotal">
+              <span>Tax (18%)</span>
+              <span>₹{{ tax|floatformat:2 }}</span>
+            </div>
+
             <div class="total-row final">
-              <span>TOTAL</span>
-              <span>${{ order.total_price|floatformat:2 }}</span>
+              <span>Grand Total</span>
+              <span>₹{{ total|floatformat:2 }}</span>
             </div>
+
           </div>
         </div>
+
 
         <!-- Thank You Section -->
         <div class="thank-you-section">
@@ -486,7 +506,7 @@
             <p>We appreciate your business</p>
           </div>
         </div>
- 
+
 
       </div>
     </div>
