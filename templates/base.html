@@ -1847,7 +1847,7 @@ z-index:98">
                             </form>
                           </xo-tooltip>
 
-                          <xo-tooltip class="xo-product-card__icon" xo-title="Quickview">
+                          <!-- <xo-tooltip class="xo-product-card__icon" xo-title="Quickview">
                             <xo-product-quick-view-trigger xo-modal-name="quick-view"
                               xo-product-url="{{ product.get_absolute_url }}">
                               <button
@@ -1876,7 +1876,7 @@ z-index:98">
                                 </span>
                               </button>
                             </xo-product-quick-view-trigger>
-                          </xo-tooltip>
+                          </xo-tooltip> -->
                           <xo-tooltip class="xo-product-card__icon" xo-title="Add to wishlist">
                             <button class="wishlist-btn circle-btn" data-product-id="{{ product.id }}">
                               {% if product in request.user.wishlist.products.all %}
