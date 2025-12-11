@@ -160,17 +160,7 @@ def order_list(request):
     return render(request, 'admin_order_list.html', {'orders': orders})
 
 
-@login_required
-@user_passes_test(admin_only)
-def order_update_status(request, pk):
-    order = get_object_or_404(Order, pk=pk)
-    if request.method == 'POST':
-        status = request.POST.get('status')
-        order.status = status
-        order.save()
-        messages.success(request, f"Order #{order.id} updated to {status}")
-        return redirect('admin_order_list')
-    return render(request, 'order_update.html', {'order': order})
+ 
 
 
 # -------------------------------

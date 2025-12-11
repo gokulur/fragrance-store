@@ -15,7 +15,7 @@ urlpatterns = [
 
     # Orders
     path('orders/', views.order_list, name='admin_order_list'),
-    path('orders/update/<int:pk>/', views.order_update_status, name='admin_order_update'),
+ 
 
     # Collections
     path('collections/', views.collection_list, name='collection_list'),
