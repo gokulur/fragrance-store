@@ -224,7 +224,8 @@
                       <small class="text-muted">{{ o.shippingaddress.city|default:"N/A" }}, {{ o.shippingaddress.country|default:"N/A" }}</small>
                     </td>
                     <td class="text-center">
-                      <label class="badge badge-info">{{ o.items.count }}</label>
+                      <label class="badge badge-info">{{ o.total_quantity }}</label>
+
                     </td>
                     <td>
                       <strong class="text-success">₹{{ o.total_price|floatformat:2 }}</strong>

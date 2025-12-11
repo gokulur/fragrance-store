@@ -36,6 +36,10 @@ class Order(models.Model):
 
     def __str__(self):
         return self.order_id
+    
+    @property
+    def total_quantity(self):
+        return sum(item.quantity for item in self.items.all())
 
 
 
@@ -55,6 +59,9 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.product} x {self.quantity}"
+    
+    
+
 
 
 class ShippingAddress(models.Model):
