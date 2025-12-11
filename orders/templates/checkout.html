@@ -967,7 +967,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                     </svg>
-                    <span>Select Delivery Location on Map</span>
+                    <span  >Select Delivery Location on Map</span>
                 </button>
 
                 <!-- Selected Location Display -->
@@ -1089,7 +1089,7 @@
     <div class="map-modal-container">
         <!-- Header -->
         <div class="map-modal-header">
-            <h3 class="map-modal-title">Select Delivery Location</h3>
+            <h3 class="map-modal-title" style="color:#fff;">Select Delivery Location</h3>
             <button type="button" class="map-modal-close" onclick="closeMapModal()">
                 <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -1219,12 +1219,28 @@
 // ============================================
 // MAP FUNCTIONALITY
 // ============================================
+// ============================================
+// ULTRA-ACCURATE LOCATION TRACKING FOR E-COMMERCE
+// ============================================
+
 let map;
 let marker;
+let accuracyCircle;
 let selectedLat = null;
 let selectedLng = null;
 let selectedAddressText = '';
 
+// Custom Marker Icon
+const customIcon = L.divIcon({
+    className: 'custom-marker',
+    html: '<div style="width: 40px; height: 40px; background: #1a1a1a; border: 3px solid #ffffff; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); display: flex; align-items: center; justify-content: center;"><div style="width: 12px; height: 12px; background: #ffffff; border-radius: 50%; transform: rotate(45deg);"></div></div>',
+    iconSize: [40, 40],
+    iconAnchor: [20, 40]
+});
+
+// ============================================
+// OPEN MAP MODAL
+// ============================================
 function openMapModal() {
     document.getElementById('mapModal').classList.add('active');
     document.body.style.overflow = 'hidden';
@@ -1234,11 +1250,17 @@ function openMapModal() {
     }, 300);
 }
 
+// ============================================
+// CLOSE MAP MODAL
+// ============================================
 function closeMapModal() {
     document.getElementById('mapModal').classList.remove('active');
     document.body.style.overflow = '';
 }
 
+// ============================================
+// INITIALIZE MAP WITH AUTO-LOCATION
+// ============================================
 function initializeMap() {
     if (map) {
         map.remove();
@@ -1246,138 +1268,462 @@ function initializeMap() {
     
     document.getElementById('mapLoading').classList.add('active');
     
-    // Default to India - Kochi coordinates
+    // Default to India - Kochi
     let defaultLat = 9.9312;
     let defaultLng = 76.2673;
     
-    // Initialize map
-    map = L.map('deliveryMap').setView([defaultLat, defaultLng], 13);
+    // Initialize map with better settings
+    map = L.map('deliveryMap', {
+        center: [defaultLat, defaultLng],
+        zoom: 13,
+        zoomControl: true,
+        attributionControl: true,
+        maxZoom: 19,
+        minZoom: 3
+    });
     
-    // Add OpenStreetMap tiles
+    // High-quality map tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors',
         maxZoom: 19
     }).addTo(map);
     
-    // Custom marker icon
-    const customIcon = L.divIcon({
-        className: 'custom-marker',
-        html: '<div style="width: 40px; height: 40px; background: #1a1a1a; border: 3px solid #ffffff; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); display: flex; align-items: center; justify-content: center;"><div style="width: 12px; height: 12px; background: #ffffff; border-radius: 50%; transform: rotate(45deg);"></div></div>',
-        iconSize: [40, 40],
-        iconAnchor: [20, 40]
-    });
-    
-    // Map click event
+    // Map click event - Manual selection
     map.on('click', function(e) {
         selectedLat = e.latlng.lat;
         selectedLng = e.latlng.lng;
         
-        // Remove existing marker
-        if (marker) {
-            map.removeLayer(marker);
-        }
+        // Remove existing markers
+        if (marker) map.removeLayer(marker);
+        if (accuracyCircle) map.removeLayer(accuracyCircle);
         
         // Add new marker
         marker = L.marker([selectedLat, selectedLng], { icon: customIcon }).addTo(map);
         
-        // Reverse geocode to get address
+        // Get address
         reverseGeocode(selectedLat, selectedLng);
         
         // Enable confirm button
         document.getElementById('confirmLocationBtn').disabled = false;
     });
     
-    // Try to get user's current location
+    // ✅ AUTO-GET CURRENT LOCATION ON MAP OPEN
     if (navigator.geolocation) {
+        const highAccuracyOptions = {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
+        };
+        
         navigator.geolocation.getCurrentPosition(
             function(position) {
                 const userLat = position.coords.latitude;
                 const userLng = position.coords.longitude;
-                map.setView([userLat, userLng], 15);
+                const accuracy = position.coords.accuracy;
+                
+                console.log(`📍 Auto-detected location: ${userLat}, ${userLng}`);
+                console.log(`🎯 Accuracy: ${Math.round(accuracy)} meters`);
+                
+                // Center map on user location with street-level zoom
+                map.setView([userLat, userLng], 18);
+                
+                // Add blue pulsing dot for current location
+                const currentLocationDot = L.circleMarker([userLat, userLng], {
+                    radius: 8,
+                    fillColor: '#4285F4',
+                    fillOpacity: 1,
+                    color: '#ffffff',
+                    weight: 3,
+                    className: 'pulsing-dot'
+                }).addTo(map);
+                
+                // Add accuracy circle
+                const autoAccuracyCircle = L.circle([userLat, userLng], {
+                    radius: accuracy,
+                    color: '#4285F4',
+                    fillColor: '#4285F4',
+                    fillOpacity: 0.15,
+                    weight: 2
+                }).addTo(map);
+                
+                document.getElementById('mapLoading').classList.remove('active');
+                
+                // Show accuracy alert if not precise
+                if (accuracy > 50) {
+                    setTimeout(() => {
+                        alert(`⚠️ Location accuracy: ${Math.round(accuracy)} meters\n\nFor better accuracy:\n• Enable GPS on your device\n• Move near a window\n• Click "Current Location" button again`);
+                    }, 500);
+                }
+            },
+            function(error) {
+                console.error('Auto-location error:', error);
                 document.getElementById('mapLoading').classList.remove('active');
             },
-            function() {
-                document.getElementById('mapLoading').classList.remove('active');
-            }
+            highAccuracyOptions
         );
     } else {
         document.getElementById('mapLoading').classList.remove('active');
     }
 }
 
+// ============================================
+// GET CURRENT LOCATION (HIGH ACCURACY)
+// ============================================
 function getCurrentLocation() {
     if (!navigator.geolocation) {
-        alert('Geolocation is not supported by your browser');
+        alert('❌ Geolocation is not supported by your browser');
         return;
     }
     
     document.getElementById('mapLoading').classList.add('active');
     
+    // ✅ MAXIMUM ACCURACY SETTINGS
+    const highAccuracyOptions = {
+        enableHighAccuracy: true,     // Use GPS
+        timeout: 15000,                // Wait 15 seconds
+        maximumAge: 0                  // No cached location
+    };
+    
     navigator.geolocation.getCurrentPosition(
         function(position) {
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
+            const accuracy = position.coords.accuracy;
+            const altitude = position.coords.altitude;
+            const heading = position.coords.heading;
+            const speed = position.coords.speed;
             
-            map.setView([lat, lng], 15);
+            console.log('📍 LOCATION DETAILS:');
+            console.log(`   Latitude: ${lat}`);
+            console.log(`   Longitude: ${lng}`);
+            console.log(`   Accuracy: ${Math.round(accuracy)} meters`);
+            console.log(`   Altitude: ${altitude} meters`);
+            console.log(`   Heading: ${heading}°`);
+            console.log(`   Speed: ${speed} m/s`);
             
+            // Remove existing markers
+            if (marker) map.removeLayer(marker);
+            if (accuracyCircle) map.removeLayer(accuracyCircle);
+            
+            // Set map view with street-level zoom
+            map.setView([lat, lng], 18);
+            
+            // Store coordinates
             selectedLat = lat;
             selectedLng = lng;
             
-            // Remove existing marker
-            if (marker) {
-                map.removeLayer(marker);
-            }
-            
             // Add marker
-            const customIcon = L.divIcon({
-                className: 'custom-marker',
-                html: '<div style="width: 40px; height: 40px; background: #1a1a1a; border: 3px solid #ffffff; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); display: flex; align-items: center; justify-content: center;"><div style="width: 12px; height: 12px; background: #ffffff; border-radius: 50%; transform: rotate(45deg);"></div></div>',
-                iconSize: [40, 40],
-                iconAnchor: [20, 40]
-            });
-            
             marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
             
+            // Add accuracy circle
+            accuracyCircle = L.circle([lat, lng], {
+                radius: accuracy,
+                color: '#4285F4',
+                fillColor: '#4285F4',
+                fillOpacity: 0.2,
+                weight: 2,
+                dashArray: '5, 5'
+            }).addTo(map);
+            
+            // Add tooltip with accuracy
+            marker.bindTooltip(`Accuracy: ±${Math.round(accuracy)}m`, {
+                permanent: false,
+                direction: 'top'
+            });
+            
+            // Get address
             reverseGeocode(lat, lng);
+            
+            // Enable confirm button
             document.getElementById('confirmLocationBtn').disabled = false;
+            
             document.getElementById('mapLoading').classList.remove('active');
+            
+            // Show accuracy feedback
+            if (accuracy <= 20) {
+                showNotification('✅ Excellent accuracy!', 'success');
+            } else if (accuracy <= 50) {
+                showNotification('👍 Good accuracy', 'success');
+            } else if (accuracy <= 100) {
+                showNotification('⚠️ Moderate accuracy. Move near a window for better results.', 'warning');
+            } else {
+                showNotification(`⚠️ Low accuracy (±${Math.round(accuracy)}m). Enable GPS and try again.`, 'warning');
+            }
         },
         function(error) {
-            alert('Unable to get your location: ' + error.message);
+            let errorMessage = '';
+            
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMessage = "❌ Location Access Denied\n\nPlease enable location permissions:\n\n1. Click the lock icon in your browser's address bar\n2. Allow location access\n3. Refresh the page";
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMessage = "❌ Location Unavailable\n\nTips:\n• Enable GPS on your device\n• Move to an area with better signal\n• Try again in a few seconds";
+                    break;
+                case error.TIMEOUT:
+                    errorMessage = "❌ Location Request Timed Out\n\nPlease try again. Make sure:\n• GPS is enabled\n• You're in an area with good signal";
+                    break;
+                default:
+                    errorMessage = `❌ Error: ${error.message}`;
+            }
+            
+            alert(errorMessage);
             document.getElementById('mapLoading').classList.remove('active');
-        }
+        },
+        highAccuracyOptions
     );
 }
 
+// ============================================
+// REVERSE GEOCODING (GET ADDRESS FROM COORDINATES)
+// ============================================
 function reverseGeocode(lat, lng) {
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+    // Use zoom=18 for maximum detail
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`)
         .then(response => response.json())
         .then(data => {
-            selectedAddressText = data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            console.log('📬 Geocode response:', data);
+            
+            // Build detailed address
+            let addressParts = [];
+            
+            if (data.address) {
+                // House number + Road
+                if (data.address.house_number) addressParts.push(data.address.house_number);
+                if (data.address.road) addressParts.push(data.address.road);
+                
+                // Neighborhood/Area
+                if (data.address.neighbourhood) {
+                    addressParts.push(data.address.neighbourhood);
+                } else if (data.address.suburb) {
+                    addressParts.push(data.address.suburb);
+                } else if (data.address.hamlet) {
+                    addressParts.push(data.address.hamlet);
+                }
+                
+                // City
+                if (data.address.city) {
+                    addressParts.push(data.address.city);
+                } else if (data.address.town) {
+                    addressParts.push(data.address.town);
+                } else if (data.address.village) {
+                    addressParts.push(data.address.village);
+                }
+                
+                // State + Postal
+                if (data.address.state) addressParts.push(data.address.state);
+                if (data.address.postcode) addressParts.push(data.address.postcode);
+            }
+            
+            selectedAddressText = addressParts.length > 0 
+                ? addressParts.join(', ') 
+                : data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            
+            // Update UI
             document.getElementById('selectedAddress').textContent = selectedAddressText;
-            document.getElementById('selectedCoords').textContent = `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`;
+            document.getElementById('selectedCoords').textContent = `📍 Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`;
             
             // Auto-fill form fields
             if (data.address) {
-                if (data.address.road || data.address.suburb) {
-                    document.getElementById('address_line').value = 
-                        (data.address.road || '') + (data.address.suburb ? ', ' + data.address.suburb : '');
+                // Street address
+                let streetParts = [];
+                if (data.address.house_number) streetParts.push(data.address.house_number);
+                if (data.address.road) streetParts.push(data.address.road);
+                if (data.address.neighbourhood) streetParts.push(data.address.neighbourhood);
+                
+                if (streetParts.length > 0) {
+                    document.getElementById('address_line').value = streetParts.join(', ');
                 }
-                if (data.address.city || data.address.town || data.address.village) {
-                    document.getElementById('city').value = 
-                        data.address.city || data.address.town || data.address.village || '';
+                
+                // City
+                const city = data.address.city || data.address.town || data.address.village || '';
+                if (city) {
+                    document.getElementById('city').value = city;
                 }
+                
+                // Postal code
                 if (data.address.postcode) {
                     document.getElementById('postal_code').value = data.address.postcode;
                 }
             }
         })
         .catch(error => {
+            console.error('Geocoding error:', error);
             selectedAddressText = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
             document.getElementById('selectedAddress').textContent = selectedAddressText;
-            document.getElementById('selectedCoords').textContent = `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`;
+            document.getElementById('selectedCoords').textContent = `📍 Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`;
         });
 }
+
+// ============================================
+// CONFIRM LOCATION
+// ============================================
+function confirmLocation() {
+    if (!selectedLat || !selectedLng) {
+        alert('❌ Please select a location on the map first');
+        return;
+    }
+    
+    // Update hidden form inputs
+    document.getElementById('delivery_latitude').value = selectedLat;
+    document.getElementById('delivery_longitude').value = selectedLng;
+    
+    // Update display box
+    document.getElementById('displayAddress').textContent = selectedAddressText;
+    document.getElementById('displayCoords').textContent = `📍 Lat: ${selectedLat.toFixed(6)}, Lng: ${selectedLng.toFixed(6)}`;
+    document.getElementById('selectedLocationDisplay').classList.add('active');
+    
+    // Close modal
+    closeMapModal();
+    
+    showNotification('✅ Location confirmed successfully!', 'success');
+}
+
+// ============================================
+// SEARCH LOCATION
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('mapSearchInput');
+    
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const query = this.value.trim();
+                if (!query) return;
+                
+                document.getElementById('mapLoading').classList.add('active');
+                
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.length > 0) {
+                            const result = data[0];
+                            const lat = parseFloat(result.lat);
+                            const lng = parseFloat(result.lon);
+                            
+                            // Remove existing markers
+                            if (marker) map.removeLayer(marker);
+                            if (accuracyCircle) map.removeLayer(accuracyCircle);
+                            
+                            // Set map view
+                            map.setView([lat, lng], 18);
+                            
+                            // Store coordinates
+                            selectedLat = lat;
+                            selectedLng = lng;
+                            
+                            // Add marker
+                            marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
+                            
+                            // Get address
+                            reverseGeocode(lat, lng);
+                            
+                            // Enable confirm button
+                            document.getElementById('confirmLocationBtn').disabled = false;
+                            
+                            showNotification('✅ Location found!', 'success');
+                        } else {
+                            alert('❌ Location not found. Try a different search term.');
+                        }
+                        document.getElementById('mapLoading').classList.remove('active');
+                    })
+                    .catch(error => {
+                        console.error('Search error:', error);
+                        alert('❌ Search failed. Please try again.');
+                        document.getElementById('mapLoading').classList.remove('active');
+                    });
+            }
+        });
+    }
+});
+
+// ============================================
+// NOTIFICATION SYSTEM
+// ============================================
+function showNotification(message, type) {
+    // Create notification element if it doesn't exist
+    let notification = document.getElementById('locationNotification');
+    
+    if (!notification) {
+        notification = document.createElement('div');
+        notification.id = 'locationNotification';
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 100002;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+            animation: slideIn 0.3s ease;
+        `;
+        document.body.appendChild(notification);
+    }
+    
+    // Set color based on type
+    const colors = {
+        success: '#4caf50',
+        warning: '#ff9800',
+        error: '#f44336'
+    };
+    
+    notification.style.borderLeft = `4px solid ${colors[type] || colors.success}`;
+    notification.textContent = message;
+    notification.style.display = 'block';
+    
+    // Auto-hide after 3 seconds
+    setTimeout(() => {
+        notification.style.display = 'none';
+    }, 3000);
+}
+
+// ============================================
+// ESCAPE KEY TO CLOSE MODAL
+// ============================================
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        if (document.getElementById('mapModal').classList.contains('active')) {
+            closeMapModal();
+        }
+    }
+});
+
+// ============================================
+// CSS FOR PULSING DOT ANIMATION
+// ============================================
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    .pulsing-dot {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        50% {
+            transform: scale(1.2);
+            opacity: 0.7;
+        }
+    }
+`;
+document.head.appendChild(style);
 
 function confirmLocation() {
     if (!selectedLat || !selectedLng) {
