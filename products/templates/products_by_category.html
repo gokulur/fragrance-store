@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
+<title>{% block title %}{% if collection %}{{ collection.name }}{% else %}{{ category.name }}{% endif %}{% endblock %}</title>
 <main class="content-for-layout focus-none" id="xo-main-content" role="main" tabindex="-1">
     <div class="shopify-section" id="shopify-section-template--19284045103294__collection-title">
         <section class="xo-section xo-section--template--19284045103294__collection-title color-inverse" style="--bg-color: #f3f3f3;--margin: 0;--pt: 110;--pb: 110;--pt-mobile:50px; --pb-mobile:50px;">

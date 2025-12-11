@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
+<title>{% block title %}{{ product.name }}{% endblock %}</title>
 {% load static %}
 <style>
     .shopify-payment-button__button {
