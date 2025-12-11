@@ -459,7 +459,7 @@
             <p>{{ item.quantity }}</p>
             <p class="item-description">{{ item.product.name }}</p>
             <p>₹{{ item.price|floatformat:2 }}</p>
-            <p><strong>${{ item.get_total|floatformat:2 }}</strong></p>
+            <p><strong>₹{{ item.get_total|floatformat:2 }}</strong></p>
           </div>
           {% empty %}
           <div class="item-row">
