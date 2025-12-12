@@ -166,12 +166,21 @@
   <h1>Login</h1>
   <form method="POST" action="{% url 'login_action' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}">
     {% csrf_token %}
+    
+    <!-- Hidden field to preserve 'next' parameter on POST -->
+    {% if request.GET.next %}
+    <input type="hidden" name="next" value="{{ request.GET.next }}">
+    {% endif %}
+    
     <label for="username">Email:</label>
     <input type="email" name="username" id="username" placeholder="example@email.com" required />
+    
     <label for="password">Password:</label>
     <input type="password" name="password" id="password" required />
+    
     <a href="{% url 'register_page' %}">Don't have an account? Register here</a> <br>
     <a href="{% url 'password_reset_page' %}">Forgot Password?</a> <br><br>
+    
     <input type="submit" value="Login">
   </form>
 </div>

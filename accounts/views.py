@@ -106,12 +106,18 @@ def login_action(request):
         email = request.POST.get('username')
         password = request.POST.get('password')
         
+        # Preserve the 'next' parameter from either GET or POST
+        next_url = request.POST.get('next') or request.GET.get('next')
+        
         # Try to find user by email
         try:
             user_obj = User.objects.get(email=email)
             username = user_obj.username
         except User.DoesNotExist:
             messages.error(request, "No account found with this email!")
+            # Redirect back to login with 'next' parameter preserved
+            if next_url:
+                return redirect(f"{reverse('login_page')}?next={next_url}")
             return redirect('login_page')
         
         # Authenticate
@@ -121,11 +127,9 @@ def login_action(request):
             login(request, user)
             messages.success(request, f"Welcome {user.first_name or user.username}!")
             
-            # Check for 'next' parameter (for redirects after login)
-            next_url = request.GET.get('next') or request.POST.get('next')
-            
+            # Check for 'next' parameter (prioritize POST, then GET)
             if next_url:
-                # User came from a protected page
+                # User came from a protected page or buy_now
                 return redirect(next_url)
             
             # Default redirects based on role
@@ -135,6 +139,9 @@ def login_action(request):
                 return redirect('all_collections')
         else:
             messages.error(request, "Invalid email or password!")
+            # Redirect back to login with 'next' parameter preserved
+            if next_url:
+                return redirect(f"{reverse('login_page')}?next={next_url}")
             return redirect('login_page')
     
     return redirect('login_page')
