@@ -177,94 +177,113 @@
     </div>
 
     <!-- Orders Table Card -->
-    <div class="row">
-      <div class="col-lg-12 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body">
-            <h4 class="card-title">All Orders</h4>
-            <div class="table-responsive">
-              <table id="ordersTable" class="table table-hover">
-                <thead>
-                  <tr>
-                    <th>ORDER ID</th>
-                    <th>CUSTOMER</th>
-                    <th>CONTACT</th>
-                    <th>ADDRESS</th>
-                    <th>ITEMS</th>
-                    <th>AMOUNT</th>
-                    <th>DATE</th>
-                    <th>STATUS</th>
-                    <th class="no-print">ACTIONS</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for o in orders %}
-                  <tr class="order-row" data-status="{{ o.status }}">
-                    <td>
-                      <label class="badge badge-gradient-info">#{{ o.order_id }}</label>
-                    </td>
-                    <td>
-                      <div>
-                        <strong>{{ o.user.username }}</strong><br>
-                        <small class="text-muted">{{ o.user.email|truncatechars:25 }}</small>
-                      </div>
-                    </td>
-                    <td>
-                      <i class="mdi mdi-phone text-success"></i>
-                      {% if o.shippingaddress.phone %}
-                        {{ o.shippingaddress.phone }}
-                      {% elif o.user.profile.phone %}
-                        {{ o.user.profile.phone }}
-                      {% else %}
-                        N/A
-                      {% endif %}
-                    </td>
-                    <td>
-                      <strong>{{ o.shippingaddress.full_name|default:o.user.username|truncatechars:20 }}</strong><br>
-                      <small class="text-muted">{{ o.shippingaddress.city|default:"N/A" }}, {{ o.shippingaddress.country|default:"N/A" }}</small>
-                    </td>
-                    <td class="text-center">
-                      <label class="badge badge-info">{{ o.total_quantity }}</label>
-
-                    </td>
-                    <td>
-                      <strong class="text-success">₹{{ o.total_price|floatformat:2 }}</strong>
-                    </td>
-                    <td>
-                      {{ o.created_at|date:"M d, Y" }}<br>
-                      <small class="text-muted">{{ o.created_at|date:"h:i A" }}</small>
-                    </td>
-                    <td>
-                      <form method="POST" action="{% url 'update_status_inline' o.order_id %}" style="display: inline;">
-                        {% csrf_token %}
-                        <select name="status" class="status-select" onchange="this.form.submit()">
-                          <option value="processing" {% if o.status == 'processing' %}selected{% endif %}>🔄 Processing</option>
-                          <option value="shipped" {% if o.status == 'shipped' %}selected{% endif %}>🚚 Shipped</option>
-                          <option value="delivered" {% if o.status == 'delivered' %}selected{% endif %}>✅ Delivered</option>
-                        </select>
-                      </form>
-                    </td>
-                    <td class="no-print">
-                      <button class="btn btn-sm btn-gradient-primary" data-toggle="modal" data-target="#orderModal-{{ o.id }}">
-                        <i class="mdi mdi-eye"></i> View
-                      </button>
-                    </td>
-                  </tr>
-                  {% empty %}
-                  <tr>
-                    <td colspan="9" class="text-center text-muted py-4">
-                      <i class="mdi mdi-cart-off mdi-36px"></i>
-                      <p>No orders found</p>
-                    </td>
-                  </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
-          </div>
+   <div class="row">
+  <div class="col-lg-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">All Orders</h4>
+        <div class="table-responsive">
+          <table id="ordersTable" class="table table-hover">
+            <thead>
+              <tr>
+                <th>ORDER ID</th>
+                <th>CUSTOMER</th>
+                <th>CONTACT</th>
+                <th>ADDRESS</th>
+                <th>ITEMS</th>
+                <th>AMOUNT</th>
+                <th>ORDER DATE</th>
+                <th>DELIVERED DATE</th>
+                <th>STATUS</th>
+                <th class="no-print">ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for o in orders %}
+              <tr class="order-row" data-status="{{ o.status }}">
+                <td>
+                  <label class="badge badge-gradient-info">#{{ o.order_id }}</label>
+                </td>
+                <td>
+                  <div>
+                    <strong>{{ o.user.username }}</strong><br>
+                    <small class="text-muted">{{ o.user.email|truncatechars:25 }}</small>
+                  </div>
+                </td>
+                <td>
+                  <i class="mdi mdi-phone text-success"></i>
+                  {% if o.shippingaddress.phone %}
+                    {{ o.shippingaddress.phone }}
+                  {% elif o.user.profile.phone %}
+                    {{ o.user.profile.phone }}
+                  {% else %}
+                    N/A
+                  {% endif %}
+                </td>
+                <td>
+                  <strong>{{ o.shippingaddress.full_name|default:o.user.username|truncatechars:20 }}</strong><br>
+                  <small class="text-muted">{{ o.shippingaddress.city|default:"N/A" }}, {{ o.shippingaddress.country|default:"N/A" }}</small>
+                </td>
+                <td class="text-center">
+                  <label class="badge badge-info">{{ o.total_quantity }}</label>
+                </td>
+                <td>
+                  <strong class="text-success">₹{{ o.total_price|floatformat:2 }}</strong>
+                </td>
+                <td>
+                  {{ o.created_at|date:"M d, Y" }}<br>
+                  <small class="text-muted">{{ o.created_at|date:"h:i A" }}</small>
+                </td>
+                <td>
+                  {% if o.status == 'delivered' and o.delivered_at %}
+                    <!-- Show actual delivered date/time -->
+                    <span class="text-success">
+                      {{ o.delivered_at|date:"M d, Y" }}<br>
+                      <small>{{ o.delivered_at|date:"h:i A" }}</small>
+                    </span>
+                  {% elif o.status == 'shipped' %}
+                    <!-- Show "In Transit" for shipped orders -->
+                    <span class="text-warning">
+                      <i class="mdi mdi-truck-fast"></i> In Transit
+                    </span>
+                  {% else %}
+                    <!-- Show "Pending" for processing orders -->
+                    <span class="text-muted">
+                      <i class="mdi mdi-clock-outline"></i> Pending
+                    </span>
+                  {% endif %}
+                </td>
+                <td>
+                  <form method="POST" action="{% url 'update_status_inline' o.order_id %}" style="display: inline;">
+                    {% csrf_token %}
+                    <select name="status" class="status-select" onchange="this.form.submit()">
+                      <option value="processing" {% if o.status == 'processing' %}selected{% endif %}>🔄 Processing</option>
+                      <option value="shipped" {% if o.status == 'shipped' %}selected{% endif %}>🚚 Shipped</option>
+                      <option value="delivered" {% if o.status == 'delivered' %}selected{% endif %}>✅ Delivered</option>
+                    </select>
+                  </form>
+                </td>
+                <td class="no-print">
+                  <button class="btn btn-sm btn-gradient-primary" data-toggle="modal" data-target="#orderModal-{{ o.id }}">
+                    <i class="mdi mdi-eye"></i> View
+                  </button>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="10" class="text-center text-muted py-4">
+                  <i class="mdi mdi-cart-off mdi-36px"></i>
+                  <p>No orders found</p>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
+  </div>
+</div>
 
     <!-- ORDER DETAIL MODALS -->
     {% for o in orders %}
